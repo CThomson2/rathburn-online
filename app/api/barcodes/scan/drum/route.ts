@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/database/client";
+import { prisma } from "../../../../../database";
+import { drumEvents } from "../../../../../lib/events/drumEvents";
 import { z } from "zod";
-import { drumEvents } from "@/lib/events/drumEvents";
 // import { sendOrderCompleteNotification } from "@/lib/email/orderNotifications";
 import type { Order } from "@/types/database/inventory/orders";
 
 /**
- * Zod schema for the barcode data format
+ qw* Zod schema for the barcode data format
  * e.g. "52-H1024" or "52-H1024 2024/01/22 08:31:59"
  */
 const barcodeSchema = z.object({

@@ -1,4 +1,4 @@
-import { drumEvents } from "@/lib/events/drumEvents";
+import { drumEvents } from "../../../../../lib/events/drumEvents";
 import { NextRequest } from "next/server";
 
 // Tells Next.js to never cache this route and always fetch fresh data

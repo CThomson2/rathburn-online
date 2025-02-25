@@ -1,8 +1,11 @@
 // /app/api/barcodes/[orderId]/route.ts
 import { NextResponse } from "next/server";
-import { prisma } from "@/database/client";
+import { prisma } from "../../../../../database";
 import bwipjs from "bwip-js";
 import { PDFDocument, StandardFonts } from "pdf-lib";
+
+// Force dynamic rendering for this route
+export const dynamic = "force-dynamic";
 
 // For convenience, helper to convert inches to PDF points (72pt = 1in)
 const inchesToPoints = (inches: number) => inches * 72;
