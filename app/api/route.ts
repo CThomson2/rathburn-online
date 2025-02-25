@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/database/client";
 
 export async function GET() {
   // Log to server console

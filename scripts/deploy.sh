@@ -21,25 +21,33 @@ ssh -i "$EC2_KEY" $EC2_USER@$EC2_HOST << 'EOF'
     echo "Connected to EC2, navigating to project directory..."
     cd /home/ec2-user/rathburn-online
 
+    git config alias.st status;
+    git config alias.cm commit;
+    git config alias.co checkout;
+    git config alias.br branch;
+    git config alias.pl pull;
+    git config alias.ps push;
+    git config alias.lg log;
+
     echo "Terminating PM2...";
-    pm2 stop db-app;
-    pm2 delete db-app;
-    
-    echo "Pulling latest changes from Git..."
-    git pull origin main
-    
-    echo "Installing dependencies..."
-    npm install --omit=dev --omit=optional
-    
-    echo "Building application..."
-    npm run build
-    
-    echo "Copying .env file to standalone directory..."
-    cp .env .next/standalone/
-    
-    echo "Starting application with PM2 using ecosystem config..."
-    pm2 start ecosystem.config.js
-    pm2 save
+    pm2 stop rathburn-online;
+    pm2 delete rathburn-online;
+
+    echo "Pulling latest changes from Git...";
+    git pull origin main;
+
+    echo "Installing dependencies...";
+    npm install --omit=dev --omit=optional;
+
+    echo "Building application...";
+    npm run build;
+
+    echo "Copying .env file to standalone directory...";
+    cp .env .next/standalone/;
+
+    echo "Starting application with PM2 using ecosystem config...";
+    pm2 start ecosystem.config.js;
+    pm2 save;
 EOF
 
 echo "Deployment complete!"

@@ -1,9 +1,24 @@
-const { SerialPort, ReadlineParser } = require("serialport");
-const fs = require("fs");
-const axios = require("axios");
+import { SerialPort, ReadlineParser } from "serialport";
+import fs from "fs";
+import { api } from "../api-client";
 
-// Configuration
-const API_ENDPOINT = "http://localhost:3000/api/barcodes/scan"; // Replace with your actual Next.js API endpoint
+// Define interfaces for API responses and requests
+interface ScanResponse {
+  success: boolean;
+  data?: {
+    drum_id: number;
+    order_id: number;
+    old_status: string;
+    new_status?: string;
+    message: string;
+  };
+  message?: string;
+}
+
+interface ScanRequest {
+  barcode: string;
+  timestamp: string;
+}
 
 console.log("Starting serial port setup...");
 
@@ -16,31 +31,40 @@ const port = new SerialPort({
 console.log("Serial port created");
 
 // Create a parser to read data from the serial port, using a carriage return as the delimiter
-const parser = port.pipe(new ReadlineParser({ delimiter: "\r" }));
+const parser = new ReadlineParser({ delimiter: "\r" });
+port.pipe(parser as unknown as NodeJS.WritableStream);
 
 console.log("Parser created");
 
 // Variable to store the last scanned data
-let lastScan = null;
+let lastScan: string | null = null;
 
 /**
  * Sends scanned data to the specified API endpoint.
  * @param {string} data - The scanned barcode data to be sent.
  */
-async function sendDataToAPI(data) {
+async function sendDataToAPI(data: string): Promise<void> {
   try {
-    const response = await axios.post(API_ENDPOINT, {
+    const requestBody: ScanRequest = {
       barcode: data,
       timestamp: new Date().toISOString(),
-    });
-    console.log("Successfully sent to API:", response.status);
+    };
+
+    const response = await api.post<ScanResponse>(
+      "/barcodes/scan/drum",
+      requestBody
+    );
+    console.log("Successfully sent to API:", response);
   } catch (error) {
-    console.error("Error sending to API:", API_ENDPOINT, error.message);
+    console.error(
+      "Error sending to API:",
+      error instanceof Error ? error.message : String(error)
+    );
   }
 }
 
 // Event listener for incoming data from the serial port
-parser.on("data", async (data) => {
+parser.on("data", async (data: string) => {
   // Trim the received data and store it
   lastScan = data.trim();
   console.log(`Scanned Data (trimmed): ${lastScan}`); // Log the trimmed data
@@ -59,7 +83,7 @@ parser.on("data", async (data) => {
 });
 
 // Error handling for the serial port
-port.on("error", (err) => {
+port.on("error", (err: Error) => {
   console.error("Serial Port Error:", err);
 });
 
@@ -69,11 +93,11 @@ port.on("open", () => {
 });
 
 // Error handling for the parser
-parser.on("error", (err) => {
+parser.on("error", (err: Error) => {
   console.error("Parser Error:", err);
 });
 
 // Global error handler for uncaught exceptions
-process.on("uncaughtException", (err) => {
+process.on("uncaughtException", (err: Error) => {
   console.error("Uncaught Exception:", err);
 });
