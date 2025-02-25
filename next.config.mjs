@@ -1,6 +1,11 @@
 import { withSentryConfig } from "@sentry/nextjs";
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  // Add these settings to ensure API routes work properly
+  reactStrictMode: true,
+  // Ensure no static export is attempted for API routes
+  output: "standalone",
+};
 
 export default withSentryConfig(
   withSentryConfig(
