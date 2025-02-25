@@ -11,6 +11,7 @@ import { cn } from "@/utils/cn";
  * @component
  * @example
  * ```tsx
+ *
  * <ViewToggle />
  * ```
  */

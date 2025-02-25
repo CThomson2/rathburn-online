@@ -3,6 +3,9 @@
 import { Star } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { useDashboard } from "../context/dashboard-context";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 /**
  * Props for the BaseWidget component.
@@ -14,8 +17,8 @@ import { useDashboard } from "../context/dashboard-context";
 interface BaseWidgetProps {
   id: string;
   title: string;
-  className?: string;
   children: React.ReactNode;
+  className?: string;
 }
 
 /**
@@ -27,56 +30,61 @@ interface BaseWidgetProps {
 export function BaseWidget({
   id,
   title,
-  className,
   children,
+  className,
 }: BaseWidgetProps): JSX.Element {
   const { toggleFavorite, isFavorited } = useDashboard();
   const favorited = isFavorited(id);
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   return (
     <div
-      className={cn(
-        // Base styles
-        "rounded-lg border bg-card text-card-foreground",
-        // Light mode styles
-        "bg-gradient-to-b from-white to-gray-50/80",
-        "border-gray-200/50",
-        // Dark mode styles
-        "dark:from-slate-950/50 dark:to-slate-950/80",
-        "dark:border-slate-800/50",
-        // Shadow and glass effect
-        "shadow-[0_8px_30px_rgb(0,0,0,0.07)]",
-        "backdrop-blur-[2px]",
-        // Hover effects
-        "hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]",
-        "dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)]",
-        "hover:border-gray-300/50 dark:hover:border-slate-700/50",
-        // Animation
-        "transition-all duration-300",
-        className
-      )}
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={cn("group relative", isDragging ? "z-50" : "z-0", className)}
     >
-      <div
+      <div className="absolute inset-0 bg-gradient-to-br from-background/50 via-background to-background rounded-2xl transition-all duration-300 group-hover:opacity-75" />
+      <Card
         className={cn(
-          "flex items-center justify-between p-4 pb-2",
-          "bg-gradient-to-b from-gray-50/50 to-transparent",
-          "dark:from-slate-900/50 dark:to-transparent"
+          // Base Styles & Theme Classes
+          "relative overflow-hidden backdrop-blur-sm bg-card/95 dark:bg-card/90",
+          "border border-border/50",
+          "shadow-[0_8px_16px_rgb(0_0_0/0.08)] dark:shadow-[0_8px_16px_rgb(0_0_0/0.25)]",
+          "transition-all duration-300",
+          // Hover Effects
+          "hover:shadow-[0_12px_24px_rgb(0_0_0/0.12)] dark:hover:shadow-[0_12px_24px_rgb(0_0_0/0.35)]",
+          "hover:border-primary/20 dark:hover:border-primary/20",
+          // Transition
+          "hover:-translate-y-1",
+          isDragging && "shadow-2xl scale-105"
         )}
       >
-        <h3 className="text-lg font-semibold">{title}</h3>
-        <button
-          onClick={() => toggleFavorite(id)}
-          className="text-muted-foreground hover:text-primary transition-colors"
-        >
-          <Star
-            className={cn("h-5 w-5", favorited && "fill-current text-primary")}
-          />
-          <span className="sr-only">
-            {favorited ? "Remove from favorites" : "Add to favorites"}
-          </span>
-        </button>
-      </div>
-      <div className="p-4 pt-0">{children}</div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/0 dark:from-primary/10 dark:to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <CardHeader className="relative">
+          <CardTitle className="text-lg font-semibold tracking-tight">
+            {title}
+          </CardTitle>
+          <div className="absolute top-2 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="h-1.5 w-1.5 rounded-full bg-primary/50 dark:bg-primary/70" />
+          </div>
+        </CardHeader>
+        <div className="p-4 pt-0">{children}</div>
+      </Card>
     </div>
   );
 }

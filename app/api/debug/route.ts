@@ -42,7 +42,7 @@ export async function GET() {
         "[REDACTED]"
       : undefined,
     DATABASE_URL: process.env.DATABASE_URL
-      ? process.env.DATABASE_URL.replace(/:(.{0,5})[^:@]+@/, ":$1[REDACTED]@")
+      ? process.env.DATABASE_URL.replace(/:(.{0,5})[^:@]+@/, ":[REDACTED]@")
       : undefined,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     DATABASE_POOL_SIZE: process.env.DATABASE_POOL_SIZE,

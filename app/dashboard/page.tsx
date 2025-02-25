@@ -1,4 +1,5 @@
-import { paths } from "@/config/paths";
+"use client";
+
 import { DashboardContent } from "./_components/content";
 import { DashboardProvider } from "@/features/dashboard/context/dashboard-context";
 

@@ -1,3 +1,4 @@
+"use client";
 // Import statements
 import { useNotifications } from "@/components/ui/notifications";
 import { env } from "@/config/env";

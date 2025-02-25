@@ -22,6 +22,8 @@ function createEnv(): Record<string, string> {
     DATABASE_URL: process.env.DATABASE_URL,
   };
 
+  console.log(envVars);
+
   const parsedEnv = EnvSchema.safeParse(envVars);
 
   if (!parsedEnv.success) {

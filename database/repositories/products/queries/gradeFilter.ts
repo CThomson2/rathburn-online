@@ -1,6 +1,5 @@
 // database/repositories/products/queries.ts
 import { prisma } from "@/database/client";
-import type { ProductTableRow } from "@/types/database/public/products";
 import { Grade } from "@/types/constant/public/products";
 import type { GradeType } from "@/types/constant/public/products";
 

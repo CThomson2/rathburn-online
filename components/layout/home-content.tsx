@@ -19,6 +19,7 @@ const GridCell = ({
   variant = "primary",
 }: GridCellProps) => {
   const Wrapper = href ? motion.a : motion.div;
+  const isDisabled = href === "#";
 
   const variantStyles = {
     primary: "bg-white dark:bg-gray-800",
@@ -28,18 +29,23 @@ const GridCell = ({
 
   return (
     <Wrapper
-      href={href}
+      href={isDisabled ? undefined : href}
       className={`
         flex flex-col justify-center items-center p-6
         ${variantStyles[variant]}
         rounded-xl
         border border-gray-100 dark:border-gray-700
         transition-all duration-300 ease-in-out
-        ${href ? "hover:scale-[1.02] hover:shadow-lg cursor-pointer" : ""}
+        ${isDisabled ? "opacity-60 bg-gray-100 dark:bg-gray-600" : ""}
+        ${
+          !isDisabled && href
+            ? "hover:scale-[1.02] hover:shadow-lg cursor-pointer"
+            : ""
+        }
         ${className}
       `}
-      whileHover={{ y: -2 }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={isDisabled ? {} : { y: -2 }}
+      whileTap={isDisabled ? {} : { scale: 0.98 }}
     >
       <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
         {title}
@@ -53,6 +59,56 @@ const GridCell = ({
   );
 };
 
+// Grid data structure
+interface GridSectionItem {
+  title: string;
+  href: string;
+  variant?: "primary" | "secondary" | "tertiary";
+}
+
+interface GridSection {
+  title: string;
+  href: string;
+  className?: string;
+  items: GridSectionItem[];
+}
+
+const gridSections: GridSection[] = [
+  {
+    title: "DASHBOARD",
+    href: "/dashboard",
+    className: "col-span-3",
+    items: [
+      { title: "STOCK REPORTS", href: "#", variant: "secondary" },
+      { title: "PRODUCTION ANALYTICS", href: "#", variant: "secondary" },
+      { title: "SALES & TAX", href: "#", variant: "secondary" },
+    ],
+  },
+  {
+    title: "RAW MATERIALS",
+    href: "/inventory",
+    className: "col-span-3",
+    items: [
+      { title: "NEW ORDER", href: "/inventory/orders/create" },
+      { title: "INVENTORY MANAGEMENT", href: "/inventory/activity" },
+      { title: "REPRO DRUMS", href: "/materials/repro" },
+    ],
+  },
+  {
+    title: "REFERENCE INFO",
+    href: "/reference",
+    className: "col-span-3",
+    items: [
+      { title: "PRODUCT RANGE", href: "#" },
+      { title: "MATERIALS", href: "#" },
+      { title: "SUPPLIERS", href: "#" },
+      // { title: "PRODUCT RANGE", href: "/reference/product-range" },
+      // { title: "MATERIALS", href: "/reference/materials" },
+      // { title: "SUPPLIERS", href: "/reference/suppliers" },
+    ],
+  },
+];
+
 export function HomeContent() {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
@@ -62,62 +118,25 @@ export function HomeContent() {
         </h1>
 
         <div className="space-y-8">
-          {/* Dashboard Section */}
-          <div className="space-y-0">
-            <GridCell
-              title="DASHBOARD"
-              href="/dashboard"
-              className="col-span-3"
-            />
-            <div className="grid grid-cols-3 gap-4 mt-1">
+          {gridSections.map((section, index) => (
+            <div key={index} className="space-y-1">
               <GridCell
-                title="STOCK REPORTS"
-                href="/dashboard/stock"
-                variant="secondary"
+                title={section.title}
+                href={section.href}
+                className={section.className}
               />
-              <GridCell
-                title="PRODUCTION ANALYTICS"
-                href="/dashboard/production"
-                variant="secondary"
-              />
-              <GridCell
-                title="SALES & TAX"
-                href="/dashboard/sales"
-                variant="secondary"
-              />
+              <div className="grid grid-cols-3 gap-4">
+                {section.items.map((item, itemIndex) => (
+                  <GridCell
+                    key={itemIndex}
+                    title={item.title}
+                    href={item.href}
+                    variant={item.variant}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-
-          {/* Raw Materials Section */}
-          <div className="space-y-1">
-            <GridCell
-              title="RAW MATERIALS"
-              href="/materials"
-              className="col-span-3"
-            />
-            <div className="grid grid-cols-3 gap-4">
-              <GridCell title="NEW ORDER" href="/materials/order" />
-              <GridCell
-                title="INVENTORY MANAGEMENT"
-                href="/materials/inventory"
-              />
-              <GridCell title="REPRO DRUMS" href="/materials/repro" />
-            </div>
-          </div>
-
-          {/* Reference Section */}
-          <div className="space-y-1">
-            <GridCell
-              title="REFERENCE INFO"
-              href="/reference"
-              className="col-span-3"
-            />
-            <div className="grid grid-cols-3 gap-4">
-              <GridCell title="PRODUCT RANGE" href="/reference/products" />
-              <GridCell title="MATERIALS" href="/reference/materials" />
-              <GridCell title="SUPPLIERS" href="/reference/suppliers" />
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>
