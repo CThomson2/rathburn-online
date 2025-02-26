@@ -72,7 +72,7 @@ const OrdersGrid = () => {
     queryKey: ["orders", pageIndex, pageSize],
     queryFn: async () => {
       const response = await fetch(
-        `/api/inventory/orders?page=${pageIndex + 1}&limit=${pageSize}`
+        `/api/orders?page=${pageIndex + 1}&limit=${pageSize}`
       );
       if (!response.ok) throw new Error("Failed to fetch orders");
       const data: OrderGetResponse = await response.json();
@@ -108,7 +108,7 @@ const OrdersGrid = () => {
     const maxRetries = 3;
 
     function setupEventSource() {
-      eventSource = new EventSource("/api/orders/sse");
+      eventSource = new EventSource("/api/barcodes/sse/orders");
       console.log("Establishing SSE connection...");
 
       eventSource.addEventListener("connected", (event) => {
@@ -181,7 +181,7 @@ const OrdersGrid = () => {
   /*
   const mutation = useMutation<OrderGetResponse, Error, NewOrder>({
     mutationFn: async (newOrder) => {
-      const response = await fetch("/api/inventory/orders", {
+      const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newOrder),
@@ -246,10 +246,10 @@ const OrdersGrid = () => {
           </Link>
         </div>
         <div className="flex-row gap-4 hidden lg:flex">
-          <Link href="/inventory/transactions" className="mx-auto">
+          <Link href="/inventory/activity" className="mx-auto">
             <button className="flex flex-col items-center px-6 py-3 bg-slate-600 rounded-md hover:bg-slate-500 transition-colors">
               <span className="text-xs text-gray-300">Go to</span>
-              <span className="font-medium">Transactions</span>
+              <span className="font-medium">Activity</span>
             </button>
           </Link>
           <Link href="/products" className="mx-auto">

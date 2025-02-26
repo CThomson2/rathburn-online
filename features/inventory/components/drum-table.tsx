@@ -8,7 +8,7 @@
  *
  * Key Features:
  * 1. Server-Sent Events (SSE) for real-time updates:
- *    - Connects to /api/drums/sse endpoint
+ *    - Connects to /api/barcodes/sse/drums endpoint
  *    - Listens for 'drumStatus' events containing {drumId, newStatus}
  *    - Automatically updates table data when drum statuses change
  *
@@ -130,7 +130,7 @@ export const DrumsTable = memo(function DrumsTable() {
 
     function setupEventSource() {
       console.log(`[Drums Table ${connectionId}] Setting up SSE connection...`);
-      eventSource = new EventSource("/api/drums/sse");
+      eventSource = new EventSource("/api/barcodes/sse/drums");
 
       eventSource.addEventListener("connected", (event) => {
         console.log(`[Drums Table ${connectionId}] Connected:`, event.data);
@@ -333,10 +333,10 @@ export const DrumsTable = memo(function DrumsTable() {
               <span className="font-medium">Orders</span>
             </button>
           </Link>
-          <Link href="/inventory/transactions" className="mx-auto">
+          <Link href="/inventory/activity" className="mx-auto">
             <button className="flex flex-col items-center px-6 py-3 bg-slate-600 rounded-md hover:bg-slate-500 transition-colors">
               <span className="text-xs text-gray-300">Go to</span>
-              <span className="font-medium">Transactions</span>
+              <span className="font-medium">Activity</span>
             </button>
           </Link>
           <Link href="/products" className="mx-auto">

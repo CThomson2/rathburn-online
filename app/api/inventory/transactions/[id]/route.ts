@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/database/client";
+import { getDb, DATABASE_ROUTE_CONFIG } from "@/database";
 import type {
   Transaction,
   TransactionIntake,
@@ -20,9 +20,9 @@ export async function GET(
         { status: 400 }
       );
     }
-
+    const db = getDb();
     // Get transaction with related drum info
-    const transaction = await prisma.$queryRaw`
+    const transaction = await db.$queryRaw`
       WITH DrumInfo AS (
         SELECT 
           drum_id,

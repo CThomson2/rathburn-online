@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/database/client";
+import { getDb, DATABASE_ROUTE_CONFIG } from "@/database";
+
+// Force dynamic rendering and no caching for this database-dependent route
+export const dynamic = DATABASE_ROUTE_CONFIG.dynamic;
+export const fetchCache = DATABASE_ROUTE_CONFIG.fetchCache;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -13,7 +17,8 @@ export async function GET(request: Request) {
   }
 
   try {
-    const transactions = await prisma.transactions.findMany({
+    const db = getDb();
+    const transactions = await db.transactions.findMany({
       where: {
         material: {
           contains: material,

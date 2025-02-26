@@ -9,6 +9,9 @@ import { Providers } from "@/app/providers";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 // import { navItems } from "@/content/main";
 
+// Add this line to make the entire app dynamic
+export const dynamic = "force-dynamic";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {

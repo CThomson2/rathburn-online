@@ -1,7 +1,6 @@
 // Database Types
 // types/database/products.ts
 import { Decimal } from "@prisma/client/runtime/library";
-import { GradeType } from "@/types/constant/public/products";
 
 // Base product type that mirrors your database schema
 export interface BaseProduct {

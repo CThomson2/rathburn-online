@@ -1,6 +1,6 @@
-import { CustomForm } from "./CustomForm";
-import type { CustomFormProps } from "./CustomForm";
-import { FormDetails } from "./FormDetails";
+import { CustomForm } from "./custom-form";
+import type { CustomFormProps } from "./custom-form";
+import { FormDetails } from "./form-details";
 
 export const Form = ({
   title,

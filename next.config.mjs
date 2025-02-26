@@ -5,6 +5,24 @@ const nextConfig = {
   reactStrictMode: true,
   // Ensure no static export is attempted for API routes
   output: "standalone",
+
+  // Update experimental options with correct naming
+  experimental: {
+    // Updated from isrMemoryCacheSize to cacheMaxMemorySize
+    cacheMaxMemorySize: 50,
+  },
+
+  // Configure webpack with memory caching instead of disabling
+  webpack: (config) => {
+    // Use memory caching instead of filesystem to avoid snapshot errors
+    config.cache = {
+      type: "memory",
+      // Other cache settings can still be included if needed
+      maxGenerations: 1,
+    };
+
+    return config;
+  },
 };
 
 export default withSentryConfig(

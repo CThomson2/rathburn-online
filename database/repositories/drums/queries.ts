@@ -1,4 +1,4 @@
-import { prisma } from "@/database/client";
+import { withDatabase } from "@/database";
 import type {
   DrumQueryParams,
   DrumsResponse,
@@ -18,53 +18,56 @@ export const queries = {
   }: DrumQueryParams): Promise<DrumsResponse> => {
     const offset = (page - 1) * limit;
 
-    // Get the total number of drums
-    const total = await prisma.new_drums.count({
-      where: {
-        status: { in: status },
-      },
-    });
-    // Get the paginated data
-    const rows = await prisma.new_drums.findMany({
-      where: {
-        status: { in: status },
-      },
-      select: {
-        drum_id: true,
-        material: true,
-        status: true,
-        location: true,
-        date_processed: true,
-        created_at: true,
-        updated_at: true,
-        orders: {
-          select: {
-            order_id: true,
-            supplier: true,
-            date_ordered: true,
+    return withDatabase(async (db) => {
+      // Get the total number of drums
+      const total = await db.new_drums.count({
+        where: {
+          status: { in: status },
+        },
+      });
+
+      // Get the paginated data
+      const rows = await db.new_drums.findMany({
+        where: {
+          status: { in: status },
+        },
+        select: {
+          drum_id: true,
+          material: true,
+          status: true,
+          location: true,
+          date_processed: true,
+          created_at: true,
+          updated_at: true,
+          orders: {
+            select: {
+              order_id: true,
+              supplier: true,
+              date_ordered: true,
+            },
           },
         },
-      },
-      orderBy: {
-        [sortField]: sortOrder,
-      },
-      skip: offset,
-      take: limit,
+        orderBy: {
+          [sortField]: sortOrder,
+        },
+        skip: offset,
+        take: limit,
+      });
+
+      const drums = rows.map((row: any) => ({
+        drum_id: row.drum_id,
+        material: row.material,
+        status: row.status as DrumStatusType,
+        location: row.location as DrumLocationType,
+        order_id: row.orders?.order_id,
+        supplier: row.orders?.supplier,
+        date_ordered: row.orders?.date_ordered,
+        date_processed: row.date_processed,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+      }));
+
+      return { drums, total };
     });
-
-    const drums = rows.map((row) => ({
-      drum_id: row.drum_id,
-      material: row.material,
-      status: row.status as DrumStatusType,
-      location: row.location as DrumLocationType,
-      order_id: row.orders?.order_id,
-      supplier: row.orders?.supplier,
-      date_ordered: row.orders?.date_ordered,
-      date_processed: row.date_processed,
-      created_at: row.created_at,
-      updated_at: row.updated_at,
-    }));
-
-    return { drums, total };
   },
 };

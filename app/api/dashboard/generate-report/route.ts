@@ -1,16 +1,21 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/database/client";
+import { DATABASE_ROUTE_CONFIG, getDb } from "@/database";
 import PDFDocument from "pdfkit";
+
+// Force dynamic rendering and no caching for this database-dependent route
+export const dynamic = DATABASE_ROUTE_CONFIG.dynamic;
+export const fetchCache = DATABASE_ROUTE_CONFIG.fetchCache;
 
 export async function POST() {
   try {
+    const db = getDb();
     // Fetch data for the report
     const [recentTransactions, inventoryItems] = await Promise.all([
-      prisma.transactions.findMany({
+      db.transactions.findMany({
         take: 10,
         orderBy: { tx_date: "desc" },
       }),
-      prisma.new_drums.count(),
+      db.new_drums.count(),
     ]);
 
     // Create PDF document

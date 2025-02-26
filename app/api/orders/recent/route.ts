@@ -1,5 +1,28 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/database/client";
+import { getDb, DATABASE_ROUTE_CONFIG } from "@/database";
+import type { orders } from "@/database/prisma/generated/client";
+import { Prisma } from "@/database/prisma/generated/client";
+
+// Force dynamic rendering and no caching for this database-dependent route
+export const dynamic = DATABASE_ROUTE_CONFIG.dynamic;
+export const fetchCache = DATABASE_ROUTE_CONFIG.fetchCache;
+
+// Define the select object once
+const orderSelect = {
+  order_id: true,
+  supplier: true,
+  material: true,
+  quantity: true,
+  quantity_received: true,
+  status: true,
+  date_ordered: true,
+  po_number: true,
+} as const;
+
+// This type will exactly match what your query returns
+type RecentOrder = Prisma.ordersGetPayload<{
+  select: typeof orderSelect;
+}>;
 
 /**
  * Fetches the three most recent orders, optionally filtered by supplier and/or material.
@@ -14,28 +37,20 @@ export async function GET(req: Request) {
     const query = searchParams.get("q") || "";
 
     // First, get the most recent orders (limited to 10 to have a good pool for filtering)
-    const recentOrders = await prisma.orders.findMany({
+    const db = getDb();
+    const recentOrders = await db.orders.findMany({
       orderBy: {
         date_ordered: "desc",
       },
       take: 10,
-      select: {
-        order_id: true,
-        supplier: true,
-        material: true,
-        quantity: true,
-        quantity_received: true,
-        status: true,
-        date_ordered: true,
-        po_number: true,
-      },
+      select: orderSelect,
     });
 
     // If there's a search query, filter the results
     let filteredOrders = recentOrders;
     if (query) {
       // Filter orders to include only those where the material or supplier matches the query string
-      filteredOrders = recentOrders.filter((order) => {
+      filteredOrders = recentOrders.filter((order: RecentOrder) => {
         const materialMatch = order.material
           .toLowerCase()
           .includes(query.toLowerCase());
@@ -46,7 +61,7 @@ export async function GET(req: Request) {
       });
 
       // Sort the filtered orders to prioritize those where the material or supplier starts with the query string
-      filteredOrders.sort((a, b) => {
+      filteredOrders.sort((a: RecentOrder, b: RecentOrder) => {
         const aMatches =
           a.material.toLowerCase().startsWith(query.toLowerCase()) ||
           a.supplier.toLowerCase().startsWith(query.toLowerCase());

@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/database/client";
+import { withDatabase, DATABASE_ROUTE_CONFIG } from "@/database";
 import { MaterialStock } from "@/features/dashboard/types/api";
+
+// Force dynamic rendering and no caching for this database-dependent route
+export const dynamic = DATABASE_ROUTE_CONFIG.dynamic;
+export const fetchCache = DATABASE_ROUTE_CONFIG.fetchCache;
 
 /**
  * Current Stock queries
@@ -19,68 +23,80 @@ export async function GET(request: Request) {
       ? parseInt(searchParams.get("high")!)
       : 10; // Default to 10 if not specified
 
-    const totalStock = await prisma.new_drums.count({
-      where: {
-        status: "available",
-      },
+    // Use withDatabase to perform multiple related database operations
+    const stockData = await withDatabase(async (db) => {
+      const totalStock = await db.new_drums.count({
+        where: {
+          status: "available",
+        },
+      });
+
+      // High stock materials
+      const topMaterials = await db.$queryRaw<MaterialStock[]>`
+        SELECT 
+          material,
+          COUNT(*) as count
+        FROM inventory.new_drums
+        WHERE status = 'available'
+        GROUP BY material
+        ORDER BY count DESC
+        LIMIT ${highCount}
+      `;
+
+      // Low stock materials
+      const lowStockMaterials = await db.$queryRaw<MaterialStock[]>`
+        WITH MaterialCounts AS (
+          SELECT 
+            material,
+            COUNT(*) as count
+          FROM inventory.new_drums
+          WHERE status = 'available'
+          GROUP BY material
+        )
+        SELECT
+          material,
+          count
+        FROM MaterialCounts
+        WHERE count < ${lowCount}
+        ORDER BY count ASC
+      `;
+
+      // Count of low stock materials
+      const lowStockCountResult = await db.$queryRaw<{ count: number }[]>`
+        WITH MaterialCounts AS (
+          SELECT 
+            material,
+            COUNT(*) as count
+          FROM inventory.new_drums
+          WHERE status = 'available'
+          GROUP BY material
+        )
+        SELECT
+          COUNT(*) as count
+        FROM MaterialCounts
+        WHERE count < ${lowCount}
+      `;
+
+      const lowStockCount = Number(lowStockCountResult[0]?.count || 0);
+
+      return {
+        totalStock,
+        lowStockCount,
+        lowStockMaterials,
+        topMaterials,
+      };
     });
 
-    // High stock materials
-    const topMaterials = await prisma.$queryRaw<MaterialStock[]>`
-      SELECT 
-        material,
-        COUNT(*) as count
-      FROM inventory.new_drums
-      WHERE status = 'available'
-      GROUP BY material
-      ORDER BY count DESC
-      LIMIT ${highCount}
-    `;
-
-    // Low stock materials
-    const lowStockMaterials = await prisma.$queryRaw<MaterialStock[]>`
-      WITH MaterialCounts AS (
-        SELECT 
-          material,
-          COUNT(*) as count
-        FROM inventory.new_drums
-        WHERE status = 'available'
-        GROUP BY material
-      )
-      SELECT
-        material,
-        count
-      FROM MaterialCounts
-      WHERE count < ${lowCount}
-      ORDER BY count ASC
-    `;
-
-    // Count of low stock materials
-    const lowStockCountResult = await prisma.$queryRaw<{ count: number }[]>`
-      WITH MaterialCounts AS (
-        SELECT 
-          material,
-          COUNT(*) as count
-        FROM inventory.new_drums
-        WHERE status = 'available'
-        GROUP BY material
-      )
-      SELECT
-        COUNT(*) as count
-      FROM MaterialCounts
-      WHERE count < ${lowCount}
-    `;
-
-    const lowStockCount = Number(lowStockCountResult[0]?.count || 0);
-
     return NextResponse.json({
-      totalStock,
-      lowStockCount,
-      lowStockMaterials: lowStockMaterials.map((material) => ({
-        material: material.material,
-        count: Number(material.count),
-      })),
-      topMaterials: topMaterials.map((material) => ({
+      totalStock: stockData.totalStock,
+      lowStockCount: stockData.lowStockCount,
+      lowStockMaterials: stockData.lowStockMaterials.map(
+        (material: MaterialStock) => ({
+          material: material.material,
+          count: Number(material.count),
+        })
+      ),
+      topMaterials: stockData.topMaterials.map((material: MaterialStock) => ({
         material: material.material,
         count: Number(material.count),
       })),

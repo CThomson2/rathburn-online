@@ -13,6 +13,7 @@ export const CreateForm = ({
 }: {
   onOrderCreated: (order: OrderPostParams) => void;
 }) => {
+  // Convert into reducer hook
   const [material, setMaterial] = useState<OrderPostParams["material"]>("");
   const [supplier, setSupplier] = useState<OrderPostParams["supplier"]>("");
   const [quantity, setQuantity] = useState<OrderPostParams["quantity"]>(0);
@@ -37,7 +38,7 @@ export const CreateForm = ({
   useEffect(() => {
     const fetchNextPoNumber = async () => {
       try {
-        const response = await fetch("/api/inventory/orders/next-po-number");
+        const response = await fetch("/api/orders/next-po-number");
         const data = await response.json();
 
         if (!response.ok) {
@@ -62,7 +63,7 @@ export const CreateForm = ({
 
     try {
       const response = await fetch(
-        `/api/inventory/materials/suggestions?q=${encodeURIComponent(query)}`
+        `/api/materials/suggestions?q=${encodeURIComponent(query)}`
       );
       const data = await response.json();
       console.log("API Response:", data);
@@ -86,7 +87,7 @@ export const CreateForm = ({
 
       try {
         const response = await fetch(
-          `/api/inventory/suppliers/suggestions?q=${encodeURIComponent(
+          `/api/suppliers/suggestions?q=${encodeURIComponent(
             query
           )}&material=${encodeURIComponent(material)}`
         );
@@ -215,7 +216,7 @@ export const CreateForm = ({
       setIsSubmitting(true);
 
       try {
-        await onOrderCreated({
+        onOrderCreated({
           material,
           supplier,
           quantity,
@@ -223,7 +224,7 @@ export const CreateForm = ({
         });
 
         // Fetch new PO number for next order
-        const response = await fetch("/api/inventory/orders/next-po-number");
+        const response = await fetch("/api/orders/next-po-number");
         const data = await response.json();
 
         if (!response.ok) {

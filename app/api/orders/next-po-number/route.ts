@@ -1,15 +1,20 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/database/client";
+import { getDb, DATABASE_ROUTE_CONFIG } from "../../../../database";
 import { format } from "date-fns";
+
+// Force dynamic rendering and no caching for this database-dependent route
+export const dynamic = DATABASE_ROUTE_CONFIG.dynamic;
+export const fetchCache = DATABASE_ROUTE_CONFIG.fetchCache;
 
 export async function GET() {
   try {
     // Get today's date in YYYY-MM-DD format for database query
+    const db = getDb();
     const today = new Date();
     const todayFormatted = format(today, "yyyy-MM-dd");
 
     // Count orders made today
-    const todayOrdersCount = await prisma.orders.count({
+    const todayOrdersCount = await db.orders.count({
       where: {
         date_ordered: {
           gte: new Date(todayFormatted),

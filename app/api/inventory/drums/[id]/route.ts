@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/database/client";
+import { getDb, DATABASE_ROUTE_CONFIG } from "@/database";
 import type {
   Transaction,
   TransactionIntake,
   TransactionProcessed,
 } from "@/types/database/inventory/transactions";
+
+// Force dynamic rendering and no caching for this database-dependent route
+export const dynamic = DATABASE_ROUTE_CONFIG.dynamic;
+export const fetchCache = DATABASE_ROUTE_CONFIG.fetchCache;
 
 /**
  * Fetches transactions associated with a specific drum ID.
@@ -44,9 +48,10 @@ export async function GET(
       );
     }
 
+    const db = getDb();
     // Get all import and processed transactions for this drum, ordered by date
     // Include the drum's current status and material from new_drums table
-    const transactions = await prisma.$queryRaw`
+    const transactions = await db.$queryRaw`
       WITH DrumInfo AS (
         SELECT 
           drum_id,

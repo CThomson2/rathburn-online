@@ -3,6 +3,16 @@
 import { useNotifications } from "@/components/ui/notifications";
 import { env } from "@/config/env";
 
+interface RequestOptions {
+  method?: string;
+  headers?: Record<string, string>;
+  body?: any;
+  cookie?: string;
+  params?: Record<string, string | number | boolean | undefined | null>;
+  cache?: RequestCache;
+  next?: NextFetchRequestConfig;
+}
+
 /**
  * API Client
  *
@@ -16,19 +26,6 @@ import { env } from "@/config/env";
  * This allows feature-specific API modules (e.g., use-inventory-stats.ts, use-recent-orders.ts) to focus on their specific logic without worrying about the underlying HTTP request mechanics.
  *
  */
-
-// Define the RequestOptions interface
-interface RequestOptions {
-  method?: string;
-  headers?: Record<string, string>;
-  body?: any;
-  cookie?: string;
-  params?: Record<string, string | number | boolean | undefined | null>;
-  cache?: RequestCache;
-  next?: NextFetchRequestConfig;
-}
-
-// Function to build URL with query parameters
 function buildUrlWithParams(
   url: string,
   params?: RequestOptions["params"]
@@ -92,10 +89,9 @@ async function fetchApi<T>(
     cookieHeader = await getServerCookies();
   }
 
-  const fullUrl = buildUrlWithParams(
-    `${process.env.NEXT_PUBLIC_API_URL}${url}`,
-    params
-  );
+  // Use the validated API URL from env config
+  const baseUrl = env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+  const fullUrl = buildUrlWithParams(`${baseUrl}${url}`, params);
 
   const response = await fetch(fullUrl, {
     method,

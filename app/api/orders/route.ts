@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { queries } from "@/database/repositories/orders/queries";
-import { prisma } from "@/database/client";
+import { withDatabase, DATABASE_ROUTE_CONFIG } from "@/database";
 import type { OrderFormData } from "@/types/database/inventory/orders";
-import { PrismaClientKnownRequestError } from "@/database/prisma/generated/public-client/runtime/library";
+import { PrismaClientKnownRequestError } from "@/database/prisma/generated/client/runtime/library";
 
-// Example request for Postman: http://localhost:3000/api/inventory/orders?page=1&limit=10
+// Force dynamic rendering and no caching for this database-dependent route
+export const dynamic = DATABASE_ROUTE_CONFIG.dynamic;
+export const fetchCache = DATABASE_ROUTE_CONFIG.fetchCache;
+
+// Example request for Postman: http://localhost:3000/api/orders?page=1&limit=10
 export async function GET(req: Request) {
   // Extract search params from the request URL
   // For example, from: /api/inventory/transactions?page=2&limit=10
@@ -26,7 +30,7 @@ export async function GET(req: Request) {
   }
 }
 
-// Example request for Postman: http://localhost:3000/api/inventory/orders,
+// Example request for Postman: http://localhost:3000/api/orders,
 // Format of body when sending from frontend: { material: "string", supplier: "string", quantity: "number" }
 export async function POST(req: Request) {
   // Parse request body
@@ -34,22 +38,23 @@ export async function POST(req: Request) {
   const { material, supplier, quantity, po_number = null } = body;
 
   try {
-    // 1) Create new order
-    const newOrder: OrderFormData = await prisma.orders.create({
-      data: {
-        supplier,
-        material,
-        quantity,
-        po_number, // Only include po_number if it exists
-      },
+    // Use withDatabase to create a new order
+    const newOrder: OrderFormData = await withDatabase(async (db) => {
+      return db.orders.create({
+        data: {
+          supplier,
+          material,
+          quantity,
+          po_number, // Only include po_number if it exists
+        },
+      });
     });
 
-    // 3) Return the combined data in JSON
+    // Return the combined data in JSON
     return NextResponse.json(
       {
         success: true,
         order: newOrder, // the order data
-        // drum_ids: drumIds, // the array of new drum IDs
       },
       { status: 200 }
     );

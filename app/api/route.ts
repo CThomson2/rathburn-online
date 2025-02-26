@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/database/client";
+import { getDb, DATABASE_ROUTE_CONFIG } from "@/database";
+
+// Force dynamic rendering and no caching for this database-dependent route
+export const dynamic = DATABASE_ROUTE_CONFIG.dynamic;
+export const fetchCache = DATABASE_ROUTE_CONFIG.fetchCache;
 
 export async function GET() {
   // Log to server console
@@ -11,7 +15,8 @@ export async function GET() {
   try {
     // Test database connection
     try {
-      const test = await prisma.$queryRaw<{ test: number }[]>`
+      const db = getDb();
+      const test = await db.$queryRaw<{ test: number }[]>`
       SELECT MAX(product_id) as test
       FROM public.products
     `;

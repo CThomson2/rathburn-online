@@ -79,7 +79,7 @@ export function RecentOrdersWidget({ id }: RecentOrdersWidgetProps) {
         params.append("q", searchTerm);
       }
 
-      const response = await fetch(`/api/inventory/orders/recent?${params}`);
+      const response = await fetch(`/api/orders/recent?${params}`);
       if (!response.ok) throw new Error("Failed to fetch orders");
 
       const data = await response.json();
