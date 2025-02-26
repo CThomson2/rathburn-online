@@ -1,10 +1,5 @@
 import { PrismaClient } from "./prisma/generated/client";
 
-// This type allows us to add prisma to the global scope
-declare global {
-  var prisma: PrismaClient | undefined;
-}
-
 function createPrismaClient() {
   return new PrismaClient({
     log: ["query", "info", "warn", "error"],
@@ -45,15 +40,58 @@ export const DATABASE_ROUTE_CONFIG = {
   fetchCache: "force-no-store" as const,
 };
 
-// Helper function to safely execute database operations
+/**
+ * Type definition for a database operation callback function
+ * This helps ensure proper type inference when using withDatabase
+ */
+export type DatabaseOperationCallback<T> = (db: PrismaClient) => Promise<T>;
+
+/**
+ * Executes a database operation within a safe context.
+ *
+ * @template T - The type of the result returned by the database operation.
+ * @param {DatabaseOperationCallback<T>} operation - A callback function that performs the database operation.
+ *                               It receives a PrismaClient instance as an argument and returns a Promise of type T.
+ * @returns {Promise<T>} - A Promise that resolves to the result of the database operation.
+ * @throws {Error} - Throws an error if the database operation fails.
+ *
+ * @example
+ * // Example usage:
+ * const result = await withDatabase(async (db) => {
+ *   return await db.user.findMany();
+ * });
+ */
 export async function withDatabase<T>(
-  operation: (db: PrismaClient) => Promise<T>
+  operation: DatabaseOperationCallback<T>
 ): Promise<T> {
+  // Get the PrismaClient instance, either a new one or a reused one depending on the environment
   const db = getPrismaClient();
   try {
+    // Execute the provided operation with the PrismaClient instance
     return await operation(db);
   } catch (error) {
+    // Log the error to the console and rethrow it
     console.error("Database operation failed:", error);
     throw error;
   }
 }
+
+/**
+ * Gets a properly configured database client instance for direct use.
+ *
+ * This is a lightweight alternative to withDatabase when you want to manage
+ * the client directly and handle errors yourself. Use this for simple operations
+ * where the withDatabase wrapper feels excessive.
+ *
+ * @returns {PrismaClient} A properly configured Prisma client instance
+ *
+ * @example
+ * // Example usage:
+ * const db = getDb();
+ * const product = await db.products.findUnique({ where: { id: 1 } });
+ */
+export function getDb(): PrismaClient {
+  return getPrismaClient();
+}
+
+export default getPrismaClient;

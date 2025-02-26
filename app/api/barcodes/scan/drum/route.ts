@@ -9,7 +9,7 @@ export const dynamic = DATABASE_ROUTE_CONFIG.dynamic;
 export const fetchCache = DATABASE_ROUTE_CONFIG.fetchCache;
 
 /**
- qw* Zod schema for the barcode data format
+ * Zod schema for the barcode data format
  * e.g. "52-H1024" or "52-H1024 2024/01/22 08:31:59"
  */
 const barcodeSchema = z.object({
@@ -20,6 +20,13 @@ const barcodeSchema = z.object({
 });
 
 /* Data validation methods */
+/**
+ * Validates the status of a drum in the database.
+ *
+ * @param {number} drumId - The ID of the drum to validate.
+ * @param {string} expectedStatus - The expected status of the drum.
+ * @returns {Promise<boolean>} - A promise that resolves to a boolean indicating if the drum status matches the expected status.
+ */
 async function validateDrumStatus(
   drumId: number,
   expectedStatus: string
@@ -335,56 +342,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 }
 
-/* EMAIL NOTIFICATIONS */
-/*
-if (dbOrder && dbOrder.status === "complete") {
-  console.log("Order is complete, preparing email notification");
-
-  // Calculate eta_status
-  const now = new Date();
-  let eta_status: "tbc" | "confirmed" | "overdue" = "tbc";
-
-  if (dbOrder.eta_start) {
-    eta_status = "confirmed";
-    if (dbOrder.eta_end && now > dbOrder.eta_end) {
-      eta_status = "overdue";
-    }
-  }
-  console.log("Calculated ETA status:", eta_status);
-
-  // Create full order object with eta_status
-  const order: Order = {
-    order_id: dbOrder.order_id,
-    supplier: dbOrder.supplier,
-    material: dbOrder.material,
-    quantity: dbOrder.quantity,
-    quantity_received: dbOrder.quantity_received,
-    status:
-      dbOrder.status as Order["status"],
-    notes: dbOrder.notes || undefined,
-    eta_status,
-    date_ordered: dbOrder.date_ordered?.toISOString(),
-    created_at: dbOrder.created_at?.toISOString(),
-    updated_at: dbOrder.updated_at?.toISOString(),
-    eta_start: dbOrder.eta_start?.toISOString() || null,
-    eta_end: dbOrder.eta_end?.toISOString() || null,
-  };
-  console.log(
-    "Prepared order object for email:",
-    JSON.stringify(order, null, 2)
-  );
-
-  // Send email notification
-  console.log("Attempting to send email notification...");
-  try {
-    await sendOrderCompleteNotification(order);
-    console.log("Email notification sent successfully");
-  } catch (error) {
-    console.error("Failed to send email notification:", error);
-  }
-} else {
-  console.log(
-    "Order not complete or not found - skipping email notification"
-  );
-}
-*/
+// Suggested refactoring points:
+// 1. Extract the logic for validating incoming data into a separate function.
+// 2. Extract the logic for extracting order_id and drum_id from the barcode string into a separate function.
+// 3. Extract the logic for checking the last scan time into a separate function.
+// 4. Extract the logic for looking up the existing drum record into a separate function.
+// 5. Extract the logic for handling the "pending" status into a separate function.
+// 6. Extract the logic for handling the "available" status into a separate function.
+// 7. Extract the logic for emitting events into a separate function.
+// 8. Extract the logic for checking if the order is complete into a separate function.

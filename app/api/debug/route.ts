@@ -1,5 +1,5 @@
+import { getDb } from "@/database";
 import { NextResponse } from "next/server";
-import { prisma } from "@/database/client";
 
 export async function GET() {
   // Log to server console
@@ -11,7 +11,8 @@ export async function GET() {
   try {
     // Test database connection
     try {
-      const test = await prisma.$queryRaw<{ test: number }[]>`
+      const db = getDb();
+      const test = await db.$queryRaw<{ test: number }[]>`
       SELECT MAX(product_id) as test
       FROM public.products
     `;

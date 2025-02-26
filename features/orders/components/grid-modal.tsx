@@ -69,17 +69,14 @@ export const GridModal: React.FC<GridModalProps> = ({
 
   const handleSaveETA = async () => {
     try {
-      const response = await fetch(
-        `/api/inventory/orders/${order.order_id}/eta`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            etaStart: etaStart || null,
-            etaEnd: isDateRange ? etaEnd : etaStart,
-          }),
-        }
-      );
+      const response = await fetch(`/api/orders/${order.order_id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          etaStart: etaStart || null,
+          etaEnd: isDateRange ? etaEnd : etaStart,
+        }),
+      });
 
       if (!response.ok) throw new Error("Failed to update ETA");
 

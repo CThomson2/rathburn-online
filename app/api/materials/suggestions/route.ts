@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/database/client";
+import { getDb, DATABASE_ROUTE_CONFIG } from "@/database";
+
+// Force dynamic rendering and no caching for this database-dependent route
+export const dynamic = DATABASE_ROUTE_CONFIG.dynamic;
+export const fetchCache = DATABASE_ROUTE_CONFIG.fetchCache;
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -10,12 +14,8 @@ export async function GET(req: Request) {
   }
 
   try {
-    // Raw SQL equivalent:
-    // SELECT name
-    // FROM raw_materials
-    // WHERE name ILIKE $1 || '%'
-    // LIMIT 10;
-    const suggestions = await prisma.raw_materials.findMany({
+    const db = getDb();
+    const suggestions = (await db.raw_materials.findMany({
       where: {
         name: {
           startsWith: query,
@@ -26,7 +26,7 @@ export async function GET(req: Request) {
         name: true,
       },
       take: 10, // Limit results
-    });
+    })) as Array<{ name: string }>;
 
     return NextResponse.json({
       suggestions: suggestions.map((s) => s.name),

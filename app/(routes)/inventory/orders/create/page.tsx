@@ -7,7 +7,7 @@
  * Flow:
  * 1. Shows order creation form initially
  * 2. On successful submission, hides form and shows barcode
- * 3. Handles API communication with /api/inventory/orders endpoint
+ * 3. Handles API communication with /api/orders endpoint
  */
 
 "use client";
@@ -53,7 +53,7 @@ function OrderCreationPage(): JSX.Element {
       setError(null);
       setIsGenerating(true);
 
-      const res = await fetch("/api/inventory/orders", {
+      const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formValues),

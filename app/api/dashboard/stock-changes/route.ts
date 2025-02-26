@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/database/client";
+import { getDb, DATABASE_ROUTE_CONFIG } from "@/database";
 import { DailyChange } from "@/features/dashboard/types/api";
 
 /**
@@ -11,8 +11,9 @@ import { DailyChange } from "@/features/dashboard/types/api";
 export async function GET() {
   try {
     console.log("[API] Fetching weekly stock changes...");
+    const db = getDb();
 
-    const weeklyStockChanges = await prisma.$queryRaw<DailyChange[]>`
+    const weeklyStockChanges = await db.$queryRaw<DailyChange[]>`
       WITH RECURSIVE DateSeries AS (
         -- Generate dates for last 10 weekdays
         SELECT 
@@ -53,7 +54,7 @@ export async function GET() {
     console.log("[API] Weekly stock changes data:", weeklyStockChanges);
 
     // Ensure we have the correct data structure
-    const formattedData = weeklyStockChanges.map((change) => ({
+    const formattedData = weeklyStockChanges.map((change: DailyChange) => ({
       day: change.day,
       netChange: Number(change.netChange),
     }));

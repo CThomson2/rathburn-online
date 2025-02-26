@@ -1,5 +1,18 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/database/client";
+import { getDb, DATABASE_ROUTE_CONFIG } from "@/database";
+
+// Force dynamic rendering and no caching for this database-dependent route
+export const dynamic = DATABASE_ROUTE_CONFIG.dynamic;
+export const fetchCache = DATABASE_ROUTE_CONFIG.fetchCache;
+
+// Define interfaces for the database results
+interface SupplierResult {
+  supplier: string;
+}
+
+interface SupplierNameResult {
+  name: string;
+}
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -11,8 +24,10 @@ export async function GET(req: Request) {
   }
 
   try {
+    const db = getDb();
+
     // First, get historical suppliers for this material
-    const historicalSuppliers = await prisma.orders.findMany({
+    const historicalSuppliers = await db.orders.findMany({
       where: {
         material: {
           equals: material,
@@ -25,11 +40,13 @@ export async function GET(req: Request) {
       distinct: ["supplier"],
     });
 
-    let suggestions: string[] = historicalSuppliers.map((s) => s.supplier);
+    let suggestions: string[] = historicalSuppliers.map(
+      (s: SupplierResult) => s.supplier
+    );
 
     // If user is typing, filter existing suggestions and add new matches
     if (query) {
-      const additionalSuppliers = await prisma.suppliers.findMany({
+      const additionalSuppliers = await db.suppliers.findMany({
         where: {
           name: {
             startsWith: query,
@@ -50,10 +67,10 @@ export async function GET(req: Request) {
 
       // Combine and sort results
       suggestions = [
-        ...suggestions.filter((s) =>
+        ...suggestions.filter((s: string) =>
           s.toLowerCase().startsWith(query.toLowerCase())
         ),
-        ...additionalSuppliers.map((s) => s.name),
+        ...additionalSuppliers.map((s: SupplierNameResult) => s.name),
       ];
     }
 
