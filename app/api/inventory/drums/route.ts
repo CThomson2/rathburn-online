@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
-import { queries } from "../../../../database/repositories/drums/queries";
-import { DrumStatus, DrumStatusType } from "@/types/constant/inventory/drums";
+import { queries } from "@/database/repositories/drums/queries";
+import {
+  DrumStatus,
+  DrumStatusType,
+} from "@/types/constant/inventory/drums";
 import { NewDrum } from "@/types/database/inventory/drums";
 
 /**

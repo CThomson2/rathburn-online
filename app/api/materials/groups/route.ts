@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withDatabase, DATABASE_ROUTE_CONFIG } from "../../../../database";
+import { withDatabase, DATABASE_ROUTE_CONFIG } from "@/database";
 
 // Force dynamic rendering and no caching for this database-dependent route
 export const dynamic = DATABASE_ROUTE_CONFIG.dynamic;

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { DATABASE_ROUTE_CONFIG, getDb } from "../../../../database";
+import { DATABASE_ROUTE_CONFIG, getDb } from "@/database";
 import PDFDocument from "pdfkit";
 
 // Force dynamic rendering and no caching for this database-dependent route

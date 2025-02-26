@@ -1,6 +1,6 @@
 // /app/api/barcodes/[orderId]/route.ts
 import { NextResponse } from "next/server";
-import { withDatabase, DATABASE_ROUTE_CONFIG } from "../../../../../database";
+import { withDatabase, DATABASE_ROUTE_CONFIG } from "@/database";
 import bwipjs from "bwip-js";
 import { PDFDocument, StandardFonts } from "pdf-lib";
 

@@ -29,7 +29,7 @@
  * - 500: Server error while updating
  */
 import { NextResponse } from "next/server";
-import { getDb } from "../../../../database";
+import { getDb } from "@/database";
 
 export async function PATCH(
   request: Request,
