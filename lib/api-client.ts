@@ -92,7 +92,7 @@ async function fetchApi<T>(
   // Use the validated API URL from env config
   const baseUrl =
     typeof window !== "undefined"
-      ? "/api/" // Use relative URL in browser
+      ? "/api" // Use relative URL in browser
       : env.API_URL || process.env.NEXT_PUBLIC_API_URL; // Use full URL on server
   let fullUrl = buildUrlWithParams(`${baseUrl}${url}`, params);
 
