@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDb, DATABASE_ROUTE_CONFIG } from "@/database";
-import type { ProductTableRow } from "@/types/database/public/products";
+import type { ProductTableRow } from "@/types/models";
 
 // Force dynamic rendering and no caching for this database-dependent route
 export const dynamic = DATABASE_ROUTE_CONFIG.dynamic;

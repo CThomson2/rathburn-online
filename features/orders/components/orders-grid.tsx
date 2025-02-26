@@ -6,11 +6,8 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { SortingState } from "@tanstack/react-table";
 import Link from "next/link";
 import { ActionButton, SearchBar } from "@/components/shared/table";
-import { GridModal } from "./grid-modal";
-import type {
-  Order,
-  OrderGetResponse,
-} from "@/types/database/inventory/orders";
+import { GridModal } from "./grid/grid-modal";
+import type { Order, OrdersResponse } from "@/types/models";
 import { api } from "@/lib/api-client";
 
 const filterOptions = [
@@ -20,7 +17,7 @@ const filterOptions = [
   { label: "By Status", value: "status" },
 ];
 
-const OrdersGrid = () => {
+export const OrdersGrid = () => {
   // State for table sorting - currently unused but could be used for client-side sorting
   const [sorting, setSorting] = useState<SortingState>([
     { id: "order_id", desc: true },
@@ -72,7 +69,7 @@ const OrdersGrid = () => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["orders", pageIndex, pageSize],
     queryFn: async () => {
-      const data = await api.get<OrderGetResponse>(
+      const data = await api.get<OrdersResponse>(
         `/orders?page=${pageIndex + 1}&limit=${pageSize}`
       );
       return {

@@ -41,12 +41,12 @@ import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getTxTypeVariant } from "@/utils/formatters";
+import { getTxTypeVariant } from "@/utils/formatters/variants";
 import type {
   Transaction,
   TransactionIntake,
   TransactionProcessed,
-} from "@/types/database/inventory/transactions";
+} from "@/types/models";
 import { cn } from "@/utils/cn";
 
 type ActionType = "view" | "edit" | "assign" | null;
@@ -372,12 +372,13 @@ function ActionModal({
 
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Related Information</h3>
-              {currentTx.batch_code &&
+              {/* {currentTx.batch_code &&
                 renderDetailItem(
                   <Hash className="h-4 w-4" />,
                   "Batch Code",
                   currentTx.batch_code
-                )}
+                )} */}
+              {/* TODO: Join with deliveries for tx_type import to show batch code */}
               {currentTx.tx_notes &&
                 renderDetailItem(
                   <FileText className="h-4 w-4" />,

@@ -4,7 +4,7 @@ import type {
   Transaction,
   TransactionIntake,
   TransactionProcessed,
-} from "@/types/database/inventory/transactions";
+} from "@/types/models";
 
 // Force dynamic rendering and no caching for this database-dependent route
 export const dynamic = DATABASE_ROUTE_CONFIG.dynamic;

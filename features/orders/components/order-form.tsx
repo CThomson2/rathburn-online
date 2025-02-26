@@ -1,22 +1,22 @@
 "use client";
 
-import { OrderPostParams } from "@/types/database/inventory/orders";
+import { CreateOrderParams } from "@/types/models";
 import { useState, useEffect, useCallback, KeyboardEvent } from "react";
 import styles from "./form.module.css";
 import { cn } from "@/utils/cn";
-// import { Combobox } from "@/components/ui/Combobox";
-import { Dropdown } from "./form-dropdown";
+import { Dropdown } from "./form/dropdown";
 import { Loader2 } from "lucide-react";
+import { api } from "@/lib/api-client";
 
 export const CreateForm = ({
   onOrderCreated,
 }: {
-  onOrderCreated: (order: OrderPostParams) => void;
+  onOrderCreated: (order: CreateOrderParams) => void;
 }) => {
   // Convert into reducer hook
-  const [material, setMaterial] = useState<OrderPostParams["material"]>("");
-  const [supplier, setSupplier] = useState<OrderPostParams["supplier"]>("");
-  const [quantity, setQuantity] = useState<OrderPostParams["quantity"]>(0);
+  const [material, setMaterial] = useState<CreateOrderParams["material"]>("");
+  const [supplier, setSupplier] = useState<CreateOrderParams["supplier"]>("");
+  const [quantity, setQuantity] = useState<CreateOrderParams["quantity"]>(0);
   const [poNumber, setPoNumber] = useState<string>("");
   const [materialSuggestions, setMaterialSuggestions] = useState<string[]>([]);
   const [supplierSuggestions, setSupplierSuggestions] = useState<string[]>([]);
@@ -38,14 +38,10 @@ export const CreateForm = ({
   useEffect(() => {
     const fetchNextPoNumber = async () => {
       try {
-        const response = await fetch("/api/orders/next-po-number");
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to fetch PO number");
-        }
-
-        setPoNumber(data.poNumber);
+        const response = await api.get<{ poNumber: string }>(
+          "/orders/next-po-number"
+        );
+        setPoNumber(response.poNumber);
       } catch (error) {
         console.error("Failed to fetch next PO number:", error);
         setError(
@@ -220,18 +216,14 @@ export const CreateForm = ({
           material,
           supplier,
           quantity,
-          po_number: poNumber.replace(/-/g, "") || null,
+          po_number: poNumber.replace(/-/g, "") || "",
         });
 
         // Fetch new PO number for next order
-        const response = await fetch("/api/orders/next-po-number");
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to fetch PO number");
-        }
-
-        setPoNumber(data.poNumber);
+        const response = await api.get<{ poNumber: string }>(
+          "/orders/next-po-number"
+        );
+        setPoNumber(response.poNumber);
         resetForm();
       } catch (error) {
         console.error("Failed to create order:", error);

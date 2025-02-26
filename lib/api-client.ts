@@ -1,7 +1,7 @@
 "use client";
 // Import statements
 import { useNotifications } from "@/components/ui/notifications";
-import { env } from "@/config/env";
+// import { env } from "@/config/env";
 
 interface RequestOptions {
   method?: string;
@@ -93,7 +93,7 @@ async function fetchApi<T>(
   const baseUrl =
     typeof window !== "undefined"
       ? "/api" // Use relative URL in browser
-      : env.API_URL || process.env.NEXT_PUBLIC_API_URL; // Use full URL on server
+      : process.env.API_URL; // Use full URL on server
   let fullUrl = buildUrlWithParams(`${baseUrl}${url}`, params);
 
   // Replace any double slashes with a single slash in the full URL

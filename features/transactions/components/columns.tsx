@@ -8,13 +8,13 @@ import { Actions } from "./actions";
 
 // Formatters
 import { format } from "date-fns";
-import { getTxTypeVariant } from "@/utils/formatters";
+import { getTxTypeVariant } from "@/utils/formatters/variants";
 
 // UI Components
 import { Badge } from "@/components/ui/badge";
 
 // import { MoreHorizontal } from "lucide-react";
-import type { Transaction } from "@/types/database/inventory/transactions";
+import type { Transaction } from "@/types/models";
 
 // components/features/inventory/TransactionTable/columns.tsx
 

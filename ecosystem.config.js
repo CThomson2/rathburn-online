@@ -13,7 +13,9 @@ module.exports = {
         PORT: "3000",
         // Set the production API URL to the EC2 instance's public DNS or IP
         // IMPORTANT: Update this with your actual EC2 public DNS or IP
-        NEXT_PUBLIC_API_URL: "http://18.175.182.134:3000/api/",
+        // NEXT_PUBLIC_API_URL: "http://18.175.182.134:3000/api/",
+        // Add this to ensure Next.js knows where to find static assets
+        __NEXT_PRIVATE_STANDALONE_CONFIG: "true",
       },
       // This ensures environment variables from .env are loaded
       env_file: ".next/standalone/.env",

@@ -16,10 +16,32 @@ export function useInventoryOverview() {
 
         // Then get the stock levels
         console.log("[Hook] Fetching stock levels...");
-        const stockLevels = await getStockLevels({
-          lowCount: 25,
-          highCount: 10,
-        });
+
+        // Try a direct fetch as a fallback if the API client is failing
+        let stockLevels;
+        try {
+          stockLevels = await getStockLevels({
+            lowCount: 25,
+            highCount: 10,
+          });
+        } catch (e) {
+          console.error(
+            "[Hook] Primary fetch method failed, trying direct fetch:",
+            e
+          );
+
+          // Direct fetch as fallback
+          const directResponse = await fetch(
+            "/api/dashboard/current-stock?lowCount=25&highCount=10"
+          );
+          if (!directResponse.ok) {
+            throw new Error(
+              `Direct fetch failed: ${directResponse.status} ${directResponse.statusText}`
+            );
+          }
+          stockLevels = await directResponse.json();
+        }
+
         console.log("[Hook] Stock levels received:", stockLevels);
 
         if (!stockLevels || !weeklyStockChanges) {

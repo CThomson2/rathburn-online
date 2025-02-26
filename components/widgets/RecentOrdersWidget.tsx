@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { BaseWidget } from "./BaseWidget";
 import { cn } from "@/utils/cn";
 import { Search } from "lucide-react";
-import type { Order } from "@/types/database/inventory/orders";
+import type { Order } from "@/types/models";
 import debounce from "lodash/debounce";
 
 interface OrderStatus {

@@ -3,8 +3,9 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./theme-provider";
+import { queryConfig } from "@/lib/react-query";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({ defaultOptions: queryConfig });
 
 /**
  * The QueryClientProvider wrapper provides the React Query context to its child components, allowing

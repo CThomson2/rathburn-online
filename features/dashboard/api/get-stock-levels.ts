@@ -14,7 +14,20 @@ export const getStockLevels = async ({
   lowCount: number;
   highCount: number;
 }): Promise<StockLevels> => {
+  console.log("[API Client] Starting stock levels request with params:", {
+    lowCount,
+    highCount,
+  });
+
   try {
+    // Log the full URL that will be requested
+    const fullUrl =
+      typeof window !== "undefined"
+        ? `/api/dashboard/current-stock?lowCount=${lowCount}&highCount=${highCount}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/dashboard/current-stock?lowCount=${lowCount}&highCount=${highCount}`;
+
+    console.log("[API Client] Will request URL:", fullUrl);
+
     const response = await api.get<StockLevelsResponse>(
       "/dashboard/current-stock",
       {
@@ -28,6 +41,12 @@ export const getStockLevels = async ({
     return response;
   } catch (error) {
     console.error("[API Client] Error fetching stock levels:", error);
+    // Log more details about the error
+    if (error instanceof Error) {
+      console.error("[API Client] Error name:", error.name);
+      console.error("[API Client] Error message:", error.message);
+      console.error("[API Client] Error stack:", error.stack);
+    }
     throw error;
   }
 };

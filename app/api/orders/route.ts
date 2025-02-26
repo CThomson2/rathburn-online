@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { queries } from "@/database/repositories/orders/queries";
+import { queries as q } from "@/database/models/orders/queries";
 import { withDatabase, DATABASE_ROUTE_CONFIG } from "@/database";
-import type { OrderFormData } from "@/types/database/inventory/orders";
 import { PrismaClientKnownRequestError } from "@/database/prisma/generated/client/runtime/library";
 
 // Force dynamic rendering and no caching for this database-dependent route
@@ -19,7 +18,7 @@ export async function GET(req: Request) {
   const limit = parseInt(searchParams.get("limit") || "50");
 
   try {
-    const orders = await queries.getOrders({ page, limit });
+    const orders = await q.getOrders({ page, limit });
     return NextResponse.json(orders);
   } catch (error) {
     console.error("Error fetching orders:", error);
@@ -39,7 +38,7 @@ export async function POST(req: Request) {
 
   try {
     // Use withDatabase to create a new order
-    const newOrder: OrderFormData = await withDatabase(async (db) => {
+    const newOrder = await withDatabase(async (db) => {
       return db.orders.create({
         data: {
           supplier,

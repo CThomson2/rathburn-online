@@ -1,11 +1,8 @@
 import { useState } from "react";
 import { Copy } from "lucide-react"; // Replaced react-icons with lucide-react
-
 import Image from "next/image";
-
 import { cn } from "@/utils/cn";
 
-// import GridGlobe from "./GridGlobe";
 import MagicButton from "./magic-button";
 
 export const BentoGrid = ({

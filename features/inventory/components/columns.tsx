@@ -5,19 +5,19 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Download, FileDown } from "lucide-react";
 import { format } from "date-fns";
-import type { NewDrum } from "@/types/database/inventory/drums";
-import { DrumStatusType } from "@/types/constant/inventory/drums";
+import type { DrumBatch } from "@/types/models";
+import { DrumStatus } from "@/types/models/drums/constant";
 
 // Add props for status filter state
 interface ColumnProps {
-  selectedStatuses: DrumStatusType[];
-  setSelectedStatuses: React.Dispatch<React.SetStateAction<DrumStatusType[]>>;
+  selectedStatuses: DrumStatus.Type[];
+  setSelectedStatuses: React.Dispatch<React.SetStateAction<DrumStatus.Type[]>>;
 }
 
 export const createColumns = ({
   selectedStatuses,
   setSelectedStatuses,
-}: ColumnProps): ColumnDef<NewDrum>[] => [
+}: ColumnProps): ColumnDef<DrumBatch>[] => [
   {
     accessorKey: "drum_id",
     header: ({ column }) => <SortableColumn column={column} title="ID" />,
@@ -116,7 +116,7 @@ export const createColumns = ({
       </div>
     ),
     cell: ({ row }) => {
-      const status = row.getValue("status") as DrumStatusType;
+      const status = row.getValue("status") as DrumStatus.Type;
       const orderId = row.getValue("order_id") as number;
       const drumId = row.getValue("drum_id") as number;
       const material = row.getValue("material") as string;

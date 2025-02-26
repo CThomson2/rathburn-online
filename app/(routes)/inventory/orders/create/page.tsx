@@ -13,9 +13,8 @@
 "use client";
 
 import { useState } from "react";
-import { OrderFormData } from "@/types/database/inventory/orders";
-import { CreateForm } from "@/features/orders/components/order-form";
-import { DrumLabel } from "@/features/orders/components/drum-label";
+import { Order } from "@/types/models";
+import { CreateForm, DrumLabel } from "@/features/orders/components";
 import { cn } from "@/utils/cn";
 import { CheckCircle2, Loader2 } from "lucide-react";
 
@@ -38,7 +37,7 @@ interface FormValues {
  * @returns {JSX.Element} The rendered OrderCreationPage component
  */
 function OrderCreationPage(): JSX.Element {
-  const [orders, setOrders] = useState<OrderFormData[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 

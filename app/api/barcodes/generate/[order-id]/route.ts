@@ -1,4 +1,4 @@
-// /app/api/barcodes/[orderId]/route.ts
+// /app/api/barcodes/[order_id]/route.ts
 import { NextResponse } from "next/server";
 import { withDatabase, DATABASE_ROUTE_CONFIG } from "@/database";
 import bwipjs from "bwip-js";
@@ -16,24 +16,25 @@ const inchesToPoints = (inches: number) => inches * 72;
 
 export async function GET(
   req: Request,
-  { params }: { params: { orderId: string } }
+  { params: { "order-id": orderId } }: { params: { "order-id": string } }
 ) {
   try {
-    const { orderId } = params;
+    const order_id = orderId;
 
     const { material, supplier } = Object.fromEntries(
       new URL(req.url).searchParams
     );
 
-    if (!orderId) {
-      return NextResponse.json({ error: "Missing orderId" }, { status: 400 });
+    if (!order_id) {
+      console.error("Missing order_id");
+      return NextResponse.json({ error: "Missing order_id" }, { status: 400 });
     }
 
     return await withDatabase(async (db) => {
       // 2) Fetch the newly-created drums
-      const drumRecords = await db.new_drums.findMany({
+      const drums = await db.new_drums.findMany({
         where: {
-          order_id: Number(orderId),
+          order_id: Number(order_id),
         },
         select: {
           drum_id: true,
@@ -41,7 +42,7 @@ export async function GET(
       });
 
       // Convert the drum_ids into an array of numbers
-      const drumIds: number[] = drumRecords.map((drum) => drum.drum_id);
+      const drumIds: number[] = drums.map((drum) => drum.drum_id);
 
       // 1) Create a PDF
       const pdfDoc = await PDFDocument.create();
@@ -52,9 +53,9 @@ export async function GET(
       const PAGE_HEIGHT = inchesToPoints(4);
 
       // For each drum, generate a barcode and a dedicated page in the PDF
-      for (const drumId of drumIds) {
-        // Generate the barcode image (PNG) for `[drumId]~[orderId]`
-        const codeText = `${orderId}-H${drumId}`;
+      for (const drum_id of drumIds) {
+        // Generate the barcode image (PNG) for `[drumId]~[order_id]`
+        const codeText = `${order_id}-H${drum_id}`;
 
         const barcodeBuffer = await bwipjs.toBuffer({
           bcid: "code128",
@@ -92,13 +93,13 @@ export async function GET(
         });
 
         // Optional: Add some text
-        page.drawText(`Order ID: ${orderId}`, {
+        page.drawText(`Order ID: ${order_id}`, {
           x: 30,
           y: 20,
           size: 14,
           font,
         });
-        page.drawText(`Drum ID: ${drumId}`, {
+        page.drawText(`Drum ID: ${drum_id}`, {
           x: 30,
           y: 200,
           size: 14,

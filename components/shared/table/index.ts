@@ -1,12 +1,12 @@
-import { TableFooter } from "./footer/TableFooter";
-import { Pagination } from "./footer/Pagination";
+import { TableFooter } from "./footer/table-footer";
+import { Pagination } from "./footer/pagination";
 
-import { TableHeader } from "./header/TableHeader";
-import { SearchBar } from "./header/SearchBar";
-import { ActionButton } from "./header/ActionButton";
+import { TableHeader } from "./header/table-header";
+import { SearchBar } from "./header/search-bar";
+import { ActionButton } from "./header/action-button";
 
-import { SortableColumn } from "./ux/SortableColumn";
-import { StatusFilter } from "./ux/StatusFilter";
+import { SortableColumn } from "./ux/sortable-column";
+import { StatusFilter } from "./ux/status-filter";
 import { Actions } from "@/features/transactions/components/actions";
 
 export {

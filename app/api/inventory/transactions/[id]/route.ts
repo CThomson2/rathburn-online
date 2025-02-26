@@ -4,7 +4,7 @@ import type {
   Transaction,
   TransactionIntake,
   TransactionProcessed,
-} from "@/types/database/inventory/transactions";
+} from "@/types/models";
 
 export async function GET(
   req: Request,

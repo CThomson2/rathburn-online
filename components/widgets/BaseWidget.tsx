@@ -2,7 +2,7 @@
 
 import { Star } from "lucide-react";
 import { cn } from "@/utils/cn";
-import { useDashboard } from "../context/DashboardContext";
+import { useDashboard } from "@/context/dashboard-context";
 
 /**
  * Props for the BaseWidget component.
