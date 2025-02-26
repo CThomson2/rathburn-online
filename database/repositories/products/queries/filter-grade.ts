@@ -1,5 +1,5 @@
 // database/repositories/products/queries.ts
-import { withDatabase } from "@/database";
+import { withDatabase } from "../../../";
 
 const Grade = {
   GD: "GD",

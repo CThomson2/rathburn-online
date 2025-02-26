@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { queries } from "@/database/repositories/products";
+import { queries } from "../../../../database/repositories/products";
 
 export async function GET(req: Request) {
   try {

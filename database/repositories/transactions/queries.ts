@@ -1,5 +1,5 @@
 // database/repositories/products/queries.ts
-import { withDatabase } from "@/database";
+import { withDatabase } from "../../";
 import type { Transaction } from "@/types/database/inventory/transactions";
 import {
   TransactionVariant,

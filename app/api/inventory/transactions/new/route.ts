@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { queries } from "@/database/repositories/transactions";
+import { queries } from "../../../../../database/repositories/transactions";
 
 // export async function POST(req: Request) {
 //   if (req.method === "POST") {
