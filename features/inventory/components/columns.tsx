@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Download, FileDown } from "lucide-react";
 import { format } from "date-fns";
-import type { DrumBatch } from "@/types/models/drums";
+import type { DrumBatch } from "@/types/models";
 import { DrumStatus } from "@/types/models/drums/constant";
 
 // Add props for status filter state

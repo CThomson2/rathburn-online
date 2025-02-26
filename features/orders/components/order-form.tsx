@@ -1,6 +1,6 @@
 "use client";
 
-import { CreateOrderParams } from "@/types/models/orders";
+import { CreateOrderParams } from "@/types/models";
 import { useState, useEffect, useCallback, KeyboardEvent } from "react";
 import styles from "./form.module.css";
 import { cn } from "@/utils/cn";

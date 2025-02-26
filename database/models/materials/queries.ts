@@ -3,7 +3,7 @@ import {
   MaterialQueryParams,
   MaterialsResponse,
   Material,
-} from "@/types/models/materials";
+} from "@/types/models";
 import { formatDates } from "@/utils/formatters/data";
 
 export const queries = {

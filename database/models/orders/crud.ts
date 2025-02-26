@@ -1,5 +1,5 @@
 import { withDatabase } from "@/database";
-import * as t from "@/types/models/orders";
+import * as t from "@/types/models";
 import { UpdateFields } from "@/types/models/orders/crud";
 import { OrderStatus } from "@/types/models/orders/constant";
 

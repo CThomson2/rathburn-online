@@ -19,7 +19,7 @@ import {
   SearchBar,
   ActionButton,
 } from "@/components/shared/table";
-import type { Transaction } from "@/types/models/transactions";
+import type { Transaction } from "@/types/models";
 import { cn } from "@/utils/cn";
 
 const ROW_HEIGHT = 30; // Adjust this value as needed

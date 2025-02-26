@@ -30,7 +30,7 @@
  */
 import { NextResponse } from "next/server";
 import { getDb } from "@/database";
-import { UpdateOrderETAParams, FormattedOrder } from "@/types/models/orders";
+import { UpdateOrderETAParams, FormattedOrder } from "@/types/models";
 import { formatDates } from "@/utils/formatters/data";
 
 export async function PATCH(

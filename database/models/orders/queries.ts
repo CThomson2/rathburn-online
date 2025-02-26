@@ -4,7 +4,7 @@ import type {
   CreateOrderParams,
   OrdersResponse,
   Order,
-} from "@/types/models/orders";
+} from "@/types/models";
 import { OrderStatus, OrderETAStatus } from "@/types/models/orders/constant";
 
 export const queries = {

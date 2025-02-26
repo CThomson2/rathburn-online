@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { queries as q } from "@/database/models/drums";
 import { DrumStatus } from "@/types/models/drums/constant";
-import { DrumBatch } from "@/types/models/drums";
+import { DrumBatch } from "@/types/models";
 
 /**
  * GET handler for fetching drums inventory data

@@ -21,7 +21,7 @@ import {
 } from "@/components/shared/table";
 import { DrumStatus } from "@/types/models/drums/constant";
 import { cn } from "@/utils/cn";
-import type { DrumsResponse } from "@/types/models/drums";
+import type { DrumsResponse } from "@/types/models";
 
 // Filter options for the search bar dropdown
 const filterOptions = [

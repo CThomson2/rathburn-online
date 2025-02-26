@@ -1,9 +1,5 @@
 import { withDatabase } from "../..";
-import type {
-  DrumQueryParams,
-  DrumsResponse,
-  DrumBatch,
-} from "@/types/models/drums";
+import type { DrumQueryParams, DrumsResponse, DrumBatch } from "@/types/models";
 import type { DrumStatus, DrumLocation } from "@/types/models/drums/constant";
 
 export const queries = {

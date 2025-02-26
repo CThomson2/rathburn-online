@@ -7,7 +7,7 @@ import { SortingState } from "@tanstack/react-table";
 import Link from "next/link";
 import { ActionButton, SearchBar } from "@/components/shared/table";
 import { GridModal } from "./grid/grid-modal";
-import type { Order, OrdersResponse } from "@/types/models/orders";
+import type { Order, OrdersResponse } from "@/types/models";
 import { api } from "@/lib/api-client";
 
 const filterOptions = [

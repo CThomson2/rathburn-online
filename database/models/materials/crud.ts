@@ -1,5 +1,5 @@
 import { withDatabase } from "@/database";
-import * as t from "@/types/models/materials";
+import * as t from "@/types/models";
 import { UpdateFields } from "@/types/models/materials/crud";
 
 /**

@@ -1,2 +1,2 @@
 export { queries } from "./queries";
-export * from "@/types/models/transactions";
+export * from "@/types/models";

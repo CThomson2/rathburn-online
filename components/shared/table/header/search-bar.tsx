@@ -11,7 +11,7 @@ import {
 // Import utility functions and types
 import { cn } from "@/utils/cn";
 import { ChevronDown, FilterIcon, SearchIcon } from "lucide-react";
-import { FilterOption } from "@/types/models/products";
+import { FilterOption } from "@/types/models";
 
 // Props interface for the SearchBar component
 interface SearchBarProps {

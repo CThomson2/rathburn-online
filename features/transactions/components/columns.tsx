@@ -14,7 +14,7 @@ import { getTxTypeVariant } from "@/utils/formatters/variants";
 import { Badge } from "@/components/ui/badge";
 
 // import { MoreHorizontal } from "lucide-react";
-import type { Transaction } from "@/types/models/transactions";
+import type { Transaction } from "@/types/models";
 
 // components/features/inventory/TransactionTable/columns.tsx
 

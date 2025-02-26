@@ -4,4 +4,4 @@ import { materialsCrud } from "./crud";
 export { queries, materialsCrud };
 
 // Re-export types
-export * from "@/types/models/materials";
+export * from "@/types/models";

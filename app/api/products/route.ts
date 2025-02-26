@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withDatabase, type DatabaseOperationCallback } from "@/database";
 import { withErrorHandler } from "@/utils/with-error-handler";
-import type { ProductTableRow } from "@/types/models/products";
+import type { ProductTableRow } from "@/types/models";
 
 /** 1) READ (GET) */
 export const GET = withErrorHandler(async (req: Request) => {

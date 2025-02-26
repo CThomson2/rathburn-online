@@ -1,6 +1,6 @@
 // database/models/products/queries.ts
 import { withDatabase } from "../..";
-import { ProductTableRow } from "@/types/models/products";
+import { ProductTableRow } from "@/types/models";
 
 const Grade = {
   GD: "GD",

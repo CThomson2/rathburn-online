@@ -13,7 +13,7 @@
 "use client";
 
 import { useState } from "react";
-import { Order } from "@/types/models/orders";
+import { Order } from "@/types/models";
 import { CreateForm, DrumLabel } from "@/features/orders/components";
 import { cn } from "@/utils/cn";
 import { CheckCircle2, Loader2 } from "lucide-react";
