@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Form } from "@/components/shared/form";
 import type { FormFields } from "@/types/content/form";
-import { TransactionSource } from "@/types/constant/inventory/transactions";
+import { TransactionSource } from "@/types/models/transactions/constant";
 
 const NewTransactionPage = () => {
   const [source, setSource] = useState<

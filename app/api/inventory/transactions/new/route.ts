@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { queries } from "@/database/repositories/transactions";
+import { queries as q } from "@/database/models/transactions";
 
 // export async function POST(req: Request) {
 //   if (req.method === "POST") {
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     const transactionData = await req.json(); // e.g., { tx_type: 'intake', delivery_id: 123, ... }
 
     // 2) Create a new record
-    const newTx = await queries.createTransaction(transactionData);
+    const newTx = await q.createTransaction(transactionData);
 
     // 3) Send JSON response
     return NextResponse.json(

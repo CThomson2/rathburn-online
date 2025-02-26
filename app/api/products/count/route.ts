@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { queries } from "@/database/repositories/products";
+import { queries as q } from "@/database/models/products";
 
 export async function GET(req: Request) {
   try {
-    const counts = await queries.count.getProductCounts();
+    const counts = await q.getProductCounts();
     return NextResponse.json(counts);
   } catch (error) {
     return NextResponse.json(

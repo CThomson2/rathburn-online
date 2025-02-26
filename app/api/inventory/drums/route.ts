@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
-import { queries } from "@/database/repositories/drums/queries";
-import {
-  DrumStatus,
-  DrumStatusType,
-} from "@/types/constant/inventory/drums";
-import { NewDrum } from "@/types/database/inventory/drums";
+import { queries as q } from "@/database/models/drums";
+import { DrumStatus } from "@/types/models/drums/constant";
+import { DrumBatch } from "@/types/models/drums";
 
 /**
  * GET handler for fetching drums inventory data
@@ -28,7 +25,7 @@ export async function GET(req: Request) {
     const page = parseInt(searchParams.get("page") ?? "1");
     const limit = parseInt(searchParams.get("limit") ?? "50");
     const sortField = (searchParams.get("sortField") ??
-      "drum_id") as keyof NewDrum;
+      "drum_id") as keyof DrumBatch;
     const sortOrder = (searchParams.get("sortOrder") ?? "desc") as
       | "desc"
       | "asc";
@@ -36,11 +33,11 @@ export async function GET(req: Request) {
     // Parse status filter parameter
     const statusParam = searchParams.get("status");
     const status = statusParam
-      ? (statusParam.split(",") as DrumStatusType[])
+      ? (statusParam.split(",") as DrumStatus.Type[])
       : Object.values(DrumStatus);
 
     // Fetch drums data using repository query
-    const drumsData = await queries.getDrums({
+    const drumsData = await q.getDrums({
       page,
       limit,
       sortField,

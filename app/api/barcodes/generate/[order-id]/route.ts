@@ -16,17 +16,17 @@ const inchesToPoints = (inches: number) => inches * 72;
 
 export async function GET(
   req: Request,
-  // TODO: change all params to use URL-friendly casing, i.e. orderId -> order-id
-  { params }: { params: { order_id: string } }
+  { params: { "order-id": orderId } }: { params: { "order-id": string } }
 ) {
   try {
-    const { order_id } = params;
+    const order_id = orderId;
 
     const { material, supplier } = Object.fromEntries(
       new URL(req.url).searchParams
     );
 
     if (!order_id) {
+      console.error("Missing order_id");
       return NextResponse.json({ error: "Missing order_id" }, { status: 400 });
     }
 

@@ -1,10 +1,9 @@
 import React from "react";
-import { api } from "@/lib/api-client";
-import { OrderFormData } from "@/types/database/inventory/orders";
+import { Order } from "@/types/models/orders";
 import { FileDown } from "lucide-react";
 
 interface DrumLabelProps {
-  order: OrderFormData;
+  order: Order;
   onError: (error: string) => void;
 }
 
@@ -29,11 +28,15 @@ export const DrumLabel: React.FC<DrumLabelProps> = ({
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
 
-      // Now you can get the blob from the response
+      // Get the PDF as a blob with the correct MIME type
       const pdfBlob = await response.blob();
 
-      // Create a temporary URL to open the Blob in a new tab
-      const pdfUrl = window.URL.createObjectURL(pdfBlob);
+      // Create a URL for the blob with the correct MIME type
+      const pdfUrl = URL.createObjectURL(
+        new Blob([pdfBlob], { type: "application/pdf" })
+      );
+
+      // Open the PDF in a new tab
       window.open(pdfUrl, "_blank");
     } catch (error) {
       console.error("Error generating barcode PDF:", error);

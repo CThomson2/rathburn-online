@@ -41,12 +41,12 @@ import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getTxTypeVariant } from "@/utils/formatters";
+import { getTxTypeVariant } from "@/utils/formatters/variants";
 import type {
   Transaction,
   TransactionIntake,
   TransactionProcessed,
-} from "@/types/database/inventory/transactions";
+} from "@/types/models/transactions";
 import { cn } from "@/utils/cn";
 
 type ActionType = "view" | "edit" | "assign" | null;

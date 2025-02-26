@@ -30,6 +30,8 @@
  */
 import { NextResponse } from "next/server";
 import { getDb } from "@/database";
+import { UpdateOrderETAParams, FormattedOrder } from "@/types/models/orders";
+import { formatDates } from "@/utils/formatters/data";
 
 export async function PATCH(
   request: Request,
@@ -43,11 +45,7 @@ export async function PATCH(
     }
 
     // Parse request body
-    const {
-      etaStart,
-      etaEnd,
-    }: { etaStart?: string | null; etaEnd?: string | null } =
-      await request.json();
+    const { etaStart, etaEnd }: UpdateOrderETAParams = await request.json();
 
     const db = getDb();
 
@@ -87,14 +85,13 @@ export async function PATCH(
     }
 
     // Format the response to ensure dates are in ISO string format
-    const formattedOrder = {
-      ...updatedOrder,
-      eta_start: updatedOrder.eta_start?.toISOString() || null,
-      eta_end: updatedOrder.eta_end?.toISOString() || null,
-      created_at: updatedOrder.created_at?.toISOString(),
-      updated_at: updatedOrder.updated_at?.toISOString(),
-      eta_status,
-    };
+    const formattedOrder = formatDates(
+      {
+        ...updatedOrder,
+        eta_status,
+      },
+      ["eta_start", "eta_end", "created_at", "updated_at", "date_ordered"]
+    ) as FormattedOrder;
 
     return NextResponse.json(formattedOrder);
   } catch (error) {

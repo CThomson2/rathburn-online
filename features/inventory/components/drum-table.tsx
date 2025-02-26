@@ -1,5 +1,36 @@
-// components/features/inventory/DrumsTable/index.tsx
 "use client";
+
+import { useState, useEffect, useMemo, memo } from "react";
+import Link from "next/link";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getPaginationRowModel,
+  SortingState,
+  flexRender,
+} from "@tanstack/react-table";
+import { createColumns } from "./columns";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import {
+  TableHeader,
+  TableFooter,
+  SearchBar,
+  ActionButton,
+} from "@/components/shared/table";
+import { DrumStatus } from "@/types/models/drums/constant";
+import { cn } from "@/utils/cn";
+import type { DrumsResponse } from "@/types/models/drums";
+
+// Filter options for the search bar dropdown
+const filterOptions = [
+  { label: "All", value: "all" },
+  { label: "By Material", value: "material" },
+  { label: "By Supplier", value: "supplier" },
+  { label: "By Location", value: "location" },
+  { label: "By Status", value: "status" },
+];
 
 /**
  * DrumsTable Component
@@ -31,39 +62,6 @@
  *   by components like ProductTable
  * 4. Once Sidebar is improved, integrate it with the table by using hover and spotlight effects of table rows that user is focusing on in the sidebar
  */
-
-import { useState, useEffect, useMemo, memo } from "react";
-import Link from "next/link";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
-  SortingState,
-  flexRender,
-} from "@tanstack/react-table";
-import { createColumns } from "./columns";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import {
-  TableHeader,
-  TableFooter,
-  SearchBar,
-  ActionButton,
-} from "@/components/shared/table";
-import { DrumStatus, DrumStatusType } from "@/types/constant/inventory/drums";
-import { cn } from "@/utils/cn";
-import type { DrumsResponse } from "@/types/database/inventory/drums";
-
-// Filter options for the search bar dropdown
-const filterOptions = [
-  { label: "All", value: "all" },
-  { label: "By Material", value: "material" },
-  { label: "By Supplier", value: "supplier" },
-  { label: "By Location", value: "location" },
-  { label: "By Status", value: "status" },
-];
-
 export const DrumsTable = memo(function DrumsTable() {
   const queryClient = useQueryClient();
 
@@ -78,7 +76,7 @@ export const DrumsTable = memo(function DrumsTable() {
   const [rowSelection, setRowSelection] = useState({});
 
   // Status filter state passed to columns for filtering drum statuses
-  const [selectedStatuses, setSelectedStatuses] = useState<DrumStatusType[]>(
+  const [selectedStatuses, setSelectedStatuses] = useState<DrumStatus.Type[]>(
     Object.values(DrumStatus)
   );
 
@@ -244,7 +242,7 @@ export const DrumsTable = memo(function DrumsTable() {
     if (!selectedStatuses.length) return data.rows;
 
     return data.rows.filter((drum) =>
-      selectedStatuses.includes(drum.status as DrumStatusType)
+      selectedStatuses.includes(drum.status as DrumStatus.Type)
     );
   }, [data?.rows, selectedStatuses]);
 
