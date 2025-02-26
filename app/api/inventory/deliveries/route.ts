@@ -1,4 +1,4 @@
-import { getDb, DATABASE_ROUTE_CONFIG } from "../../../../database";
+import { getDb, DATABASE_ROUTE_CONFIG } from "@/database";
 import { NextResponse } from "next/server";
 
 // Force dynamic rendering and no caching for this database-dependent route

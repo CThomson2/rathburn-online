@@ -11,6 +11,7 @@ import type {
   Order,
   OrderGetResponse,
 } from "@/types/database/inventory/orders";
+import { api } from "@/lib/api-client";
 
 const filterOptions = [
   { label: "All", value: "all" },
@@ -71,11 +72,9 @@ const OrdersGrid = () => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["orders", pageIndex, pageSize],
     queryFn: async () => {
-      const response = await fetch(
-        `/api/orders?page=${pageIndex + 1}&limit=${pageSize}`
+      const data = await api.get<OrderGetResponse>(
+        `/orders?page=${pageIndex + 1}&limit=${pageSize}`
       );
-      if (!response.ok) throw new Error("Failed to fetch orders");
-      const data: OrderGetResponse = await response.json();
       return {
         rows: data.orders,
         total: data.total,

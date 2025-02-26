@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import { Menu } from "lucide-react";
 
 import "@/styles/globals.css";
-import { Providers } from "@/app/providers";
+import { Providers } from "./providers";
 // import { Sidebar } from "@/components/layout/sidebar/Sidebar";
 // import { FloatingNav } from "@/components/ui/FloatingNavbar";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";

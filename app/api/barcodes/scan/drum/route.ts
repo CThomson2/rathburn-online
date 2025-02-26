@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { withDatabase, DATABASE_ROUTE_CONFIG } from "../../../../../database";
-import { drumEvents } from "../../../../../lib/events/drumEvents";
+import { withDatabase, DATABASE_ROUTE_CONFIG } from "@/database";
+import { drumEvents } from "@/lib/events/drumEvents";
 import { z } from "zod";
 // import { sendOrderCompleteNotification } from "@/lib/email/orderNotifications";
 

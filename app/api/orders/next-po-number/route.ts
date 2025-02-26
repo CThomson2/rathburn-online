@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getDb, DATABASE_ROUTE_CONFIG } from "../../../../database";
+import { getDb, DATABASE_ROUTE_CONFIG } from "@/database";
 import { format } from "date-fns";
 
 // Force dynamic rendering and no caching for this database-dependent route

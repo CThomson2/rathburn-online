@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getDb, DATABASE_ROUTE_CONFIG } from "../../../../../database";
+import { getDb, DATABASE_ROUTE_CONFIG } from "@/database";
 import type {
   Transaction,
   TransactionIntake,

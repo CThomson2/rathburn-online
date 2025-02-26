@@ -1,4 +1,11 @@
 import { withSentryConfig } from "@sentry/nextjs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Get the directory name of the current module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Add these settings to ensure API routes work properly
@@ -8,8 +15,9 @@ const nextConfig = {
 
   // Update experimental options with correct naming
   experimental: {
-    // Updated from isrMemoryCacheSize to cacheMaxMemorySize
-    cacheMaxMemorySize: 50,
+    // Remove the invalid cacheMaxMemorySize option
+    // Instead, use valid experimental options for Next.js 14.2.24
+    instrumentationHook: true,
   },
 
   // Configure webpack with memory caching instead of disabling
@@ -19,6 +27,18 @@ const nextConfig = {
       type: "memory",
       // Other cache settings can still be included if needed
       maxGenerations: 1,
+    };
+
+    // Add path aliases to ensure they work in production
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@": path.join(__dirname, "./"),
+      "@/components": path.join(__dirname, "components"),
+      "@/features": path.join(__dirname, "features"),
+      "@/styles": path.join(__dirname, "styles"),
+      "@/types": path.join(__dirname, "types"),
+      "@/utils": path.join(__dirname, "utils"),
+      "@/app": path.join(__dirname, "app"),
     };
 
     return config;

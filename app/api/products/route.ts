@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import {
   withDatabase,
   type DatabaseOperationCallback,
-} from "../../../database";
+} from "@/database";
 import { withErrorHandler } from "@/utils/with-error-handler";
 import type { ProductTableRow } from "@/types/database/public/products";
 

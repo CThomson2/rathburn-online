@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { getDb, DATABASE_ROUTE_CONFIG } from "../../../../database";
-import type { orders } from "../../../../database/prisma/generated/client";
-import { Prisma } from "../../../../database/prisma/generated/client";
+import { getDb, DATABASE_ROUTE_CONFIG } from "@/database";
+import type { orders } from "@/database/prisma/generated/client";
+import { Prisma } from "@/database/prisma/generated/client";
 
 // Force dynamic rendering and no caching for this database-dependent route
 export const dynamic = DATABASE_ROUTE_CONFIG.dynamic;

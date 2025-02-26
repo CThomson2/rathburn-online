@@ -1,7 +1,7 @@
 // This is a Next.js API route handler for fetching inventory transactions
 // The route is accessed at /api/inventory/transactions
 import { NextResponse } from "next/server";
-import { queries } from "../../../../database/repositories/transactions/queries";
+import { queries } from "@/database/repositories/transactions/queries";
 
 export async function GET(req: Request) {
   // Extract search params from the request URL
