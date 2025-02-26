@@ -1,4 +1,5 @@
 import React from "react";
+import { api } from "@/lib/api-client";
 import { OrderFormData } from "@/types/database/inventory/orders";
 import { FileDown } from "lucide-react";
 
@@ -17,22 +18,19 @@ export const DrumLabel: React.FC<DrumLabelProps> = ({
    */
   const handleGeneratePDF = async () => {
     try {
-      // Make a GET request to your Next.js route, e.g. /api/barcodes/generate/[orderId]
-      // (Replace "generate" with your actual folder/filename if different.)
-      const res = await fetch(
+      // Use fetch directly for binary data instead of the API client
+      const response = await fetch(
         `/api/barcodes/generate/${order_id}?material=${encodeURIComponent(
           material
         )}&supplier=${encodeURIComponent(supplier)}`
       );
 
-      if (!res.ok) {
-        throw new Error("Failed to generate barcode PDF");
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
 
-      console.log("res", res);
-
-      // Convert the response to a Blob (binary data)
-      const pdfBlob = await res.blob();
+      // Now you can get the blob from the response
+      const pdfBlob = await response.blob();
 
       // Create a temporary URL to open the Blob in a new tab
       const pdfUrl = window.URL.createObjectURL(pdfBlob);

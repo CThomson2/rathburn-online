@@ -39,11 +39,27 @@ ssh -i "$EC2_KEY" $EC2_USER@$EC2_HOST << 'EOF'
     echo "Installing dependencies...";
     npm install --omit=dev --omit=optional;
 
+    echo "Running Prisma db pull and generate...";
+    npx prisma db pull;
+    npx prisma generate;
+
     echo "Building application...";
     npm run build;
 
     echo "Copying .env file to standalone directory...";
     cp .env .next/standalone/;
+
+    echo "Ensuring static assets are properly set up...";
+    # Create the static directory in the standalone output
+    mkdir -p .next/standalone/.next/static
+    # Copy all static assets to the correct location
+    cp -r .next/static/* .next/standalone/.next/static/
+    
+    # Copy public folder if it exists
+    if [ -d "public" ]; then
+        echo "Copying public folder to standalone directory...";
+        cp -r public .next/standalone/
+    fi
 
     echo "Starting application with PM2 using ecosystem config...";
     pm2 start ecosystem.config.js;

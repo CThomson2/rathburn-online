@@ -7,6 +7,7 @@ import { cn } from "@/utils/cn";
 // import { Combobox } from "@/components/ui/Combobox";
 import { Dropdown } from "./form-dropdown";
 import { Loader2 } from "lucide-react";
+import { api } from "@/lib/api-client";
 
 export const CreateForm = ({
   onOrderCreated,
@@ -38,14 +39,10 @@ export const CreateForm = ({
   useEffect(() => {
     const fetchNextPoNumber = async () => {
       try {
-        const response = await fetch("/api/orders/next-po-number");
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to fetch PO number");
-        }
-
-        setPoNumber(data.poNumber);
+        const response = await api.get<{ poNumber: string }>(
+          "/orders/next-po-number"
+        );
+        setPoNumber(response.poNumber);
       } catch (error) {
         console.error("Failed to fetch next PO number:", error);
         setError(
@@ -224,14 +221,10 @@ export const CreateForm = ({
         });
 
         // Fetch new PO number for next order
-        const response = await fetch("/api/orders/next-po-number");
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to fetch PO number");
-        }
-
-        setPoNumber(data.poNumber);
+        const response = await api.get<{ poNumber: string }>(
+          "/orders/next-po-number"
+        );
+        setPoNumber(response.poNumber);
         resetForm();
       } catch (error) {
         console.error("Failed to create order:", error);
