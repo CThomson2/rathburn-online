@@ -1,19 +1,6 @@
 // database/models/products/queries.ts
 import { withDatabase } from "../..";
-import type { Transaction } from "@/types/models/transactions";
-import { TransactionVariant } from "@/types/models/transactions/constant";
-
-interface CreateTransactionInput {
-  tx_type: TransactionVariant.Type; // "intake" | "processed" | "reprocessed" | "disposed" | "lost"
-  tx_date?: Date; // optional, if defaulting to CURRENT_DATE
-  material?: string | null;
-  delivery_id?: number | null;
-  drum_id?: number | null;
-  repro_id?: number | null;
-  process_id?: number | null;
-  tx_notes?: string | null;
-  batch_code?: string | null;
-}
+import type { Transaction, CreateTransactionPayload } from "@/types/models";
 
 export const queries = {
   /**
@@ -105,7 +92,7 @@ export const queries = {
     );
   },
 
-  createTransaction: async (transactionData: CreateTransactionInput) => {
+  createTransaction: async (transactionData: CreateTransactionPayload) => {
     return withDatabase(async (db) => {
       const {
         tx_type,
@@ -117,7 +104,6 @@ export const queries = {
         repro_id = null,
         process_id = null,
         tx_notes = null,
-        batch_code = null,
       } = transactionData;
 
       // Basic validation logic to enforce which fields must be present vs. null

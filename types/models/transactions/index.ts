@@ -62,5 +62,4 @@ export interface CreateTransactionPayload {
   process_id?: number;
   delivery_id?: number;
   tx_notes?: string;
-  batch_code?: string;
 }
