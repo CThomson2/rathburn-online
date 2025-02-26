@@ -3,6 +3,7 @@ name: Deploy to EC2
 on:
   push:
     branches: [main]
+  workflow_dispatch: # Allows the workflow to be manually triggered from the GitHub Actions tab
 
 jobs:
   deploy:
@@ -20,6 +21,13 @@ jobs:
 
       # Install dependencies and build the app
       - name: Install and Build
+        env:
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: 5432
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DATABASE_URL: postgresql://${{ env.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:5432/${{ secrets.DB_NAME }}
         run: |
           npm install --omit=dev --omit=optional
           cd database
