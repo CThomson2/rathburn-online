@@ -27,7 +27,7 @@ jobs:
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_PORT: 5432
           DB_NAME: ${{ secrets.DB_NAME }}
-          DATABASE_URL: postgresql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:5432/${{ secrets.DB_NAME }}
+          DATABASE_URL: postgresql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}
         run: |
           npm install --omit=dev --omit=optional
           cd database
