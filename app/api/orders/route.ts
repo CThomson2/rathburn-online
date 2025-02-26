@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { queries } from "@/database/repositories/orders/queries";
-import { withDatabase, DATABASE_ROUTE_CONFIG } from "@/database";
+import { queries } from "../../../database/repositories/orders/queries";
+import { withDatabase, DATABASE_ROUTE_CONFIG } from "../../../database";
 import type { OrderFormData } from "@/types/database/inventory/orders";
-import { PrismaClientKnownRequestError } from "@/database/prisma/generated/client/runtime/library";
+import { PrismaClientKnownRequestError } from "../../../database/prisma/generated/client/runtime/library";
 
 // Force dynamic rendering and no caching for this database-dependent route
 export const dynamic = DATABASE_ROUTE_CONFIG.dynamic;

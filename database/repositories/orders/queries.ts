@@ -1,4 +1,4 @@
-import { withDatabase } from "@/database";
+import { withDatabase } from "../../";
 import type {
   NewOrder,
   OrderGetResponse,

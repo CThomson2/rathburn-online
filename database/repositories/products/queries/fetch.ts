@@ -1,4 +1,4 @@
-import { withDatabase } from "@/database";
+import { withDatabase } from "../../../";
 import { ProductTableRow } from "@/types/database/public/products";
 
 export async function fetchProducts(): Promise<ProductTableRow[]> {

@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { withDatabase, type DatabaseOperationCallback } from "@/database";
+import {
+  withDatabase,
+  type DatabaseOperationCallback,
+} from "../../../database";
 import { withErrorHandler } from "@/utils/with-error-handler";
 import type { ProductTableRow } from "@/types/database/public/products";
 
