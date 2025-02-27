@@ -29,16 +29,16 @@ jobs:
           DB_NAME: ${{ secrets.DB_NAME }}
           DATABASE_URL: postgresql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}
         run: |
-          npm install --omit=dev --omit=optional
-          cd database
-          npx prisma db pull
-          npx prisma generate
-          cd ..
-          npm run build
-          # Copy environment file and static assets into standalone folder
-          cp .env .next/standalone/
-          mkdir -p .next/standalone/.next/static
-          cp -r .next/static/* .next/standalone/.next/static/
+          npm install --omit=dev --omit=optional;
+          cd database;
+          npx prisma db pull;
+          npx prisma generate;
+          cd ..;
+          npm run build;
+          # Copy environment file and static assets into standalone folder;
+          cp .env .next/standalone/;
+          mkdir -p .next/standalone/.next/static;
+          cp -r .next/static/* .next/standalone/.next/static/;
           [ -d "public" ] && cp -r public .next/standalone/ || echo "No public folder"
 
       # Deploy via SSH to your EC2 instance using an action like appleboy/ssh-action
@@ -59,6 +59,6 @@ jobs:
             cp .env .next/standalone/
             mkdir -p .next/standalone/.next/static
             cp -r .next/static/* .next/standalone/.next/static/
-            if [ -d "public" ]; then cp -r public .next/standalone/; fi
+            [ -d "public" ] && cp -r public .next/standalone/ || echo "No public folder"
             pm2 start ecosystem.config.js
             pm2 save
