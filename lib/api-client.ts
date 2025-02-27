@@ -145,4 +145,18 @@ export const api = {
   delete<T>(url: string, options?: RequestOptions): Promise<T> {
     return fetchApi<T>(url, { ...options, method: "DELETE" });
   },
+  // New method to get the full URL without making a request
+  getUrl(url: string, options?: RequestOptions): string {
+    const baseUrl =
+      typeof window !== "undefined"
+        ? "/api" // Use relative URL in browser
+        : process.env.API_URL; // Use full URL on server
+
+    let fullUrl = buildUrlWithParams(`${baseUrl}${url}`, options?.params);
+
+    // Replace any double slashes with a single slash in the full URL
+    fullUrl = fullUrl.replace(/([^:]\/)\/+/g, "$1");
+
+    return fullUrl;
+  },
 };

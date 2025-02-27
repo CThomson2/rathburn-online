@@ -15,10 +15,13 @@ export async function GET(req: Request) {
   const page = parseInt(searchParams.get("page") || "1");
   // Get limit (items per page) from URL params, defaulting to 50
   // This allows requests like ?limit=10 to show 10 items per page
-  const limit = parseInt(searchParams.get("limit") || "50");
+  const limit = parseInt(searchParams.get("limit") || "30");
+
+  console.log(`[API] Fetching orders with page=${page}, limit=${limit}`);
 
   try {
     const orders = await q.getOrders({ page, limit });
+    console.log(`[API] Successfully fetched ${orders.orders.length} orders`);
     return NextResponse.json(orders);
   } catch (error) {
     console.error("Error fetching orders:", error);

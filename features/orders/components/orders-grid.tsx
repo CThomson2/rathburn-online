@@ -9,6 +9,7 @@ import { ActionButton, SearchBar } from "@/components/shared/table";
 import { GridModal } from "./grid/grid-modal";
 import type { Order, OrdersResponse } from "@/types/models";
 import { api } from "@/lib/api-client";
+import { fetchOrders } from "@/features/orders/api/fetch-orders";
 
 const filterOptions = [
   { label: "All", value: "all" },
@@ -69,13 +70,16 @@ export const OrdersGrid = () => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["orders", pageIndex, pageSize],
     queryFn: async () => {
-      const data = await api.get<OrdersResponse>(
-        `/orders?page=${pageIndex + 1}&limit=${pageSize}`
-      );
-      return {
-        rows: data.orders,
-        total: data.total,
-      };
+      try {
+        const response = await fetchOrders(pageIndex + 1, pageSize);
+        return {
+          rows: response.orders,
+          total: response.total,
+        };
+      } catch (err) {
+        console.error("Error fetching orders:", err);
+        throw err;
+      }
     },
     staleTime: 30000,
   });
@@ -98,81 +102,81 @@ export const OrdersGrid = () => {
    *    - error: Handles connection errors and implements reconnection
    * 3. Cleans up connection on unmount
    */
-  useEffect(() => {
-    let eventSource: EventSource;
-    let retryCount = 0;
-    const maxRetries = 3;
+  // useEffect(() => {
+  //   let eventSource: EventSource;
+  //   let retryCount = 0;
+  //   const maxRetries = 3;
 
-    function setupEventSource() {
-      eventSource = new EventSource("/api/barcodes/sse/orders");
-      console.log("Establishing SSE connection...");
+  //   function setupEventSource() {
+  //     eventSource = new EventSource("/api/barcodes/sse/orders");
+  //     console.log("Establishing SSE connection...");
 
-      eventSource.addEventListener("connected", (event) => {
-        console.log("SSE Connected:", event);
-        retryCount = 0; // Reset retry count on successful connection
-      });
+  //     eventSource.addEventListener("connected", (event) => {
+  //       console.log("SSE Connected:", event);
+  //       retryCount = 0; // Reset retry count on successful connection
+  //     });
 
-      eventSource.addEventListener("orderUpdate", (event) => {
-        const { orderId, drumId, newQuantityReceived } = JSON.parse(
-          (event as MessageEvent).data
-        );
-        console.log(`Received order update for order ${orderId}`);
+  //     eventSource.addEventListener("orderUpdate", (event) => {
+  //       const { orderId, drumId, newQuantityReceived } = JSON.parse(
+  //         (event as MessageEvent).data
+  //       );
+  //       console.log(`Received order update for order ${orderId}`);
 
-        // Invalidate the query with the full query key
-        queryClient.invalidateQueries({
-          queryKey: ["orders", pageIndex, pageSize],
-        });
+  //       // Invalidate the query with the full query key
+  //       queryClient.invalidateQueries({
+  //         queryKey: ["orders", pageIndex, pageSize],
+  //       });
 
-        // Optimistically update local data before refetch completes
-        queryClient.setQueryData<{ rows: Order[]; total: number }>(
-          ["orders", pageIndex, pageSize],
-          (old) => {
-            if (!old) return old;
+  //       // Optimistically update local data before refetch completes
+  //       queryClient.setQueryData<{ rows: Order[]; total: number }>(
+  //         ["orders", pageIndex, pageSize],
+  //         (old) => {
+  //           if (!old) return old;
 
-            const updatedRows = old.rows.map((order) =>
-              order.order_id === orderId
-                ? { ...order, quantity_received: newQuantityReceived }
-                : order
-            );
+  //           const updatedRows = old.rows.map((order) =>
+  //             order.order_id === orderId
+  //               ? { ...order, quantity_received: newQuantityReceived }
+  //               : order
+  //           );
 
-            return {
-              ...old,
-              rows: updatedRows,
-            };
-          }
-        );
-      });
+  //           return {
+  //             ...old,
+  //             rows: updatedRows,
+  //           };
+  //         }
+  //       );
+  //     });
 
-      eventSource.addEventListener("error", (error) => {
-        console.error("SSE Error:", error);
-        eventSource.close();
+  //     eventSource.addEventListener("error", (error) => {
+  //       console.error("SSE Error:", error);
+  //       eventSource.close();
 
-        // Attempt to reconnect if we haven't exceeded max retries
-        if (retryCount < maxRetries) {
-          retryCount++;
-          console.log(
-            `Attempting to reconnect (attempt ${retryCount}/${maxRetries})...`
-          );
-          const reconnectDelay = Math.min(
-            1000 * Math.pow(2, retryCount),
-            10000
-          );
-          setTimeout(setupEventSource, reconnectDelay);
-        } else {
-          console.error("Max reconnection attempts reached");
-        }
-      });
-    }
+  //       // Attempt to reconnect if we haven't exceeded max retries
+  //       if (retryCount < maxRetries) {
+  //         retryCount++;
+  //         console.log(
+  //           `Attempting to reconnect (attempt ${retryCount}/${maxRetries})...`
+  //         );
+  //         const reconnectDelay = Math.min(
+  //           1000 * Math.pow(2, retryCount),
+  //           10000
+  //         );
+  //         setTimeout(setupEventSource, reconnectDelay);
+  //       } else {
+  //         console.error("Max reconnection attempts reached");
+  //       }
+  //     });
+  //   }
 
-    setupEventSource();
+  //   setupEventSource();
 
-    return () => {
-      console.log("Cleaning up SSE connection");
-      if (eventSource) {
-        eventSource.close();
-      }
-    };
-  }, [queryClient, pageIndex, pageSize]);
+  //   return () => {
+  //     console.log("Cleaning up SSE connection");
+  //     if (eventSource) {
+  //       eventSource.close();
+  //     }
+  //   };
+  // }, [queryClient, pageIndex, pageSize]);
 
   /*
   const mutation = useMutation<OrderGetResponse, Error, NewOrder>({
@@ -216,7 +220,13 @@ export const OrdersGrid = () => {
     setSelectedOrder(null);
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading)
+    return (
+      <div>
+        Loading... Current URL:{" "}
+        {typeof window !== "undefined" ? window.location.origin : ""}/api/orders
+      </div>
+    );
   if (error) return <div>Error: {error.message}</div>;
 
   return (
