@@ -13,9 +13,7 @@ import { CalendarIcon, TruckIcon, PackageIcon } from "lucide-react";
 import Link from "next/link";
 import { OrdersOverviewWidgetProps } from "@/types/models/orders";
 
-export function RecentOrdersWidget({ ordersData }: OrdersOverviewWidgetProps) {
-  const { orders } = ordersData;
-
+export function RecentOrdersWidget({ orders }: OrdersOverviewWidgetProps) {
   // Sort orders by date (newest first)
   const sortedOrders = [...orders]
     .sort(

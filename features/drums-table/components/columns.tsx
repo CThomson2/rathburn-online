@@ -1,6 +1,7 @@
 // components/features/inventory/DrumsTable/columns.tsx
 import { ColumnDef } from "@tanstack/react-table";
-import { SortableColumn, StatusFilter } from "@/components/shared/table";
+import { ColumnSort } from "@/components/table";
+import { StatusFilter } from "@/components/table/columns/filter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Download, FileDown } from "lucide-react";
@@ -20,7 +21,7 @@ export const createColumns = ({
 }: ColumnProps): ColumnDef<DrumBatch>[] => [
   {
     accessorKey: "drum_id",
-    header: ({ column }) => <SortableColumn column={column} title="ID" />,
+    header: ({ column }) => <ColumnSort column={column} title="ID" />,
     cell: ({ row }) => (
       <div className="font-semibold text-base">{row.getValue("drum_id")}</div>
     ),
@@ -28,7 +29,7 @@ export const createColumns = ({
   },
   {
     accessorKey: "material",
-    header: ({ column }) => <SortableColumn column={column} title="Material" />,
+    header: ({ column }) => <ColumnSort column={column} title="Material" />,
     cell: ({ row }) => (
       <div className="font-medium text-base">{row.getValue("material")}</div>
     ),
@@ -74,7 +75,7 @@ export const createColumns = ({
   },
   {
     accessorKey: "location",
-    header: ({ column }) => <SortableColumn column={column} title="Location" />,
+    header: ({ column }) => <ColumnSort column={column} title="Location" />,
     cell: ({ row }) => (
       <div className="font-medium text-base">{row.getValue("location")}</div>
     ),
@@ -82,9 +83,7 @@ export const createColumns = ({
   },
   {
     accessorKey: "date_ordered",
-    header: ({ column }) => (
-      <SortableColumn column={column} title="Date Ordered" />
-    ),
+    header: ({ column }) => <ColumnSort column={column} title="Date Ordered" />,
     cell: ({ row }) => (
       <div className="font-medium text-base">
         {format(new Date(row.getValue("date_ordered")), "dd MMM yyyy")}
@@ -96,7 +95,7 @@ export const createColumns = ({
   {
     accessorKey: "date_processed",
     header: ({ column }) => (
-      <SortableColumn column={column} title="Date Processed" />
+      <ColumnSort column={column} title="Date Processed" />
     ),
     cell: ({ row }) => {
       const date = row.getValue("date_processed") as string | null;

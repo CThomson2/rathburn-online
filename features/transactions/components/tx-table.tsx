@@ -13,12 +13,8 @@ import {
 } from "@tanstack/react-table";
 import { columns } from "./columns";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import {
-  TableHeader,
-  TableFooter,
-  SearchBar,
-  ActionButton,
-} from "@/components/shared/table";
+import { TableHeader, TableFooter } from "@/components/table";
+import { SearchBar } from "@/components/table/columns/search";
 import type { Transaction } from "@/types/models";
 import { cn } from "@/utils/cn";
 
@@ -170,7 +166,6 @@ export const TransactionsTable = memo(function TransactionsTable() {
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
         />
-        <ActionButton text="Manage Inventory" href="/inventory/drums/new" />
       </div>
       <div className="flex flex-col m-5 pb-10">
         <div className="rounded-md border-x-2 border-[hsl(var(--table-header))] relative bg-slate-600">

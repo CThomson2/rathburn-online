@@ -217,6 +217,7 @@ export const CreateForm = ({
           supplier,
           quantity,
           po_number: poNumber.replace(/-/g, "") || "",
+          date_ordered: new Date().toISOString(),
         });
 
         // Fetch new PO number for next order

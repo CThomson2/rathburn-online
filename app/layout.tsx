@@ -6,7 +6,7 @@ import "@/styles/globals.css";
 import { Providers } from "./providers";
 // import { Sidebar } from "@/components/layout/sidebar/Sidebar";
 // import { FloatingNav } from "@/components/ui/FloatingNavbar";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 // import { navItems } from "@/content/main";
 
 // Add this line to make the entire app dynamic

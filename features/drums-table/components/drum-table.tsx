@@ -13,12 +13,8 @@ import {
 } from "@tanstack/react-table";
 import { createColumns } from "./columns";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import {
-  TableHeader,
-  TableFooter,
-  SearchBar,
-  ActionButton,
-} from "@/components/shared/table";
+import { TableHeader, TableFooter } from "@/components/table";
+import { SearchBar } from "@/components/table/columns/search";
 import { DrumStatus } from "@/types/models/drums/constant";
 import { cn } from "@/utils/cn";
 import type { DrumsResponse } from "@/types/models";
@@ -142,97 +138,97 @@ export const DrumsTable = memo(function DrumsTable({
    * 4. Handles "error" events by closing the connection and attempting to reconnect with exponential backoff.
    * 5. Cleans up the EventSource connection on component unmount.
    */
-// useEffect hook to manage SSE connection for real-time updates
-useEffect(() => {
-  let eventSource: EventSource | null = null; // Initialize EventSource as null
-  let retryCount = 0; // Track retry attempts for reconnection
-  const maxRetries = 3; // Maximum number of reconnection attempts
-  const connectionId = Math.random().toString(36).slice(2, 8); // Unique ID for logging
+  // useEffect hook to manage SSE connection for real-time updates
+  useEffect(() => {
+    let eventSource: EventSource | null = null; // Initialize EventSource as null
+    let retryCount = 0; // Track retry attempts for reconnection
+    const maxRetries = 3; // Maximum number of reconnection attempts
+    const connectionId = Math.random().toString(36).slice(2, 8); // Unique ID for logging
 
-  // Function to set up the SSE connection
-  function setupEventSource() {
-    console.log(`[Drums Table ${connectionId}] Setting up SSE connection...`);
-    eventSource = new EventSource("/api/barcodes/sse/drums"); // Establish connection
+    // Function to set up the SSE connection
+    function setupEventSource() {
+      console.log(`[Drums Table ${connectionId}] Setting up SSE connection...`);
+      eventSource = new EventSource("/api/barcodes/sse/drums"); // Establish connection
 
-    // Listener for successful connection
-    eventSource.addEventListener("connected", (event) => {
-      console.log(`[Drums Table ${connectionId}] Connected:`, event.data);
-      retryCount = 0; // Reset retry count on successful connection
-    });
-
-    // Listener for drum status updates
-    eventSource.addEventListener("drumStatus", (event) => {
-      const { drumId, newStatus } = JSON.parse((event as MessageEvent).data);
-      console.log(
-        `[Drums Table ${connectionId}] Received status update for drum ${drumId}: ${newStatus}`
-      );
-
-      // Invalidate query to refetch data
-      queryClient.invalidateQueries({
-        queryKey: ["drums", pageIndex, pageSize, selectedStatuses],
-        exact: true,
+      // Listener for successful connection
+      eventSource.addEventListener("connected", (event) => {
+        console.log(`[Drums Table ${connectionId}] Connected:`, event.data);
+        retryCount = 0; // Reset retry count on successful connection
       });
 
-      // Optimistically update UI with new status
-      queryClient.setQueryData<{ rows: any[]; total: number }>(
-        ["drums", pageIndex, pageSize, selectedStatuses],
-        (old) => {
-          if (!old) return old;
-          console.log(
-            `[Drums Table ${connectionId}] Updating local data for drum ${drumId}`
-          );
+      // Listener for drum status updates
+      eventSource.addEventListener("drumStatus", (event) => {
+        const { drumId, newStatus } = JSON.parse((event as MessageEvent).data);
+        console.log(
+          `[Drums Table ${connectionId}] Received status update for drum ${drumId}: ${newStatus}`
+        );
 
-          // Update the status of the specific drum
-          const updatedRows = old.rows.map((drum) =>
-            drum.drum_id === drumId ? { ...drum, status: newStatus } : drum
-          );
+        // Invalidate query to refetch data
+        queryClient.invalidateQueries({
+          queryKey: ["drums", pageIndex, pageSize, selectedStatuses],
+          exact: true,
+        });
 
-          return {
-            ...old,
-            rows: updatedRows,
-          };
+        // Optimistically update UI with new status
+        queryClient.setQueryData<{ rows: any[]; total: number }>(
+          ["drums", pageIndex, pageSize, selectedStatuses],
+          (old) => {
+            if (!old) return old;
+            console.log(
+              `[Drums Table ${connectionId}] Updating local data for drum ${drumId}`
+            );
+
+            // Update the status of the specific drum
+            const updatedRows = old.rows.map((drum) =>
+              drum.drum_id === drumId ? { ...drum, status: newStatus } : drum
+            );
+
+            return {
+              ...old,
+              rows: updatedRows,
+            };
+          }
+        );
+      });
+
+      // Listener for connection errors
+      eventSource.addEventListener("error", (error) => {
+        console.error(`[Drums Table ${connectionId}] SSE Error:`, error);
+        if (eventSource) {
+          eventSource.close(); // Close the connection on error
+          eventSource = null;
         }
-      );
-    });
 
-    // Listener for connection errors
-    eventSource.addEventListener("error", (error) => {
-      console.error(`[Drums Table ${connectionId}] SSE Error:`, error);
+        // Attempt to reconnect if under max retries
+        if (retryCount < maxRetries) {
+          retryCount++;
+          const reconnectDelay = Math.min(
+            1000 * Math.pow(2, retryCount), // Exponential backoff
+            10000
+          );
+          console.log(
+            `[Drums Table ${connectionId}] Attempting to reconnect (attempt ${retryCount}/${maxRetries}) in ${reconnectDelay}ms...`
+          );
+          setTimeout(setupEventSource, reconnectDelay); // Retry connection
+        } else {
+          console.error(
+            `[Drums Table ${connectionId}] Max reconnection attempts reached`
+          );
+        }
+      });
+    }
+
+    setupEventSource(); // Initialize the SSE connection
+
+    // Cleanup function to close the connection on component unmount
+    return () => {
+      console.log(`[Drums Table ${connectionId}] Cleaning up SSE connection`);
       if (eventSource) {
-        eventSource.close(); // Close the connection on error
+        eventSource.close();
         eventSource = null;
       }
-
-      // Attempt to reconnect if under max retries
-      if (retryCount < maxRetries) {
-        retryCount++;
-        const reconnectDelay = Math.min(
-          1000 * Math.pow(2, retryCount), // Exponential backoff
-          10000
-        );
-        console.log(
-          `[Drums Table ${connectionId}] Attempting to reconnect (attempt ${retryCount}/${maxRetries}) in ${reconnectDelay}ms...`
-        );
-        setTimeout(setupEventSource, reconnectDelay); // Retry connection
-      } else {
-        console.error(
-          `[Drums Table ${connectionId}] Max reconnection attempts reached`
-        );
-      }
-    });
-  }
-
-  setupEventSource(); // Initialize the SSE connection
-
-  // Cleanup function to close the connection on component unmount
-  return () => {
-    console.log(`[Drums Table ${connectionId}] Cleaning up SSE connection`);
-    if (eventSource) {
-      eventSource.close();
-      eventSource = null;
-    }
-  };
-}, [queryClient, pageIndex, pageSize, selectedStatuses]); // Dependencies for the effect
+    };
+  }, [queryClient, pageIndex, pageSize, selectedStatuses]); // Dependencies for the effect
 
   /**
    * TanStack Query Configuration
@@ -352,7 +348,6 @@ useEffect(() => {
               onSearchChange={setSearchQuery}
             />
           </div>
-          <ActionButton text="Manage Inventory" href="/inventory/drums/new" />
         </div>
         <div className="flex-row gap-4 hidden lg:flex">
           <Link href="/inventory/orders" className="mx-auto">

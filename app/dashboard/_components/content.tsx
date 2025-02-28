@@ -1,10 +1,7 @@
 "use client";
 
 import { useState, useEffect, cloneElement } from "react";
-import {
-  DashboardProvider,
-  useDashboard,
-} from "@/features/dashboard/context/dashboard-context";
+import { useDashboard } from "@/context";
 import { ViewToggle } from "@/features/dashboard/components/view-toggle";
 import { StockLevelsWidget as StockLevels } from "@/features/dashboard/components/widgets/stock-levels";
 import { MaterialGroupsWidget } from "@/features/dashboard/components/widgets/material-groups";

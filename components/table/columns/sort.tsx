@@ -11,7 +11,7 @@ import {
 
 // Define props interface for the SortableHeader component
 // Extends HTMLDivElement props and requires a table column and title
-interface SortableColumnProps<TData, TValue>
+interface ColumnSortProps<TData, TValue>
   extends React.HTMLAttributes<HTMLDivElement> {
   column: Column<TData, TValue>;
   title: string;
@@ -19,11 +19,11 @@ interface SortableColumnProps<TData, TValue>
 
 // SortableColumn component - Creates a sortable column header with dropdown menu
 // Generic types TData and TValue represent the data type and value type of the column
-export function SortableColumn<TData, TValue>({
+export function ColumnSort<TData, TValue>({
   column,
   title,
   className,
-}: SortableColumnProps<TData, TValue>) {
+}: ColumnSortProps<TData, TValue>) {
   // If column is not sortable, render just the title
   if (!column.getCanSort()) {
     return <div className={cn(className)}>{title}</div>;

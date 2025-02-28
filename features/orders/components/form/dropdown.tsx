@@ -15,6 +15,17 @@ import {
   CommandList,
 } from "@/components/ui/command";
 
+/**
+ * Props for the Dropdown component.
+ * @property {string} value - The currently selected value.
+ * @property {(value: string) => void} onValueChange - Callback function to handle value changes.
+ * @property {string[]} options - Array of options to display in the dropdown.
+ * @property {string} [placeholder] - Placeholder text for the input field.
+ * @property {string} [emptyMessage] - Message to display when no options are available.
+ * @property {boolean} [disabled] - Whether the dropdown is disabled.
+ * @property {(value: string) => void} [onInputChange] - Callback function to handle input changes.
+ * @property {string} [heading] - Optional heading for the command group.
+ */
 interface DropdownProps {
   value: string;
   onValueChange: (value: string) => void;
@@ -26,6 +37,17 @@ interface DropdownProps {
   heading?: string;
 }
 
+/**
+ * Dropdown Component
+ *
+ * A reusable dropdown component that allows users to select from a list of options.
+ * It includes a search input for filtering options and displays a message when no options are found.
+ *
+ * Note: Ensure that the `options` prop is always an array of strings for consistent behavior.
+ *
+ * @param {DropdownProps} props - The properties for the Dropdown component.
+ * @returns {JSX.Element} The rendered Dropdown component.
+ */
 export const Dropdown = ({
   value = "",
   onValueChange,
@@ -35,7 +57,7 @@ export const Dropdown = ({
   disabled = false,
   onInputChange,
   heading,
-}: DropdownProps) => {
+}: DropdownProps): JSX.Element => {
   const [open, setOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState("");
 
@@ -59,6 +81,7 @@ export const Dropdown = ({
     [onInputChange]
   );
 
+  // Handle selection of an option
   const handleSelect = React.useCallback(
     (selectedOption: string) => {
       onValueChange(selectedOption);

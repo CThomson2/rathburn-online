@@ -3,7 +3,7 @@
 // Import necessary dependencies for table functionality
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { SortableColumn } from "@/components/shared/table";
+import { ColumnSort } from "@/components/table";
 import { Actions } from "./actions";
 
 // Formatters
@@ -52,25 +52,25 @@ export const columns: ColumnDef<Transaction>[] = [
   },
   //   {
   //     accessorKey: "tx_id",
-  //     header: ({ column }) => <SortableColumn column={column} title="ID" />,
+  //     header: ({ column }) => <ColumnSort column={column} title="ID" />,
   //     cell: ({ row }) => row.getValue("tx_id"),
   //     enableSorting: true,
   //   },
   {
     accessorKey: "tx_date",
-    header: ({ column }) => <SortableColumn column={column} title="Date" />,
+    header: ({ column }) => <ColumnSort column={column} title="Date" />,
     cell: ({ row }) => format(new Date(row.getValue("tx_date")), "dd MMM yyyy"),
     enableSorting: true,
   },
   {
     accessorKey: "material",
-    header: ({ column }) => <SortableColumn column={column} title="Material" />,
+    header: ({ column }) => <ColumnSort column={column} title="Material" />,
     cell: ({ row }) => row.getValue("material"),
     enableSorting: true,
   },
   {
     accessorKey: "tx_type",
-    header: ({ column }) => <SortableColumn column={column} title="Type" />,
+    header: ({ column }) => <ColumnSort column={column} title="Type" />,
     cell: ({ row }) => (
       <Badge variant={getTxTypeVariant(row.getValue("tx_type"))}>
         {row.getValue<string>("tx_type")}
@@ -81,9 +81,7 @@ export const columns: ColumnDef<Transaction>[] = [
   // TODO: Replace this with arrow icons, or remove the column and format rows based on direction e.g. green or red
   {
     accessorKey: "direction",
-    header: ({ column }) => (
-      <SortableColumn column={column} title="Direction" />
-    ),
+    header: ({ column }) => <ColumnSort column={column} title="Direction" />,
     cell: ({ row }) => {
       const direction = row.getValue<string>("direction");
       let variant: "default" | "secondary" | undefined;
@@ -113,7 +111,7 @@ export const columns: ColumnDef<Transaction>[] = [
   // Column for "Source" - either "Import", "New Drum", or "Repro Drum". Use a JOIN query to get the name of the source (depending on the tx_type))
   //   {
   //     accessorKey: "source",
-  //     header: ({ column }) => <SortableColumn column={column} title="Source" />,
+  //     header: ({ column }) => <ColumnSort column={column} title="Source" />,
   //     cell: ({ row }) => row.getValue("source"),
   //     enableSorting: true,
   //   },

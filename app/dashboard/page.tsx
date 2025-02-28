@@ -1,7 +1,7 @@
 "use client";
 
 import { DashboardContent } from "./_components/content";
-import { DashboardProvider } from "@/features/dashboard/context/dashboard-context";
+import { DashboardProvider } from "@/context";
 
 const DashboardPage = () => {
   return (
