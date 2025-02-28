@@ -22,13 +22,16 @@ jobs:
       # Build without database operations
       - name: Install and Build
         run: |
-          # Skip database operations during GitHub build
+          # Install dependencies
           npm install --omit=dev --omit=optional
-          # Copy the Prisma schema but don't try to connect to DB
-          cp -r database/prisma .next/
-          # Build without DB connection
+
+          # Generate Prisma client (this doesn't require DB connection)
+          cd database && npx prisma generate && cd ..
+
+          # Build the application
           npm run build
-          # Copy environment file and static assets into standalone folder
+
+          # Copy assets to standalone directory
           mkdir -p .next/standalone/.next/static
           cp -r .next/static/* .next/standalone/.next/static/
           [ -d "public" ] && cp -r public .next/standalone/ || echo "No public folder"
@@ -46,8 +49,10 @@ jobs:
             pm2 delete rathburn-online || true
             git pull origin main
             npm install --omit=dev --omit=optional
-            # Run database operations on the server where DB is accessible
+
+            # Run database operations on server where DB is accessible
             cd database && npx prisma db pull && npx prisma generate && cd ..
+
             npm run build
             cp .env .next/standalone/
             mkdir -p .next/standalone/.next/static
