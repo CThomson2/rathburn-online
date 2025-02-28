@@ -7,8 +7,6 @@ node_modules
 /coverage
 .cursorrules
 **/__tests__/
-jest.config.js
-jest.config.ts
 
 # Next.js
 /.next/
