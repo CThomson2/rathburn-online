@@ -1,15 +1,13 @@
 "use client";
 
 import { useState, useEffect, memo } from "react";
-import { BentoGrid } from "@/features/orders/components/grid/bento-grid";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SortingState } from "@tanstack/react-table";
-import Link from "next/link";
-import { ActionButton, SearchBar } from "@/components/shared/table";
-import { GridModal } from "./grid/grid-modal";
+import { SearchBar } from "@/components/layout/search-bar";
+import { GridModal, BentoGrid } from "./grid";
 import type { Order, OrdersResponse } from "@/types/models";
-import { api } from "@/lib/api-client";
 import { fetchOrders } from "@/features/orders/api/fetch-orders";
+import Link from "next/link";
 
 const filterOptions = [
   { label: "All", value: "all" },
@@ -18,7 +16,11 @@ const filterOptions = [
   { label: "By Status", value: "status" },
 ];
 
-export const OrdersGrid = () => {
+interface OrdersGridProps {
+  initialData?: OrdersResponse;
+}
+
+export const OrdersGrid = ({ initialData }: OrdersGridProps) => {
   // State for table sorting - currently unused but could be used for client-side sorting
   const [sorting, setSorting] = useState<SortingState>([
     { id: "order_id", desc: true },
@@ -35,7 +37,7 @@ export const OrdersGrid = () => {
   // These values are included in the queryKey array, so when they change,
   // useQuery will automatically refetch with the new pagination parameters
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(50);
+  const [pageSize, setPageSize] = useState(initialData?.orders.length || 30);
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,36 +54,55 @@ export const OrdersGrid = () => {
    * - Loading/error states
    *
    * Key Props:
-   * - queryKey: Unique identifier for this query, used for caching/refetching
+   * @queryKey Unique identifier for this query, used for caching/refetching
    *   Including pageIndex/pageSize means query will refetch when these change
    *
-   * - queryFn: Async function that fetches the data
+   * @queryFn Async function that fetches the data
    *   Uses pagination params from state to fetch correct page
    *
-   * - staleTime: How long data is considered fresh (30 seconds)
+   * @staleTime How long data is considered fresh (30 seconds)
    *   After this time, data may be refetched if component remounts
    *
+   * @initialData Data to use initially before the first fetch completes
+   *   This comes from server-side rendering for better UX
+   * 
    * Returns:
-   * - data: The fetched data
-   * - isLoading: Loading state
-   * - error: Any error that occurred
-   * - refetch: Function to manually trigger a refetch
+   * @data The fetched data
+   * @isLoading Loading state
+   * @error Any error that occurred
+   * @refetch Function to manually trigger a refetch
+
    */
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["orders", pageIndex, pageSize],
     queryFn: async () => {
       try {
+        console.log(
+          `[Client] Fetching orders with page=${
+            pageIndex + 1
+          }, limit=${pageSize}`
+        );
         const response = await fetchOrders(pageIndex + 1, pageSize);
+        console.log(
+          `[Client] Successfully fetched ${response.orders.length} orders`
+        );
         return {
           rows: response.orders,
           total: response.total,
         };
       } catch (err) {
-        console.error("Error fetching orders:", err);
+        console.error("[Client] Error fetching orders:", err);
         throw err;
       }
     },
     staleTime: 30000,
+    // Use the server-provided initial data if available
+    initialData: initialData
+      ? {
+          rows: initialData.orders,
+          total: initialData.total,
+        }
+      : undefined,
   });
 
   /**
@@ -102,81 +123,86 @@ export const OrdersGrid = () => {
    *    - error: Handles connection errors and implements reconnection
    * 3. Cleans up connection on unmount
    */
-  // useEffect(() => {
-  //   let eventSource: EventSource;
-  //   let retryCount = 0;
-  //   const maxRetries = 3;
+  useEffect(() => {
+    let eventSource: EventSource;
+    let retryCount = 0;
+    const maxRetries = 3;
+    const connectionId = Math.random().toString(36).slice(2, 8);
 
-  //   function setupEventSource() {
-  //     eventSource = new EventSource("/api/barcodes/sse/orders");
-  //     console.log("Establishing SSE connection...");
+    function setupEventSource() {
+      console.log(`[Orders SSE ${connectionId}] Setting up SSE connection...`);
+      eventSource = new EventSource("/api/barcodes/sse/orders");
 
-  //     eventSource.addEventListener("connected", (event) => {
-  //       console.log("SSE Connected:", event);
-  //       retryCount = 0; // Reset retry count on successful connection
-  //     });
+      eventSource.addEventListener("connected", (event) => {
+        console.log(`[Orders SSE ${connectionId}] Connected:`, event.data);
+        retryCount = 0; // Reset retry count on successful connection
+      });
 
-  //     eventSource.addEventListener("orderUpdate", (event) => {
-  //       const { orderId, drumId, newQuantityReceived } = JSON.parse(
-  //         (event as MessageEvent).data
-  //       );
-  //       console.log(`Received order update for order ${orderId}`);
+      eventSource.addEventListener("orderUpdate", (event) => {
+        const { orderId, drumId, newQuantityReceived } = JSON.parse(
+          (event as MessageEvent).data
+        );
+        console.log(
+          `[Orders SSE ${connectionId}] Received order update for order ${orderId}`
+        );
 
-  //       // Invalidate the query with the full query key
-  //       queryClient.invalidateQueries({
-  //         queryKey: ["orders", pageIndex, pageSize],
-  //       });
+        // Invalidate the query with the full query key
+        queryClient.invalidateQueries({
+          queryKey: ["orders", pageIndex, pageSize],
+        });
 
-  //       // Optimistically update local data before refetch completes
-  //       queryClient.setQueryData<{ rows: Order[]; total: number }>(
-  //         ["orders", pageIndex, pageSize],
-  //         (old) => {
-  //           if (!old) return old;
+        // Optimistically update local data before refetch completes
+        queryClient.setQueryData<{ rows: Order[]; total: number }>(
+          ["orders", pageIndex, pageSize],
+          (old) => {
+            if (!old) return old;
 
-  //           const updatedRows = old.rows.map((order) =>
-  //             order.order_id === orderId
-  //               ? { ...order, quantity_received: newQuantityReceived }
-  //               : order
-  //           );
+            const updatedRows = old.rows.map((order) =>
+              order.order_id === orderId
+                ? { ...order, quantity_received: newQuantityReceived }
+                : order
+            );
 
-  //           return {
-  //             ...old,
-  //             rows: updatedRows,
-  //           };
-  //         }
-  //       );
-  //     });
+            return {
+              ...old,
+              rows: updatedRows,
+            };
+          }
+        );
+      });
 
-  //     eventSource.addEventListener("error", (error) => {
-  //       console.error("SSE Error:", error);
-  //       eventSource.close();
+      eventSource.addEventListener("error", (error) => {
+        console.error(`[Orders SSE ${connectionId}] SSE Error:`, error);
+        eventSource.close();
 
-  //       // Attempt to reconnect if we haven't exceeded max retries
-  //       if (retryCount < maxRetries) {
-  //         retryCount++;
-  //         console.log(
-  //           `Attempting to reconnect (attempt ${retryCount}/${maxRetries})...`
-  //         );
-  //         const reconnectDelay = Math.min(
-  //           1000 * Math.pow(2, retryCount),
-  //           10000
-  //         );
-  //         setTimeout(setupEventSource, reconnectDelay);
-  //       } else {
-  //         console.error("Max reconnection attempts reached");
-  //       }
-  //     });
-  //   }
+        // Attempt to reconnect if we haven't exceeded max retries
+        if (retryCount < maxRetries) {
+          retryCount++;
+          console.log(
+            `[Orders SSE ${connectionId}] Attempting to reconnect (attempt ${retryCount}/${maxRetries})...`
+          );
+          const reconnectDelay = Math.min(
+            1000 * Math.pow(2, retryCount),
+            10000
+          );
+          setTimeout(setupEventSource, reconnectDelay);
+        } else {
+          console.error(
+            `[Orders SSE ${connectionId}] Max reconnection attempts reached`
+          );
+        }
+      });
+    }
 
-  //   setupEventSource();
+    setupEventSource();
 
-  //   return () => {
-  //     console.log("Cleaning up SSE connection");
-  //     if (eventSource) {
-  //       eventSource.close();
-  //     }
-  //   };
-  // }, [queryClient, pageIndex, pageSize]);
+    return () => {
+      console.log(`[Orders SSE ${connectionId}] Cleaning up SSE connection`);
+      if (eventSource) {
+        eventSource.close();
+      }
+    };
+  }, [queryClient, pageIndex, pageSize]);
 
   /*
   const mutation = useMutation<OrderGetResponse, Error, NewOrder>({
@@ -220,14 +246,40 @@ export const OrdersGrid = () => {
     setSelectedOrder(null);
   };
 
-  if (isLoading)
+  // Show loading state only if we don't have initial data and are loading
+  if (isLoading && !initialData) {
     return (
-      <div>
-        Loading... Current URL:{" "}
-        {typeof window !== "undefined" ? window.location.origin : ""}/api/orders
+      <div className="flex items-center justify-center p-12">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="h-8 w-64 bg-slate-700 rounded mb-4"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-48 bg-slate-800 rounded-lg"></div>
+            ))}
+          </div>
+        </div>
       </div>
     );
-  if (error) return <div>Error: {error.message}</div>;
+  }
+
+  // Show error state
+  if (error && !data?.rows?.length) {
+    return (
+      <div className="p-6 bg-red-900/20 border border-red-700 rounded-lg text-red-100">
+        <h2 className="text-xl font-semibold mb-2">Error Loading Orders</h2>
+        <p className="mb-4">There was a problem loading the orders data:</p>
+        <pre className="bg-slate-900 p-4 rounded overflow-auto text-sm">
+          {error.message || "Unknown error"}
+        </pre>
+        <button
+          onClick={() => refetch()}
+          className="mt-4 px-4 py-2 bg-red-700 hover:bg-red-600 rounded-md transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -242,8 +294,6 @@ export const OrdersGrid = () => {
               onSearchChange={setSearchQuery}
             />
           </div>
-          {/* <ActionButton text="Manage Inventory" href="/inventory/drums/new" /> */}
-          {/* Form to add a new order */}
           <Link
             href="/inventory/orders/create"
             className="bg-blue-500 text-white px-4 py-2 rounded-md"
@@ -253,20 +303,18 @@ export const OrdersGrid = () => {
         </div>
         <div className="flex-row gap-4 hidden lg:flex">
           <Link href="/inventory/activity" className="mx-auto">
-            <button className="flex flex-col items-center px-6 py-3 bg-slate-600 rounded-md hover:bg-slate-500 transition-colors">
+            <button
+              type="button"
+              className="flex flex-col items-center px-6 py-3 bg-slate-600 rounded-md hover:bg-slate-500 transition-colors"
+            >
               <span className="text-xs text-gray-300">Go to</span>
               <span className="font-medium">Activity</span>
-            </button>
-          </Link>
-          <Link href="/products" className="mx-auto">
-            <button className="flex flex-col items-center px-6 py-3 bg-slate-600 rounded-md hover:bg-slate-500 transition-colors">
-              <span className="text-xs text-gray-300">Go to</span>
-              <span className="font-medium">Products</span>
             </button>
           </Link>
         </div>
       </div>
 
+      {/* Main Orders Grid */}
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">Orders</h1>
         <BentoGrid>
@@ -322,6 +370,7 @@ export const OrdersGrid = () => {
         </BentoGrid>
       </div>
 
+      {/* Modal for Order Details */}
       <GridModal
         order={selectedOrder}
         isOpen={isModalOpen}

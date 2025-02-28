@@ -27,17 +27,17 @@ export const queries = {
         take: limit,
       });
 
-      const orders = rows.map((row: any) => ({
+      const orders: Order[] = rows.map((row: any) => ({
         order_id: row.order_id,
         supplier: row.supplier,
         material: row.material,
         quantity: row.quantity,
-        date_ordered: row.date_ordered?.toISOString(),
+        date_ordered: row.date_ordered.toISOString(),
         quantity_received: row.quantity_received,
         status: row.status as OrderStatus.Type,
-        created_at: row.created_at?.toISOString(),
-        updated_at: row.updated_at?.toISOString(),
-        po_number: row.po_number,
+        created_at: row.created_at.toISOString(),
+        updated_at: row.updated_at.toISOString(),
+        po_number: row.po_number as string | null,
         notes: row.notes,
         eta_start: row.eta_start?.toISOString(),
         eta_end: row.eta_end?.toISOString(),

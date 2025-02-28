@@ -6,6 +6,9 @@ node_modules
 # Testing
 /coverage
 .cursorrules
+**/__tests__/
+jest.config.js
+jest.config.ts
 
 # Next.js
 /.next/

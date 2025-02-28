@@ -28,13 +28,21 @@ export interface OrdersResponse {
 export interface FormattedOrder
   extends Omit<
     Order,
-    "created_at" | "updated_at" | "date_ordered" | "eta_start" | "eta_end"
+    | "created_at"
+    | "updated_at"
+    | "date_ordered"
+    | "notes"
+    | "po_number"
+    | "eta_start"
+    | "eta_end"
   > {
-  created_at: string | null;
-  updated_at: string | null;
-  date_ordered: string | null;
-  eta_start: string | null;
-  eta_end: string | null;
+  created_at: string;
+  updated_at: string;
+  date_ordered: string;
+  notes?: string;
+  po_number?: string;
+  eta_start?: string;
+  eta_end?: string;
 }
 
 export interface OrderGridItem {
@@ -59,7 +67,7 @@ export interface CreateOrderParams {
   supplier: string;
   material: string;
   quantity: number;
-  date_ordered?: string;
+  date_ordered: string;
   notes?: string;
   po_number: string;
   eta_start?: string;
@@ -69,4 +77,20 @@ export interface CreateOrderParams {
 export interface OrderPostResponse {
   success: boolean;
   order: Order;
+}
+
+// Component props type for rder widget component
+export interface OrdersOverviewWidgetProps {
+  orders: Array<{
+    order_id: number;
+    supplier: string;
+    material: string;
+    quantity: number;
+    date_ordered: string;
+    quantity_received: number;
+    status: string;
+    created_at: string;
+    updated_at: string;
+    po_number?: string;
+  }>;
 }

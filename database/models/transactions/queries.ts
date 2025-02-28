@@ -18,10 +18,10 @@ export const queries = {
 
     return withDatabase(async (db) => {
       // Get the total number of transactions
-      const totalResult = await db.$queryRaw<{ total: number }[]>`
+      const total = await db.$queryRaw<{ total: number }[]>`
     SELECT COUNT(*) as total FROM inventory.transactions
   `;
-      const total = Number(totalResult[0].total);
+      const totalCount = Number(total[0].total);
 
       // Then get the paginated data, with LEFT JOINs to get the material name
       const result = await db.$queryRaw`
@@ -44,7 +44,7 @@ export const queries = {
 
       return {
         rows: result as Transaction[],
-        total,
+        total: totalCount,
       };
     });
 

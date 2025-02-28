@@ -85,13 +85,16 @@ export async function PATCH(
     }
 
     // Format the response to ensure dates are in ISO string format
-    const formattedOrder = formatDates(
-      {
-        ...updatedOrder,
-        eta_status,
-      },
-      ["eta_start", "eta_end", "created_at", "updated_at", "date_ordered"]
-    ) as FormattedOrder;
+    const formattedOrder: FormattedOrder = {
+      ...formatDates(updatedOrder, [
+        "created_at",
+        "updated_at",
+        "date_ordered",
+        "eta_start",
+        "eta_end",
+      ]),
+      eta_status,
+    };
 
     return NextResponse.json(formattedOrder);
   } catch (error) {
