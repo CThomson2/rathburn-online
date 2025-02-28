@@ -47,6 +47,7 @@ yarn-error.log*
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+types/pdfkit.d.ts
 
 # PWA files
 **/public/sw.js

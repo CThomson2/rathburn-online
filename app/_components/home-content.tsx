@@ -8,7 +8,7 @@ interface GridCellProps {
   href?: string;
   description?: string;
   className?: string;
-  variant?: "primary" | "secondary" | "tertiary";
+  variant?: "primary" | "secondary" | "tertiary" | "success" | "active";
 }
 
 const GridCell = ({
@@ -25,6 +25,8 @@ const GridCell = ({
     primary: "bg-white dark:bg-gray-800",
     secondary: "bg-gray-50 dark:bg-gray-700",
     tertiary: "bg-white dark:bg-gray-800",
+    success: "bg-green-500 dark:bg-green-300",
+    active: "bg-blue-500 dark:bg-blue-300",
   };
 
   return (
@@ -63,7 +65,7 @@ const GridCell = ({
 interface GridSectionItem {
   title: string;
   href: string;
-  variant?: "primary" | "secondary" | "tertiary";
+  variant?: "primary" | "secondary" | "tertiary" | "success" | "active";
 }
 
 interface GridSection {
@@ -79,7 +81,11 @@ const gridSections: GridSection[] = [
     href: "/dashboard",
     className: "col-span-3",
     items: [
-      { title: "STOCK REPORTS", href: "#", variant: "secondary" },
+      {
+        title: "STOCK REPORTS",
+        href: "/inventory/dashboard",
+        variant: "active",
+      },
       { title: "PRODUCTION ANALYTICS", href: "#", variant: "secondary" },
       { title: "SALES & TAX", href: "#", variant: "secondary" },
     ],
@@ -89,11 +95,20 @@ const gridSections: GridSection[] = [
     href: "/inventory",
     className: "col-span-3",
     items: [
-      { title: "NEW ORDER", href: "/inventory/orders/create" },
-      { title: "INVENTORY MANAGEMENT", href: "/inventory/activity" },
-      { title: "REPRO DRUMS", href: "/materials/repro" },
+      {
+        title: "NEW ORDER",
+        href: "/inventory/orders/create",
+        variant: "success",
+      },
+      {
+        title: "INVENTORY MANAGEMENT",
+        href: "/inventory/activity",
+        variant: "success",
+      },
+      { title: "REPRO DRUMS", href: "/materials/repro", variant: "secondary" },
     ],
   },
+  /*
   {
     title: "REFERENCE INFO",
     href: "/reference",
@@ -107,6 +122,7 @@ const gridSections: GridSection[] = [
       // { title: "SUPPLIERS", href: "/reference/suppliers" },
     ],
   },
+*/
 ];
 
 export function HomeContent() {

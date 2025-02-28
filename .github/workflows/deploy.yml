@@ -23,7 +23,10 @@ jobs:
       - name: Install and Build
         run: |
           # Install dependencies
-          npm install --omit=dev --omit=optional
+          npm install --omit=optional
+
+          # Add dummy DATABASE_URL for build process
+          echo "DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy?schema=public" >> .env
 
           # Generate Prisma client (this doesn't require DB connection)
           cd database && npx prisma generate && cd ..
@@ -48,7 +51,7 @@ jobs:
             pm2 stop rathburn-online || true
             pm2 delete rathburn-online || true
             git pull origin main
-            npm install --omit=dev --omit=optional
+            npm install --omit=optional
 
             # Run database operations on server where DB is accessible
             cd database && npx prisma db pull && npx prisma generate && cd ..

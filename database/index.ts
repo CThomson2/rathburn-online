@@ -1,6 +1,12 @@
 import { PrismaClient } from "./prisma/generated/client";
 
 function createPrismaClient() {
+  const databaseUrl =
+    process.env.DATABASE_URL ||
+    (process.env.NODE_ENV === "production"
+      ? undefined
+      : "postgresql://dummy:dummy@localhost:5432/dummy?schema=public");
+
   return new PrismaClient({
     log: ["query", "info", "warn", "error"],
     datasources: {
