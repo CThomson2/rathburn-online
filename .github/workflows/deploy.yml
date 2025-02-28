@@ -19,29 +19,21 @@ jobs:
         with:
           node-version: "18.20"
 
-      # Install dependencies and build the app
+      # Build without database operations
       - name: Install and Build
-        env:
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_PORT: ${{ secrets.DB_PORT }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DATABASE_URL: postgresql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}
         run: |
-          npm install --omit=dev --omit=optional;
-          cd database;
-          npx prisma db pull;
-          npx prisma generate;
-          cd ..;
-          npm run build;
-          # Copy environment file and static assets into standalone folder;
-          cp .env .next/standalone/;
-          mkdir -p .next/standalone/.next/static;
-          cp -r .next/static/* .next/standalone/.next/static/;
+          # Skip database operations during GitHub build
+          npm install --omit=dev --omit=optional
+          # Copy the Prisma schema but don't try to connect to DB
+          cp -r database/prisma .next/
+          # Build without DB connection
+          npm run build
+          # Copy environment file and static assets into standalone folder
+          mkdir -p .next/standalone/.next/static
+          cp -r .next/static/* .next/standalone/.next/static/
           [ -d "public" ] && cp -r public .next/standalone/ || echo "No public folder"
 
-      # Deploy via SSH to your EC2 instance using an action like appleboy/ssh-action
+      # Deploy to EC2 - server will handle DB operations
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.8
         with:
@@ -54,6 +46,7 @@ jobs:
             pm2 delete rathburn-online || true
             git pull origin main
             npm install --omit=dev --omit=optional
+            # Run database operations on the server where DB is accessible
             cd database && npx prisma db pull && npx prisma generate && cd ..
             npm run build
             cp .env .next/standalone/
