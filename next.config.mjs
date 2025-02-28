@@ -20,6 +20,12 @@ const nextConfig = {
     instrumentationHook: true,
   },
 
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: false,
+  },
+
   // Configure webpack with memory caching instead of disabling
   webpack: (config) => {
     // Use memory caching instead of filesystem to avoid snapshot errors

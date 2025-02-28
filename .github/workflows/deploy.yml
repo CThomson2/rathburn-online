@@ -46,20 +46,101 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
+          port: 22
+          script_stop: false
+          envs: REPO_DEPLOY_KEY
           script: |
+            # Create debug directory to show script started
+            mkdir -p ~/debug_checkpoints/1_script_started
+
+            # Debug: Check if REPO_DEPLOY_KEY exists and has content (without revealing it)
+            if [ -n "$REPO_DEPLOY_KEY" ]; then
+              echo "REPO_DEPLOY_KEY secret exists and has content" > ~/debug_checkpoints/deploy_key_exists.txt
+              # Get key length as additional validation
+              echo "Key length: $(echo "$REPO_DEPLOY_KEY" | wc -c) characters" >> ~/debug_checkpoints/deploy_key_exists.txt
+              # Check first few characters (safe to show beginning of SSH key format)
+              echo "Key starts with: $(echo "$REPO_DEPLOY_KEY" | head -c 20)..." >> ~/debug_checkpoints/deploy_key_exists.txt
+            else
+              echo "ERROR: REPO_DEPLOY_KEY is empty or not set" > ~/debug_checkpoints/deploy_key_missing.txt
+            fi
+
+            # Step: Create SSH directory
+            mkdir -p ~/.ssh
+            mkdir -p ~/debug_checkpoints/2_ssh_dir_created
+
+            # Step: Write deploy key to file
+            echo "$REPO_DEPLOY_KEY" > ~/.ssh/github_deploy_key
+            mkdir -p ~/debug_checkpoints/3_key_written
+
+            # Step: Set key permissions
+            chmod 600 ~/.ssh/github_deploy_key
+            mkdir -p ~/debug_checkpoints/4_key_permissions_set
+
+            # Step: Configure SSH
+            cat > ~/.ssh/config << EOF
+            Host github.com
+              HostName github.com
+              User git
+              IdentityFile ~/.ssh/github_deploy_key
+              IdentitiesOnly yes
+            EOF
+            mkdir -p ~/debug_checkpoints/5_ssh_config_created
+
+            # Step: Add GitHub to known hosts
+            ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+            mkdir -p ~/debug_checkpoints/6_known_hosts_updated
+
+            # Step: Test SSH connection to GitHub (will fail if key is invalid)
+            if ssh -T -o StrictHostKeyChecking=no git@github.com 2>&1 | grep -q "successfully authenticated"; then
+              echo "Successfully authenticated with GitHub" > ~/debug_checkpoints/ssh_test_success.txt
+            else
+              echo "GitHub SSH authentication test failed" > ~/debug_checkpoints/ssh_test_failed.txt
+              ssh -T -o StrictHostKeyChecking=no git@github.com 2>&1 > ~/debug_checkpoints/ssh_test_output.txt
+            fi
+
+            # Now proceed with deployment
+            mkdir -p ~/debug_checkpoints/7_starting_deployment
             cd /home/ec2-user/rathburn-online
+            mkdir -p ~/debug_checkpoints/8_changed_to_project_dir
+
+            # Stop and delete PM2 process
             pm2 stop rathburn-online || true
             pm2 delete rathburn-online || true
-            git pull origin main
+            mkdir -p ~/debug_checkpoints/9_pm2_stopped
+
+            # Pull latest changes
+            echo "Attempting git pull..." > ~/debug_checkpoints/git_pull_start.txt
+            if git pull origin main; then
+              echo "Git pull successful" > ~/debug_checkpoints/git_pull_success.txt
+            else
+              echo "Git pull failed" > ~/debug_checkpoints/git_pull_failed.txt
+              # Capture git error
+              git pull origin main 2>&1 > ~/debug_checkpoints/git_pull_error.txt
+            fi
+            mkdir -p ~/debug_checkpoints/10_git_pull_attempted
+
+            # Continue with the rest of deployment
             npm install --omit=optional
+            mkdir -p ~/debug_checkpoints/11_npm_installed
 
             # Run database operations on server where DB is accessible
             cd database && npx prisma db pull && npx prisma generate && cd ..
+            mkdir -p ~/debug_checkpoints/12_prisma_operations_done
 
             npm run build
+            mkdir -p ~/debug_checkpoints/13_build_completed
+
             cp .env .next/standalone/
             mkdir -p .next/standalone/.next/static
             cp -r .next/static/* .next/standalone/.next/static/
             [ -d "public" ] && cp -r public .next/standalone/ || echo "No public folder"
+            mkdir -p ~/debug_checkpoints/14_static_files_copied
+
             pm2 start ecosystem.config.js
+            mkdir -p ~/debug_checkpoints/15_pm2_started
+
             pm2 save
+            mkdir -p ~/debug_checkpoints/16_deployment_complete
+
+            # List all checkpoints for debugging
+            ls -la ~/debug_checkpoints/ > ~/debug_checkpoints/checkpoint_summary.txt
