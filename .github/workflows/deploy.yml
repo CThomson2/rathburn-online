@@ -8,8 +8,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      AWS_INSTANCE_SG_ID: ${{ secrets.AWS_INSTANCE_SG_ID }}
     steps:
-      # Check out the repository
+      # Set up repository and environment
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -19,64 +21,66 @@ jobs:
         with:
           node-version: "18.20"
 
-      # Build without database operations
-      - name: Install and Build
-        run: |
-          # Install dependencies
-          npm install --omit=optional
+      # Build application
+      - name: Install dependencies
+        run: npm install --omit=optional
 
-          # Add dummy DATABASE_URL for build process
+      # Mock database URL to facilitate build process while maintaining security
+      - name: Generate Prisma client
+        run: |
+          cd database && npx prisma generate && cd ..
           echo "DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy?schema=public" >> .env
 
-          # Generate Prisma client (this doesn't require DB connection)
-          cd database && npx prisma generate && cd ..
-
-          # Build the application
+      - name: Build application and populate static assets
+        run: |
           npm run build
-
-          # Copy assets to standalone directory
           mkdir -p .next/standalone/.next/static
           cp -r .next/static/* .next/standalone/.next/static/
           [ -d "public" ] && cp -r public .next/standalone/ || echo "No public folder"
 
-      # Deploy to EC2 - server will handle DB operations
-      - name: Deploy via SSH
+      # Configure AWS and secure SSH access
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Get GitHub runner's public IP
+        id: ip
+        uses: haythem/public-ip@v1.3
+
+      - name: Log workflow modularization options
+        run: |
+          echo "Yes, you can split your workflow into two files and call one from the other using:"
+          echo "Reusable workflows: Define a workflow in one file and call it from another using uses: ./.github/workflows/other-workflow.yml"
+          echo "Composite actions: Create a custom action in .github/actions/my-action/action.yml and call it with uses: ./.github/actions/my-action"
+          echo "Both approaches allow you to modularize your workflows while maintaining the proper GitHub Actions syntax."
+      - name: Whitelist GitHub runner's IP in EC2 security group
+        run: |
+          echo "Adding IP ${{ steps.ip.outputs.ipv4 }} to security group $AWS_INSTANCE_SG_ID"
+          aws ec2 authorize-security-group-ingress \
+            --group-id $AWS_INSTANCE_SG_ID \
+            --protocol tcp \
+            --port 22 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
+      # First SSH connection to set up GitHub authentication
+      - name: Set up GitHub authentication on EC2
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.RB_EC2_KEY }}
           port: 22
-          script_stop: false
-          envs: REPO_DEPLOY_KEY
+          command_timeout: "10m"
           script: |
-            # Create debug directory to show script started
-            mkdir -p ~/debug_checkpoints/1_script_started
-
-            # Debug: Check if REPO_DEPLOY_KEY exists and has content (without revealing it)
-            if [ -n "$REPO_DEPLOY_KEY" ]; then
-              echo "REPO_DEPLOY_KEY secret exists and has content" > ~/debug_checkpoints/deploy_key_exists.txt
-              # Get key length as additional validation
-              echo "Key length: $(echo "$REPO_DEPLOY_KEY" | wc -c) characters" >> ~/debug_checkpoints/deploy_key_exists.txt
-              # Check first few characters (safe to show beginning of SSH key format)
-              echo "Key starts with: $(echo "$REPO_DEPLOY_KEY" | head -c 20)..." >> ~/debug_checkpoints/deploy_key_exists.txt
-            else
-              echo "ERROR: REPO_DEPLOY_KEY is empty or not set" > ~/debug_checkpoints/deploy_key_missing.txt
-            fi
-
-            # Step: Create SSH directory
+            # Set up GitHub authentication using deploy key
             mkdir -p ~/.ssh
-            mkdir -p ~/debug_checkpoints/2_ssh_dir_created
-
-            # Step: Write deploy key to file
-            echo "$REPO_DEPLOY_KEY" > ~/.ssh/github_deploy_key
-            mkdir -p ~/debug_checkpoints/3_key_written
-
-            # Step: Set key permissions
+            echo "${{ secrets.REPO_DEPLOY_KEY }}" > ~/.ssh/github_deploy_key
             chmod 600 ~/.ssh/github_deploy_key
-            mkdir -p ~/debug_checkpoints/4_key_permissions_set
 
-            # Step: Configure SSH
+            # Configure SSH to use the key for GitHub
             cat > ~/.ssh/config << EOF
             Host github.com
               HostName github.com
@@ -84,63 +88,59 @@ jobs:
               IdentityFile ~/.ssh/github_deploy_key
               IdentitiesOnly yes
             EOF
-            mkdir -p ~/debug_checkpoints/5_ssh_config_created
 
-            # Step: Add GitHub to known hosts
+            # Add GitHub to known hosts to avoid prompts
             ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-            mkdir -p ~/debug_checkpoints/6_known_hosts_updated
 
-            # Step: Test SSH connection to GitHub (will fail if key is invalid)
-            if ssh -T -o StrictHostKeyChecking=no git@github.com 2>&1 | grep -q "successfully authenticated"; then
-              echo "Successfully authenticated with GitHub" > ~/debug_checkpoints/ssh_test_success.txt
-            else
-              echo "GitHub SSH authentication test failed" > ~/debug_checkpoints/ssh_test_failed.txt
-              ssh -T -o StrictHostKeyChecking=no git@github.com 2>&1 > ~/debug_checkpoints/ssh_test_output.txt
-            fi
+            # Test GitHub SSH connection
+            ssh -T -o StrictHostKeyChecking=no git@github.com || echo "GitHub authentication configured"
 
-            # Now proceed with deployment
-            mkdir -p ~/debug_checkpoints/7_starting_deployment
+      # Main deployment script
+      - name: Deploy application to EC2
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.RB_EC2_KEY }}
+          port: 22
+          command_timeout: "20m"
+          script: |
+            # Navigate to project directory
             cd /home/ec2-user/rathburn-online
-            mkdir -p ~/debug_checkpoints/8_changed_to_project_dir
 
             # Stop and delete PM2 process
             pm2 stop rathburn-online || true
             pm2 delete rathburn-online || true
-            mkdir -p ~/debug_checkpoints/9_pm2_stopped
 
-            # Pull latest changes
-            echo "Attempting git pull..." > ~/debug_checkpoints/git_pull_start.txt
-            if git pull origin main; then
-              echo "Git pull successful" > ~/debug_checkpoints/git_pull_success.txt
-            else
-              echo "Git pull failed" > ~/debug_checkpoints/git_pull_failed.txt
-              # Capture git error
-              git pull origin main 2>&1 > ~/debug_checkpoints/git_pull_error.txt
-            fi
-            mkdir -p ~/debug_checkpoints/10_git_pull_attempted
+            # Pull latest changes from GitHub
+            git pull origin main
 
-            # Continue with the rest of deployment
+            # Install dependencies
             npm install --omit=optional
-            mkdir -p ~/debug_checkpoints/11_npm_installed
 
-            # Run database operations on server where DB is accessible
+            # Run database operations
             cd database && npx prisma db pull && npx prisma generate && cd ..
-            mkdir -p ~/debug_checkpoints/12_prisma_operations_done
 
+            # Build application
             npm run build
-            mkdir -p ~/debug_checkpoints/13_build_completed
 
+            # Copy environment and static files
             cp .env .next/standalone/
             mkdir -p .next/standalone/.next/static
             cp -r .next/static/* .next/standalone/.next/static/
             [ -d "public" ] && cp -r public .next/standalone/ || echo "No public folder"
-            mkdir -p ~/debug_checkpoints/14_static_files_copied
 
+            # Start application with PM2
             pm2 start ecosystem.config.js
-            mkdir -p ~/debug_checkpoints/15_pm2_started
-
             pm2 save
-            mkdir -p ~/debug_checkpoints/16_deployment_complete
 
-            # List all checkpoints for debugging
-            ls -la ~/debug_checkpoints/ > ~/debug_checkpoints/checkpoint_summary.txt
+      # Clean up - revoke temporary security group rule
+      - name: Revoke temporary IP access
+        if: always() # Run even if previous steps failed
+        run: |
+          echo "Removing IP ${{ steps.ip.outputs.ipv4 }} from security group $AWS_INSTANCE_SG_ID"
+          aws ec2 revoke-security-group-ingress \
+            --group-id $AWS_INSTANCE_SG_ID \
+            --protocol tcp \
+            --port 22 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
