@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AWS_INSTANCE_SG_ID: ${{ secrets.AWS_INSTANCE_SG_ID }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
     steps:
       # Set up repository and environment
       - name: Checkout repository
@@ -29,10 +30,29 @@ jobs:
       - name: Generate Prisma client
         run: |
           cd database && npx prisma generate && cd ..
-          echo "DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy?schema=public" >> .env
+          echo "DATABASE_URL=***localhost:5432/dummy?schema=public" >> .env
+
+          # Debug information
+          echo "Current directory: $(pwd)"
+          echo "After Prisma generate:"
+          ls -la
+          ls -la database/prisma || echo "No prisma folder in database dir"
+          if [ -d "database/prisma/generated" ]; then
+            echo "Contents of prisma/generated directory:"
+            ls -la database/prisma/generated
+          fi
 
       - name: Build application and populate static assets
         run: |
+          echo "Build environment:"
+          echo "Current directory: $(pwd)"
+          echo "Node modules structure:"
+          ls -la node_modules/.prisma || echo "No .prisma in node_modules"
+          ls -la node_modules/@prisma || echo "No @prisma in node_modules"
+          echo "Database directory structure:"
+          ls -la database
+          ls -la database/prisma || echo "No prisma folder in database dir"
+          echo "Starting build..."
           npm run build
           mkdir -p .next/standalone/.next/static
           cp -r .next/static/* .next/standalone/.next/static/
@@ -50,6 +70,12 @@ jobs:
         id: ip
         uses: haythem/public-ip@v1.3
 
+      - name: Log workflow modularization options
+        run: |
+          echo "Yes, you can split your workflow into two files and call one from the other using:"
+          echo "Reusable workflows: Define a workflow in one file and call it from another using uses: ./.github/workflows/other-workflow.yml"
+          echo "Composite actions: Create a custom action in .github/actions/my-action/action.yml and call it with uses: ./.github/actions/my-action"
+          echo "Both approaches allow you to modularize your workflows while maintaining the proper GitHub Actions syntax."
       - name: Whitelist GitHub runner's IP in EC2 security group
         run: |
           echo "Adding IP ${{ steps.ip.outputs.ipv4 }} to security group $AWS_INSTANCE_SG_ID"
@@ -58,7 +84,6 @@ jobs:
             --protocol tcp \
             --port 22 \
             --cidr ${{ steps.ip.outputs.ipv4 }}/32
-
       # First SSH connection to set up GitHub authentication
       - name: Set up GitHub authentication on EC2
         uses: appleboy/ssh-action@v0.1.8
@@ -73,7 +98,6 @@ jobs:
             mkdir -p ~/.ssh
             echo "${{ secrets.REPO_DEPLOY_KEY }}" > ~/.ssh/github_deploy_key
             chmod 600 ~/.ssh/github_deploy_key
-
             # Configure SSH to use the key for GitHub
             cat > ~/.ssh/config << EOF
             Host github.com
@@ -82,13 +106,10 @@ jobs:
               IdentityFile ~/.ssh/github_deploy_key
               IdentitiesOnly yes
             EOF
-
             # Add GitHub to known hosts to avoid prompts
             ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-
             # Test GitHub SSH connection
             ssh -T -o StrictHostKeyChecking=no git@github.com || echo "GitHub authentication configured"
-
       # Main deployment script
       - name: Deploy application to EC2
         uses: appleboy/ssh-action@v0.1.8
@@ -101,33 +122,25 @@ jobs:
           script: |
             # Navigate to project directory
             cd /home/ec2-user/rathburn-online
-
             # Stop and delete PM2 process
             pm2 stop rathburn-online || true
             pm2 delete rathburn-online || true
-
             # Pull latest changes from GitHub
             git pull origin main
-
             # Install dependencies
             npm install --omit=optional
-
             # Run database operations
             cd database && npx prisma db pull && npx prisma generate && cd ..
-
             # Build application
             npm run build
-
             # Copy environment and static files
             cp .env .next/standalone/
             mkdir -p .next/standalone/.next/static
             cp -r .next/static/* .next/standalone/.next/static/
             [ -d "public" ] && cp -r public .next/standalone/ || echo "No public folder"
-
             # Start application with PM2
             pm2 start ecosystem.config.js
             pm2 save
-
       # Clean up - revoke temporary security group rule
       - name: Revoke temporary IP access
         if: always() # Run even if previous steps failed

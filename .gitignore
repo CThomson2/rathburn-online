@@ -16,7 +16,7 @@ node_modules
 # Production
 /build
 /dist
-
+/public
 
 # SQL queries
 /database/sql/
