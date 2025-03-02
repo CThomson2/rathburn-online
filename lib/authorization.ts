@@ -1,28 +1,28 @@
-import { Comment, User } from '@/types/api';
+import { Comment, User } from "@/types/api/auth";
 
 export const canCreateDiscussion = (user: User | null | undefined) => {
-  return user?.role === 'ADMIN';
+  return user?.role === "ADMIN";
 };
 export const canDeleteDiscussion = (user: User | null | undefined) => {
-  return user?.role === 'ADMIN';
+  return user?.role === "ADMIN";
 };
 export const canUpdateDiscussion = (user: User | null | undefined) => {
-  return user?.role === 'ADMIN';
+  return user?.role === "ADMIN";
 };
 
 export const canViewUsers = (user: User | null | undefined) => {
-  return user?.role === 'ADMIN';
+  return user?.role === "ADMIN";
 };
 
 export const canDeleteComment = (
   user: User | null | undefined,
-  comment: Comment,
+  comment: Comment
 ) => {
-  if (user?.role === 'ADMIN') {
+  if (user?.role === "ADMIN") {
     return true;
   }
 
-  if (user?.role === 'USER' && comment.author?.id === user.id) {
+  if (user?.role === "USER" && comment.author?.id === user.id) {
     return true;
   }
 

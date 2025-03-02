@@ -1,160 +1,36 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/lib/auth";
 import { paths } from "@/config/paths";
-import { motion } from "framer-motion";
+import { Spinner } from "@/components/ui/spinner";
 
-interface GridCellProps {
-  title: string;
-  href?: string;
-  description?: string;
-  className?: string;
-  variant?: "primary" | "secondary" | "tertiary" | "success" | "active";
-}
-
-const GridCell = ({
-  title,
-  href,
-  description,
-  className = "",
-  variant = "primary",
-}: GridCellProps) => {
-  const Wrapper = href ? motion.a : motion.div;
-  const isDisabled = href === "#";
-
-  const variantStyles = {
-    primary: "bg-white dark:bg-gray-800",
-    secondary: "bg-gray-50 dark:bg-gray-700",
-    tertiary: "bg-white dark:bg-gray-800",
-    success: "bg-green-500 dark:bg-green-300",
-    active: "bg-blue-500 dark:bg-blue-300",
-  };
-
-  return (
-    <Wrapper
-      href={isDisabled ? undefined : href}
-      className={`
-        flex flex-col justify-center items-center p-6
-        ${variantStyles[variant]}
-        rounded-xl
-        border border-gray-100 dark:border-gray-700
-        transition-all duration-300 ease-in-out
-        ${isDisabled ? "opacity-60 bg-gray-100 dark:bg-gray-600" : ""}
-        ${
-          !isDisabled && href
-            ? "hover:scale-[1.02] hover:shadow-lg cursor-pointer"
-            : ""
-        }
-        ${className}
-      `}
-      whileHover={isDisabled ? {} : { y: -2 }}
-      whileTap={isDisabled ? {} : { scale: 0.98 }}
-    >
-      <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-        {title}
-      </h2>
-      {description && (
-        <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-2">
-          {description}
-        </p>
-      )}
-    </Wrapper>
-  );
-};
-
-// Grid data structure
-interface GridSectionItem {
-  title: string;
-  href: string;
-  variant?: "primary" | "secondary" | "tertiary" | "success" | "active";
-}
-
-interface GridSection {
-  title: string;
-  href: string;
-  className?: string;
-  items: GridSectionItem[];
-}
-
-const gridSections: GridSection[] = [
-  {
-    title: "DASHBOARD",
-    href: "/dashboard",
-    className: "col-span-3",
-    items: [
-      {
-        title: "STOCK REPORTS",
-        href: "/inventory/dashboard",
-        variant: "active",
-      },
-      { title: "PRODUCTION ANALYTICS", href: "#", variant: "secondary" },
-      { title: "SALES & TAX", href: "#", variant: "secondary" },
-    ],
-  },
-  {
-    title: "RAW MATERIALS",
-    href: "/inventory",
-    className: "col-span-3",
-    items: [
-      {
-        title: "NEW ORDER",
-        href: "/inventory/orders/create",
-        variant: "success",
-      },
-      {
-        title: "INVENTORY MANAGEMENT",
-        href: "/inventory/activity",
-        variant: "success",
-      },
-      { title: "REPRO DRUMS", href: "/materials/repro", variant: "secondary" },
-    ],
-  },
-  /*
-  {
-    title: "REFERENCE INFO",
-    href: "/reference",
-    className: "col-span-3",
-    items: [
-      { title: "PRODUCT RANGE", href: "#" },
-      { title: "MATERIALS", href: "#" },
-      { title: "SUPPLIERS", href: "#" },
-      // { title: "PRODUCT RANGE", href: "/reference/product-range" },
-      // { title: "MATERIALS", href: "/reference/materials" },
-      // { title: "SUPPLIERS", href: "/reference/suppliers" },
-    ],
-  },
-*/
-];
-
+/**
+ * HomeContent component that redirects users based on their authentication status:
+ * - Authenticated users are redirected to the dashboard
+ * - Unauthenticated users are redirected to the login page
+ */
 export function HomeContent() {
-  return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
-      <div className="max-w-[1400px] mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">
-          Inventory Management System
-        </h1>
+  const router = useRouter();
+  const { data: user, isLoading } = useUser();
 
-        <div className="space-y-8">
-          {gridSections.map((section, index) => (
-            <div key={index} className="space-y-1">
-              <GridCell
-                title={section.title}
-                href={section.href}
-                className={section.className}
-              />
-              <div className="grid grid-cols-3 gap-4">
-                {section.items.map((item, itemIndex) => (
-                  <GridCell
-                    key={itemIndex}
-                    title={item.title}
-                    href={item.href}
-                    variant={item.variant}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+  useEffect(() => {
+    if (!isLoading) {
+      if (user) {
+        // User is authenticated, redirect to dashboard
+        router.replace(paths.inventory.root.getHref());
+      } else {
+        // User is not authenticated, redirect to login
+        router.replace(paths.auth.login.getHref());
+      }
+    }
+  }, [user, isLoading, router]);
+
+  // Show loading spinner while checking authentication
+  return (
+    <div className="flex h-screen w-full items-center justify-center">
+      <Spinner size="lg" />
     </div>
   );
 }

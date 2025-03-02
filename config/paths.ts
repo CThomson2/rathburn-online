@@ -19,7 +19,7 @@ export const paths = {
     },
   },
 
-  data: {
+  dashboard: {
     root: {
       getHref: () => "/dashboard",
     },
@@ -31,6 +31,24 @@ export const paths = {
     },
     finishedGoods: {
       getHref: () => "/dashboard/finished-goods",
+    },
+  },
+
+  inventory: {
+    root: {
+      getHref: () => "/inventory/dashboard",
+    },
+    drumStock: {
+      getHref: () => "/inventory/drum-stock",
+    },
+    orders: {
+      getHref: () => "/inventory/orders",
+    },
+    newOrder: {
+      getHref: () => "/inventory/orders/create",
+    },
+    activity: {
+      getHref: () => "/inventory/activity",
     },
   },
 

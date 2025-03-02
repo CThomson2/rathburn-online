@@ -22,8 +22,8 @@ export type User = Entity<{
   lastName: string;
   email: string;
   role: "ADMIN" | "USER";
-  teamId: string;
-  bio: string;
+  teamId?: string;
+  bio?: string;
 }>;
 
 export type AuthResponse = {
@@ -39,7 +39,7 @@ export type Team = Entity<{
 export type Discussion = Entity<{
   title: string;
   body: string;
-  teamId: string;
+  teamId?: string;
   author: User;
   public: boolean;
 }>;

@@ -17,6 +17,10 @@ node_modules
 /build
 /dist
 
+
+# SQL queries
+/database/sql/
+
 # Environment variables
 .env
 .env*.local*
