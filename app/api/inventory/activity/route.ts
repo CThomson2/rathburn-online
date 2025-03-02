@@ -1,11 +1,11 @@
 // This is a Next.js API route handler for fetching inventory transactions
-// The route is accessed at /api/inventory/transactions
+// The route is accessed at /api/inventory/activity
 import { NextResponse } from "next/server";
-import { queries as q } from "@/database/models/transactions/queries";
+import { queries as q } from "@/database/models/activity/queries";
 
 export async function GET(req: Request) {
   // Extract search params from the request URL
-  // For example, from: /api/inventory/transactions?page=2&limit=10
+  // For example, from: /api/inventory/activity?page=2&limit=10
   const { searchParams } = new URL(req.url);
 
   // Get page number from URL params, defaulting to 1 if not provided

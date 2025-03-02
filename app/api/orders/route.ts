@@ -15,7 +15,7 @@ export const fetchCache = DATABASE_ROUTE_CONFIG.fetchCache;
  */
 export async function GET(req: Request) {
   // Extract search params from the request URL
-  // For example, from: /api/inventory/transactions?page=2&limit=10
+  // For example, from: /api/inventory/activity?page=2&limit=10
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get("page") || "1");
   // Get limit (items per page) from URL params, defaulting to 50

@@ -10,7 +10,7 @@ import {
   FormattedOrder,
 } from "@/database/models/orders";
 import { DrumStatus } from "@/types/models/drums/constant";
-import { formatDates, createFormatter } from "@/utils/formatters/data";
+import { createFormatter } from "@/utils/formatters/data";
 
 // Components
 import {
@@ -27,6 +27,7 @@ import { RecentOrdersWidget } from "@/features/orders/components/widgets/recent-
 import { DrumStatusWidget } from "@/features/drums-table/components/widgets/drum-status";
 import { MaterialDistributionWidget } from "@/features/drums-table/components/widgets/material-distribution";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CardSkeleton } from "@/components/patterns/skeletons/card-skeleton";
 import { orders } from "@/database/models";
 
 export const metadata = {
@@ -36,56 +37,31 @@ export const metadata = {
 
 // Loading fallbacks
 const OrdersOverviewSkeleton = () => (
-  <Card>
-    <CardHeader className="pb-2">
-      <CardTitle className="text-base">Orders Overview</CardTitle>
-      <CardDescription>Summary of all material orders</CardDescription>
-    </CardHeader>
-    <CardContent className="grid grid-cols-3 gap-4">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="space-y-2">
-          <Skeleton className="h-4 w-[100px]" />
-          <Skeleton className="h-8 w-[120px]" />
-        </div>
-      ))}
-    </CardContent>
-  </Card>
+  <CardSkeleton
+    title="Orders Overview"
+    description="Summary of all material orders"
+    contentClassName="grid grid-cols-3 gap-4"
+  >
+    {[1, 2, 3].map((i) => (
+      <div key={i} className="space-y-2">
+        <Skeleton className="h-4 w-[100px]" />
+        <Skeleton className="h-8 w-[120px]" />
+      </div>
+    ))}
+  </CardSkeleton>
 );
 
 const RecentOrdersSkeleton = () => (
-  <Card>
-    <CardHeader className="pb-2">
-      <CardTitle className="text-base">Recent Orders</CardTitle>
-      <CardDescription>Latest material orders</CardDescription>
-    </CardHeader>
-    <CardContent>
-      <Skeleton className="h-[200px] w-full" />
-    </CardContent>
-  </Card>
+  <CardSkeleton title="Recent Orders" description="Latest material orders" />
 );
-
 const DrumStatusSkeleton = () => (
-  <Card>
-    <CardHeader className="pb-2">
-      <CardTitle className="text-base">Drum Status</CardTitle>
-      <CardDescription>Current inventory status</CardDescription>
-    </CardHeader>
-    <CardContent>
-      <Skeleton className="h-[200px] w-full" />
-    </CardContent>
-  </Card>
+  <CardSkeleton title="Drum Status" description="Latest drum status" />
 );
-
 const MaterialDistributionSkeleton = () => (
-  <Card>
-    <CardHeader className="pb-2">
-      <CardTitle className="text-base">Material Distribution</CardTitle>
-      <CardDescription>Breakdown by material type</CardDescription>
-    </CardHeader>
-    <CardContent>
-      <Skeleton className="h-[200px] w-full" />
-    </CardContent>
-  </Card>
+  <CardSkeleton
+    title="Material Distribution"
+    description="Breakdown by material type"
+  />
 );
 
 async function InventoryDashboardPage() {

@@ -218,7 +218,7 @@ async function fetchTransactions(params: TransactionsParams = {}) {
   if (params.limit) urlParams.append('limit', params.limit.toString());
   if (params.material) urlParams.append('material', params.material);
 
-  const url = `/api/inventory/transactions${urlParams.toString() ? `?${urlParams}` : ''}`;
+  const url = `/api/inventory/activity${urlParams.toString() ? `?${urlParams}` : ''}`;
   const response = await fetch(url);
 
   if (!response.ok) {
@@ -421,7 +421,7 @@ export function useMaterialTransactions({
       if (startDate) params.append('startDate', startDate);
       if (endDate) params.append('endDate', endDate);
 
-      const response = await fetch(`/api/inventory/transactions/material?${params}`);
+      const response = await fetch(`/api/inventory/activity/material?${params}`);
       if (!response.ok) {
         throw new Error('Failed to fetch material transactions');
       }
@@ -446,7 +446,7 @@ export function useInfiniteTransactions(limit = 20) {
     queryKey: ['transactions', 'infinite', { limit }],
     queryFn: async ({ pageParam = 1 }) => {
       const response = await fetch(
-        `/api/inventory/transactions?page=${pageParam}&limit=${limit}`
+        `/api/inventory/activity?page=${pageParam}&limit=${limit}`
       );
       if (!response.ok) {
         throw new Error('Failed to fetch transactions');
@@ -1038,7 +1038,7 @@ export default async function MaterialsPage() {
 
 Integrate TanStack Query with TanStack Table:
 
-```tsx:app/features/inventory/components/transactions-table.tsx
+```tsx:app/features/inventory/components/activity-table.tsx
 'use client';
 
 import { useState } from 'react';

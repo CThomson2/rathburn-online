@@ -1,14 +1,10 @@
-"use client";
+import { DashboardWrapper } from "./_components/dashboard-wrapper";
 
-import { DashboardContent } from "./_components/content";
-import { DashboardProvider } from "@/context";
-
-const DashboardPage = () => {
-  return (
-    <DashboardProvider>
-      <DashboardContent />
-    </DashboardProvider>
-  );
+export const metadata = {
+  title: "Dashboard | Rathburn Dashboard",
+  description: "View and manage inventory statistics and operations",
 };
 
-export default DashboardPage;
+export default function DashboardPage() {
+  return <DashboardWrapper />;
+}

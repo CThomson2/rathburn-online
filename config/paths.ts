@@ -4,26 +4,39 @@ export const paths = {
     getHref: () => "/",
   },
 
-  // auth: {
-  //   register: {
-  //     getHref: (redirectTo?: string | null | undefined) =>
-  //       `/auth/register${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`,
-  //   },
-  //   login: {
-  //     getHref: (redirectTo?: string | null | undefined) =>
-  //       `/auth/login${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`,
-  //   },
-  // },
+  auth: {
+    register: {
+      getHref: (redirectTo?: string | null | undefined) =>
+        `/auth/register${
+          redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ""
+        }`,
+    },
+    login: {
+      getHref: (redirectTo?: string | null | undefined) =>
+        `/auth/login${
+          redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ""
+        }`,
+    },
+  },
 
-  dashboard: {
-    getHref: () => "/dashboard",
+  data: {
+    root: {
+      getHref: () => "/dashboard",
+    },
+    drumStock: {
+      getHref: () => "/dashboard/drum-stock",
+    },
+    production: {
+      getHref: () => "/dashboard/production",
+    },
+    finishedGoods: {
+      getHref: () => "/dashboard/finished-goods",
+    },
   },
-  inventory: {
-    getHref: () => "/inventory",
+
+  public: {
+    discussion: {
+      getHref: (id: string) => `/public/discussions/${id}`,
+    },
   },
-  // public: {
-  //   discussion: {
-  //     getHref: (id: string) => `/public/discussions/${id}`,
-  //   },
-  // },
 } as const;

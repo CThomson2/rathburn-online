@@ -1,4 +1,4 @@
-import { withDatabase } from "@/database";
+import { withDatabase } from "../../index";
 import * as t from "@/types/models";
 import { UpdateFields } from "@/types/models/orders/crud";
 import { OrderStatus } from "@/types/models/orders/constant";

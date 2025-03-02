@@ -50,12 +50,6 @@ jobs:
         id: ip
         uses: haythem/public-ip@v1.3
 
-      - name: Log workflow modularization options
-        run: |
-          echo "Yes, you can split your workflow into two files and call one from the other using:"
-          echo "Reusable workflows: Define a workflow in one file and call it from another using uses: ./.github/workflows/other-workflow.yml"
-          echo "Composite actions: Create a custom action in .github/actions/my-action/action.yml and call it with uses: ./.github/actions/my-action"
-          echo "Both approaches allow you to modularize your workflows while maintaining the proper GitHub Actions syntax."
       - name: Whitelist GitHub runner's IP in EC2 security group
         run: |
           echo "Adding IP ${{ steps.ip.outputs.ipv4 }} to security group $AWS_INSTANCE_SG_ID"

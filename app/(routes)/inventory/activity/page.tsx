@@ -1,4 +1,4 @@
-import { TransactionsTable } from "@/features/transactions/components/tx-table";
+import { TransactionsTable } from "@/features/activity/components/tx-table";
 
 /*
 This client component will display the inventory transactions table,

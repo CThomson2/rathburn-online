@@ -45,7 +45,7 @@ export const TransactionsTable = memo(function TransactionsTable() {
     queryKey: ["transactions", pageIndex, pageSize],
     queryFn: async () => {
       const response = await fetch(
-        `/api/inventory/transactions?page=${pageIndex + 1}&limit=${pageSize}`
+        `/api/inventory/activity?page=${pageIndex + 1}&limit=${pageSize}`
       );
       if (!response.ok) throw new Error("Failed to fetch transactions");
       return response.json() as Promise<{

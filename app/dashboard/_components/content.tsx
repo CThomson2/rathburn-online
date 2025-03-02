@@ -3,7 +3,7 @@
 import { useState, useEffect, cloneElement } from "react";
 import { useDashboard } from "@/context";
 import { ViewToggle } from "@/features/dashboard/components/view-toggle";
-import { StockLevelsWidget as StockLevels } from "@/features/dashboard/components/widgets/stock-levels";
+import { StockLevelsWidget } from "@/features/dashboard/components/widgets/stock-levels";
 import { MaterialGroupsWidget } from "@/features/dashboard/components/widgets/material-groups";
 import { ProductionWidget } from "@/features/dashboard/components/widgets/active-processes";
 import { RecentOrdersWidget } from "@/features/dashboard/components/widgets/recent-orders";
@@ -22,7 +22,7 @@ const widgetConfigurations = [
     component: <StatsWidget id="stats" />,
     className: "col-span-full",
   },
-  { id: "stock-levels", component: <StockLevels id="stock-levels" /> },
+  { id: "stock-levels", component: <StockLevelsWidget id="stock-levels" /> },
   {
     id: "material-groups",
     component: <MaterialGroupsWidget id="material-groups" />,

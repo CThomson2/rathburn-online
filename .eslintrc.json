@@ -57,7 +57,7 @@
               "./features/inventory",
               "./features/orders",
               "./features/products",
-              "./features/transactions"
+              "./features/activity"
             ]
           },
 
@@ -69,7 +69,7 @@
               "./features/inventory",
               "./features/orders",
               "./features/products",
-              "./features/transactions"
+              "./features/activity"
             ]
           },
 
@@ -81,7 +81,7 @@
               "./features/drums-table",
               "./features/orders",
               "./features/products",
-              "./features/transactions"
+              "./features/activity"
             ]
           },
 

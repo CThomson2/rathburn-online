@@ -159,7 +159,7 @@ function ProgressTracker({
       );
       try {
         const response = await fetch(
-          `/api/inventory/transactions/drum/${currentTransaction.drum_id}`
+          `/api/inventory/activity/drum/${currentTransaction.drum_id}`
         );
         const data = await response.json();
         console.log("Related transactions response:", data);
@@ -276,7 +276,7 @@ function ActionModal({
     setIsLoading(true);
 
     try {
-      const response = await fetch(`/api/inventory/transactions/${txId}`);
+      const response = await fetch(`/api/inventory/activity/${txId}`);
       const data = await response.json();
       console.log("Navigation response:", data);
 

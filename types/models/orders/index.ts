@@ -16,6 +16,7 @@ export interface OrderQueryParams {
   sortField?: keyof OrderBase;
   sortOrder?: "asc" | "desc";
   status?: OrderStatus.Type[];
+  search?: string;
 }
 
 // Response type for order queries
