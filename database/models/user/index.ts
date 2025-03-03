@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@/database/prisma/generated/client";
 import { User } from "@/types/api/auth";
 
 const prisma = new PrismaClient();
@@ -65,7 +65,7 @@ export async function findUserById(
     firstName: user.first_name,
     lastName: user.last_name,
     role: user.role as "ADMIN" | "USER",
-    createdAt: user.created_at.getTime(),
+    createdAt: user.created_at?.getTime() ?? null,
   };
 }
 

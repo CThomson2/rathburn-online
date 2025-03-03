@@ -13,7 +13,7 @@
     "prisma:pull": "npx prisma db pull",
     "prisma:generate": "cd database && npx prisma generate && cd ..",
     "prisma:build": "cd database && npx prisma db pull && npx prisma generate && cd cd ..",
-    "prisma:migrate": "cd database && npx prisma migrate dev && cd cd ..",
+    "prisma:migrate": "cd database && npx prisma migrate dev && cd ..",
     "git:amend-cm": "git add .; git cm --amend --no-edit; git push --force",
     "git:unstage": "git restore --staged .",
     "git:log": "git log --oneline --graph",

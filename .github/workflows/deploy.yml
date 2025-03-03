@@ -25,7 +25,6 @@ jobs:
       # Build application
       - name: Install dependencies
         run: npm install --omit=optional
-
       # Mock database URL to facilitate build process while maintaining security
       - name: Generate Prisma client
         run: |
