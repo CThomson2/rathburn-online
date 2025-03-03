@@ -1,6 +1,6 @@
 import { SerialPort, ReadlineParser } from "serialport";
 import fs from "fs";
-import { api } from "../api-client";
+import { clientApi as api } from "../api-client/client";
 
 // Define interfaces for API responses and requests
 interface ScanResponse {

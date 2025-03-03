@@ -6,7 +6,7 @@ import styles from "./form.module.css";
 import { cn } from "@/utils/cn";
 import { Dropdown } from "./form/dropdown";
 import { Loader2 } from "lucide-react";
-import { api } from "@/lib/api-client";
+import { clientApi as api } from "@/lib/api-client/client";
 
 export const CreateForm = ({
   onOrderCreated,

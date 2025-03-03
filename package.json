@@ -65,6 +65,7 @@
     "lucide-react": "^0.363.0",
     "marked": "^15.0.7",
     "next": "^14.2.24",
+    "next-headers": "^0.0.5",
     "next-themes": "^0.3.0",
     "pdf-lib": "^1.17.1",
     "prisma": "^6.4.1",

@@ -9,7 +9,7 @@ import { z } from "zod";
 
 import { AuthResponse, User } from "@/types/api/auth";
 
-import { api } from "./api-client";
+import { clientApi as api } from "./api-client/client";
 
 // api call definitions for auth (types, schemas, requests):
 // these are not part of features as this is a module shared across features
