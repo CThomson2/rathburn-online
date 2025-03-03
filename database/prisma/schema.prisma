@@ -8,7 +8,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["inventory", "production", "public"]
+  schemas  = ["auth", "inventory", "production", "public"]
 }
 
 model bottle_sizes {
@@ -149,10 +149,10 @@ model orders {
   supplier          String       @db.VarChar(100)
   material          String       @db.VarChar(100)
   quantity          Int
-  date_ordered      DateTime?    @default(dbgenerated("CURRENT_DATE")) @db.Date
+  date_ordered      DateTime     @default(dbgenerated("CURRENT_DATE")) @db.Date
   notes             String?
-  created_at        DateTime?    @default(now()) @db.Timestamptz(6)
-  updated_at        DateTime?    @default(now()) @db.Timestamptz(6)
+  created_at        DateTime     @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime     @default(now()) @db.Timestamptz(6)
   quantity_received Int          @default(0)
   status            String       @default("pending") @db.VarChar(20)
   eta_start         DateTime?    @db.Date
@@ -321,4 +321,47 @@ model stills {
   labs            labs    @relation(fields: [lab_id], references: [lab_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("production")
+}
+
+model password_reset_tokens {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    String    @db.Uuid
+  token      String    @db.VarChar(255)
+  expires_at DateTime  @db.Timestamptz(6)
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, token])
+  @@index([token], map: "idx_password_reset_tokens_token")
+  @@schema("auth")
+}
+
+model sessions {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    String    @db.Uuid
+  token      String    @db.VarChar(255)
+  expires_at DateTime  @db.Timestamptz(6)
+  user_agent String?
+  ip_address String?   @db.VarChar(45)
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([token], map: "idx_sessions_token")
+  @@schema("auth")
+}
+
+model users {
+  id                    String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email                 String                  @unique @db.VarChar(255)
+  password_hash         String                  @db.VarChar(255)
+  first_name            String                  @db.VarChar(100)
+  last_name             String                  @db.VarChar(100)
+  role                  String                  @default("USER") @db.VarChar(50)
+  created_at            DateTime                @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime                @default(now()) @db.Timestamptz(6)
+  password_reset_tokens password_reset_tokens[]
+  sessions              sessions[]
+
+  @@schema("auth")
 }

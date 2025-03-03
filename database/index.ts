@@ -1,6 +1,12 @@
 import { PrismaClient } from "./prisma/generated/client";
 
 function createPrismaClient() {
+  const databaseUrl =
+    process.env.DATABASE_URL ||
+    (process.env.NODE_ENV === "production"
+      ? undefined
+      : "postgresql://dummy:dummy@localhost:5432/dummy?schema=public");
+
   return new PrismaClient({
     log: ["query", "info", "warn", "error"],
     datasources: {
@@ -29,9 +35,15 @@ export function getPrismaClient() {
   return prisma;
 }
 
-// Utility function to check if we're in a static context
+// Check if we're in a static context (build/SSG)
 export function isStaticContext() {
-  return process.env.NEXT_PHASE === "phase-production-build";
+  // This is a heuristic - if we're not in a browser and global.prisma is undefined,
+  // we're probably in a static context like next build
+  return (
+    typeof window === "undefined" &&
+    typeof global.prisma === "undefined" &&
+    process.env.NODE_ENV === "production"
+  );
 }
 
 // Export a helper for route configuration
@@ -47,7 +59,9 @@ export const DATABASE_ROUTE_CONFIG = {
 export type DatabaseOperationCallback<T> = (db: PrismaClient) => Promise<T>;
 
 /**
- * Executes a database operation within a safe context.
+ * Executes a database operation with proper connection handling.
+ * This ensures we're using the right PrismaClient instance and properly
+ * handling connections in all environments.
  *
  * @template T - The type of the result returned by the database operation.
  * @param {DatabaseOperationCallback<T>} operation - A callback function that performs the database operation.
@@ -70,7 +84,6 @@ export async function withDatabase<T>(
     // Execute the provided operation with the PrismaClient instance
     return await operation(db);
   } catch (error) {
-    // Log the error to the console and rethrow it
     console.error("Database operation failed:", error);
     throw error;
   }

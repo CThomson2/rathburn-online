@@ -2,56 +2,32 @@
 
 import { useState, useMemo } from "react";
 import { BaseWidget } from "../base-widget";
-import { cn } from "@/utils/cn";
 import { Search } from "lucide-react";
 import { useRecentOrders } from "../../hooks/use-recent-orders";
 import debounce from "lodash/debounce";
-
-interface OrderStatus {
-  label: string;
-  value: string;
-  className: string;
-}
-
-const orderStatuses: Record<string, OrderStatus> = {
-  pending: {
-    label: "Pending",
-    value: "pending",
-    className: "bg-yellow-100 text-yellow-700",
-  },
-  partial: {
-    label: "Partial",
-    value: "partial",
-    className: "bg-blue-100 text-blue-700",
-  },
-  complete: {
-    label: "Complete",
-    value: "complete",
-    className: "bg-green-100 text-green-700",
-  },
-};
-
-function OrderStatusBadge({ status }: { status: string }) {
-  const statusConfig = orderStatuses[status] || {
-    label: status.charAt(0).toUpperCase() + status.slice(1),
-    value: status,
-    className: "bg-gray-100 text-gray-700",
-  };
-
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium",
-        statusConfig.className
-      )}
-    >
-      {statusConfig.label}
-    </span>
-  );
-}
+import { RecentOrdersTable } from "@/components/shared/orders/recent-orders-table";
+import type { OrderGridItem } from "@/types/models";
+import type { Order as FeatureOrder } from "../../types/api";
 
 interface RecentOrdersWidgetProps {
   id: string;
+}
+
+/**
+ * Maps the feature-specific Order type to the OrderGridItem type
+ * This is a simpler representation that works with the table component
+ */
+function mapToOrderGridItem(order: FeatureOrder): OrderGridItem {
+  return {
+    order_id: parseInt(order.order_id),
+    supplier: order.supplier,
+    material: order.material,
+    quantity: order.quantity,
+    quantity_received: order.quantity_received,
+    status: order.status,
+    date_ordered: order.date_ordered,
+    po_number: order.po_number,
+  };
 }
 
 /**
@@ -64,15 +40,21 @@ interface RecentOrdersWidgetProps {
  * - Responsive layout that works on all screen sizes
  */
 export function RecentOrdersWidget({ id }: RecentOrdersWidgetProps) {
-  const [filter, setFilter] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Debounced search term to avoid too many API calls
   const debouncedSearchTerm = useMemo(
-    () => debounce((term: string) => setFilter(term), 300),
+    () => debounce((term: string) => setSearchTerm(term), 300),
     []
   );
 
-  const { data, isLoading, error } = useRecentOrders(filter);
+  const { data, isLoading, error } = useRecentOrders(searchTerm);
+
+  // Map feature-specific orders to grid items
+  const mappedOrders = useMemo(() => {
+    if (!data?.orders) return [];
+    return data.orders.map(mapToOrderGridItem);
+  }, [data?.orders]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -102,40 +84,12 @@ export function RecentOrdersWidget({ id }: RecentOrdersWidgetProps) {
           <div className="text-center py-4 text-red-500">
             Failed to load orders
           </div>
-        ) : !data?.orders || data.orders.length === 0 ? (
-          <div className="text-center py-4 text-muted-foreground">
-            No orders found
-          </div>
         ) : (
           <div className="rounded-md border">
-            <div className="divide-y">
-              {data.orders.map((order) => (
-                <div
-                  key={order.order_id}
-                  className="flex items-center justify-between p-4"
-                >
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">{order.material}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {order.supplier}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <OrderStatusBadge status={order.status} />
-                    <div className="text-right">
-                      <p className="text-sm font-medium">
-                        {order.quantity_received}/{order.quantity}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {order.date_ordered
-                          ? new Date(order.date_ordered).toLocaleDateString()
-                          : "No date"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <RecentOrdersTable
+              orders={mappedOrders as any}
+              emptyMessage="No orders match your search criteria"
+            />
           </div>
         )}
       </div>

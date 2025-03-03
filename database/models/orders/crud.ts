@@ -1,8 +1,9 @@
-import { withDatabase } from "@/database";
+import { withDatabase } from "../../index";
 import * as t from "@/types/models";
 import { UpdateFields } from "@/types/models/orders/crud";
 import { OrderStatus } from "@/types/models/orders/constant";
 
+// TODO: Move queries.ts into this file and generalise crud operatiors using type generics and params
 /**
  * Implementation of CRUD operations for the Orders model
  */

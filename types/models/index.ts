@@ -10,5 +10,5 @@ export * from "./base";
 export * from "./drums";
 export * from "./orders";
 export * from "./products";
-export * from "./transactions";
+export * from "./activity";
 export * from "./materials";

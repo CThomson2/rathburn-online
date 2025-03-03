@@ -2,7 +2,7 @@
 
 import { Star } from "lucide-react";
 import { cn } from "@/utils/cn";
-import { useDashboard } from "../context/dashboard-context";
+import { useDashboard } from "@/context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";

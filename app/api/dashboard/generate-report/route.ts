@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { DATABASE_ROUTE_CONFIG, getDb } from "@/database";
-import PDFDocument from "pdfkit";
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 // Force dynamic rendering and no caching for this database-dependent route
 export const dynamic = DATABASE_ROUTE_CONFIG.dynamic;
@@ -19,64 +19,100 @@ export async function POST() {
     ]);
 
     // Create PDF document
-    const doc = new PDFDocument();
-    const chunks: Uint8Array[] = [];
-
-    // Collect PDF chunks
-    doc.on("data", (chunk: Uint8Array) => chunks.push(chunk));
+    const pdfDoc = await PDFDocument.create();
+    const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+    const page = pdfDoc.addPage();
+    const { width, height } = page.getSize();
+    let yPosition = height - 50;
 
     // Write report content
-    doc.fontSize(20).text("Dashboard Report", { align: "center" }).moveDown();
+    page.drawText("Dashboard Report", {
+      x: 50,
+      y: yPosition,
+      size: 20,
+      font: timesRomanFont,
+      color: rgb(0, 0, 0),
+    });
+    yPosition -= 30;
 
     // Add date
-    doc
-      .fontSize(12)
-      .text(`Generated on: ${new Date().toLocaleDateString()}`, {
-        align: "right",
-      })
-      .moveDown();
+    page.drawText(`Generated on: ${new Date().toLocaleDateString()}`, {
+      x: 50,
+      y: yPosition,
+      size: 12,
+      font: timesRomanFont,
+      color: rgb(0, 0, 0),
+    });
+    yPosition -= 30;
 
     // Add inventory summary
-    doc
-      .fontSize(16)
-      .text("Inventory Summary")
-      .moveDown()
-      .fontSize(12)
-      .text(`Total Items: ${inventoryItems}`)
-      .moveDown();
+    page.drawText("Inventory Summary", {
+      x: 50,
+      y: yPosition,
+      size: 16,
+      font: timesRomanFont,
+      color: rgb(0, 0, 0),
+    });
+    yPosition -= 20;
+    page.drawText(`Total Items: ${inventoryItems}`, {
+      x: 50,
+      y: yPosition,
+      size: 12,
+      font: timesRomanFont,
+      color: rgb(0, 0, 0),
+    });
+    yPosition -= 30;
 
     // Add recent transactions
-    doc.fontSize(16).text("Recent Transactions").moveDown();
+    page.drawText("Recent Transactions", {
+      x: 50,
+      y: yPosition,
+      size: 16,
+      font: timesRomanFont,
+      color: rgb(0, 0, 0),
+    });
+    yPosition -= 20;
 
     recentTransactions.forEach((tx: any) => {
-      doc
-        .fontSize(12)
-        .text(`ID: ${tx.tx_id}`)
-        .text(`Material: ${tx.material}`)
-        .text(`Type: ${tx.tx_type}`)
-        .text(`Date: ${new Date(tx.tx_date).toLocaleDateString()}`)
-        .moveDown();
+      page.drawText(`ID: ${tx.tx_id}`, {
+        x: 50,
+        y: yPosition,
+        size: 12,
+        font: timesRomanFont,
+        color: rgb(0, 0, 0),
+      });
+      yPosition -= 15;
+      page.drawText(`Material: ${tx.material}`, {
+        x: 50,
+        y: yPosition,
+        size: 12,
+        font: timesRomanFont,
+        color: rgb(0, 0, 0),
+      });
+      yPosition -= 15;
+      page.drawText(`Type: ${tx.tx_type}`, {
+        x: 50,
+        y: yPosition,
+        size: 12,
+        font: timesRomanFont,
+        color: rgb(0, 0, 0),
+      });
+      yPosition -= 15;
+      page.drawText(`Date: ${new Date(tx.tx_date).toLocaleDateString()}`, {
+        x: 50,
+        y: yPosition,
+        size: 12,
+        font: timesRomanFont,
+        color: rgb(0, 0, 0),
+      });
+      yPosition -= 30;
     });
 
-    // Removed active processes logic as the SQL table for processes is not yet designed
-    // doc.fontSize(16).text("Active Processes").moveDown();
-    // activeProcesses.forEach((process: any) => {
-    //   doc
-    //     .fontSize(12)
-    //     .text(`ID: ${process.process_id}`)
-    //     .text(`Material: ${process.material}`)
-    //     .text(`Still: ${process.still_code}`)
-    //     .moveDown();
-    // });
-
     // Finalize PDF
-    doc.end();
-
-    // Combine chunks into a single buffer
-    const pdfBuffer = Buffer.concat(chunks);
+    const pdfBytes = await pdfDoc.save();
 
     // Return PDF as response
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(pdfBytes, {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename=dashboard-report-${

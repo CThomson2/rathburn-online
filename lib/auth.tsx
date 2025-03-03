@@ -9,7 +9,7 @@ import { z } from "zod";
 
 import { AuthResponse, User } from "@/types/api/auth";
 
-import { api } from "./api-client";
+import { clientApi as api } from "./api-client/client";
 
 // api call definitions for auth (types, schemas, requests):
 // these are not part of features as this is a module shared across features
@@ -57,6 +57,10 @@ export const useLogin = ({ onSuccess }: { onSuccess?: () => void }) => {
       queryClient.setQueryData(userQueryKey, data.user);
       onSuccess?.();
     },
+    onError: (error) => {
+      console.error("Login failed:", error);
+      // Error is automatically available via the error property of the returned mutation object
+    },
   });
 };
 
@@ -74,6 +78,9 @@ export const useRegister = ({ onSuccess }: { onSuccess?: () => void }) => {
       queryClient.setQueryData(userQueryKey, data.user);
       onSuccess?.();
     },
+    onError: (error) => {
+      console.error("Registration failed:", error);
+    },
   });
 };
 
@@ -90,6 +97,9 @@ export const useLogout = ({ onSuccess }: { onSuccess?: () => void }) => {
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: userQueryKey });
       onSuccess?.();
+    },
+    onError: (error) => {
+      console.error("Logout failed:", error);
     },
   });
 };
@@ -126,24 +136,22 @@ const loginWithEmailAndPassword = (data: LoginInput): Promise<AuthResponse> => {
  */
 export const registerInputSchema = z
   .object({
-    email: z.string().min(1, "Required"),
+    email: z.string().min(1, "Required").email("Invalid email"),
     firstName: z.string().min(1, "Required"),
     lastName: z.string().min(1, "Required"),
-    password: z.string().min(5, "Required"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+      ),
+    confirmPassword: z.string().min(1, "Required"),
   })
-  .and(
-    z
-      .object({
-        teamId: z.string().min(1, "Required"),
-        teamName: z.null().default(null),
-      })
-      .or(
-        z.object({
-          teamName: z.string().min(1, "Required"),
-          teamId: z.null().default(null),
-        })
-      )
-  );
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export type RegisterInput = z.infer<typeof registerInputSchema>;
 
@@ -155,5 +163,7 @@ export type RegisterInput = z.infer<typeof registerInputSchema>;
 const registerWithEmailAndPassword = (
   data: RegisterInput
 ): Promise<AuthResponse> => {
-  return api.post("/auth/register", data);
+  // Remove the confirmPassword field before sending to API
+  const { confirmPassword, ...registerData } = data;
+  return api.post("/auth/register", registerData);
 };

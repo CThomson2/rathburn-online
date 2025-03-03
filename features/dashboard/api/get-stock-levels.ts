@@ -1,4 +1,4 @@
-import { api } from "@/lib/api-client";
+import { clientApi as api } from "@/lib/api-client/client";
 import { DailyChange, StockLevels } from "../types/api";
 
 interface WeeklyStockChangesResponse {

@@ -22,9 +22,13 @@ export type User = Entity<{
   lastName: string;
   email: string;
   role: "ADMIN" | "USER";
-  teamId: string;
-  bio: string;
 }>;
+
+export type UserRecord = User & {
+  password_hash: string;
+  created_at: Date;
+  updated_at: Date;
+};
 
 export type AuthResponse = {
   jwt: string;
@@ -39,7 +43,7 @@ export type Team = Entity<{
 export type Discussion = Entity<{
   title: string;
   body: string;
-  teamId: string;
+  teamId?: string;
   author: User;
   public: boolean;
 }>;

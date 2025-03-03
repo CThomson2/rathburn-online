@@ -6,38 +6,62 @@ import type {
   Order,
 } from "@/types/models";
 import { OrderStatus, OrderETAStatus } from "@/types/models/orders/constant";
+import { Prisma } from "@/database/prisma/generated/client";
 
 export const queries = {
+  /**
+   * Get a paginated list of orders with optional filtering and sorting
+   */
   getOrders: async ({
     page = 1,
     limit = 50,
     sortField = "date_ordered",
     sortOrder = "desc",
+    search = "",
+    status,
   }: OrderQueryParams): Promise<OrdersResponse> => {
     const offset = (page - 1) * limit;
 
     return withDatabase(async (db) => {
-      // Get the total number of orders
-      const total = await db.orders.count();
+      // Build where clause for filtering
+      const where: Prisma.ordersWhereInput = {};
+
+      // Add search filter if provided
+      if (search) {
+        where.OR = [
+          { supplier: { contains: search, mode: "insensitive" } },
+          { material: { contains: search, mode: "insensitive" } },
+          { po_number: { contains: search, mode: "insensitive" } },
+        ];
+      }
+
+      // Add status filter if provided
+      if (status) {
+        where.status = Array.isArray(status) ? { in: status } : status;
+      }
+
+      // Get the total number of matching orders
+      const total = await db.orders.count({ where });
 
       // Get the paginated data
       const rows = await db.orders.findMany({
+        where,
         orderBy: [{ [sortField]: sortOrder }, { order_id: "desc" }],
         skip: offset,
         take: limit,
       });
 
-      const orders = rows.map((row: any) => ({
+      const orders: Order[] = rows.map((row: any) => ({
         order_id: row.order_id,
         supplier: row.supplier,
         material: row.material,
         quantity: row.quantity,
-        date_ordered: row.date_ordered?.toISOString(),
+        date_ordered: row.date_ordered.toISOString(),
         quantity_received: row.quantity_received,
         status: row.status as OrderStatus.Type,
-        created_at: row.created_at?.toISOString(),
-        updated_at: row.updated_at?.toISOString(),
-        po_number: row.po_number,
+        created_at: row.created_at.toISOString(),
+        updated_at: row.updated_at.toISOString(),
+        po_number: row.po_number as string | null,
         notes: row.notes,
         eta_start: row.eta_start?.toISOString(),
         eta_end: row.eta_end?.toISOString(),

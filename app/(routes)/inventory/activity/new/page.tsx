@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from "react";
-import { Form } from "@/components/shared/form";
+import { Form } from "@/components/form";
 import type { FormFields } from "@/types/content/form";
-import { TransactionSource } from "@/types/models/transactions/constant";
+import { TransactionSource } from "@/types/models/activity/constant";
 
 const NewTransactionPage = () => {
   const [source, setSource] = useState<
@@ -52,7 +52,7 @@ const NewTransactionPage = () => {
     <div className="p-6">
       <Form
         title="Create Transaction"
-        endpoint="/api/inventory/transactions/new"
+        endpoint="/api/inventory/activity/new"
         method="POST"
         fields={fields}
         onSuccess={(data) => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { Layout, Star } from "lucide-react";
-import { useDashboard } from "../context/dashboard-context";
+import { useDashboard } from "@/context";
 import { cn } from "@/utils/cn";
 
 /**

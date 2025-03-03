@@ -4,26 +4,57 @@ export const paths = {
     getHref: () => "/",
   },
 
-  // auth: {
-  //   register: {
-  //     getHref: (redirectTo?: string | null | undefined) =>
-  //       `/auth/register${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`,
+  auth: {
+    register: {
+      getHref: (redirectTo?: string | null | undefined) =>
+        `/register${
+          redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ""
+        }`,
+    },
+    login: {
+      getHref: (redirectTo?: string | null | undefined) =>
+        `/login${
+          redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ""
+        }`,
+    },
+  },
+
+  // dashboard: {
+  //   root: {
+  //     getHref: () => "/dashboard",
   //   },
-  //   login: {
-  //     getHref: (redirectTo?: string | null | undefined) =>
-  //       `/auth/login${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`,
+  //   drumStock: {
+  //     getHref: () => "/dashboard/drum-stock",
+  //   },
+  //   production: {
+  //     getHref: () => "/dashboard/production",
+  //   },
+  //   finishedGoods: {
+  //     getHref: () => "/dashboard/finished-goods",
   //   },
   // },
 
-  dashboard: {
-    getHref: () => "/dashboard",
-  },
   inventory: {
-    getHref: () => "/inventory",
+    root: {
+      getHref: () => "/inventory/dashboard",
+    },
+    drumStock: {
+      getHref: () => "/inventory/drum-stock",
+    },
+    orders: {
+      getHref: () => "/inventory/orders",
+    },
+    newOrder: {
+      getHref: () => "/inventory/orders/new",
+    },
+    activity: {
+      getHref: () => "/inventory/activity",
+    },
   },
-  // public: {
-  //   discussion: {
-  //     getHref: (id: string) => `/public/discussions/${id}`,
-  //   },
-  // },
+
+  public: {
+    discussion: {
+      getHref: (id: string) => `/public/discussions/${id}`,
+    },
+  },
 } as const;

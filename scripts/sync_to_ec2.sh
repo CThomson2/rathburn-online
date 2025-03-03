@@ -12,7 +12,7 @@ FILES=(
   "app/api/orders/route.ts"
   "app/api/debug/route.ts"
   "app/api/barcodes/scan/drum/route.ts"
-  "app/api/inventory/transactions/[id]/route.ts"
+  "app/api/inventory/activity/[id]/route.ts"
   "app/api/inventory/drums/[id]/route.ts"
   "app/api/dashboard/stock-changes/route.ts"
   "app/api/dashboard/current-stock/route.ts"
@@ -25,7 +25,7 @@ FILES=(
   "app/(routes)/inventory/page.tsx"
   "app/(routes)/inventory/activity/page.tsx"
   "app/(routes)/inventory/orders/page.tsx"
-  "app/(routes)/inventory/orders/create/page.tsx"
+  "app/(routes)/inventory/orders/new/page.tsx"
 )
 
 # Create rsync command
