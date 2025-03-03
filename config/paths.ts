@@ -45,7 +45,7 @@ export const paths = {
       getHref: () => "/inventory/orders",
     },
     newOrder: {
-      getHref: () => "/inventory/orders/create",
+      getHref: () => "/inventory/orders/new",
     },
     activity: {
       getHref: () => "/inventory/activity",

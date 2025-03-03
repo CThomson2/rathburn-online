@@ -31,7 +31,7 @@ async function OrdersPage() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Orders Management</h1>
           <Link
-            href="/inventory/orders/create"
+            href="/inventory/orders/new"
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
           >
             Create New Order
@@ -48,7 +48,7 @@ async function OrdersPage() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Orders Management</h1>
           <Link
-            href="/inventory/orders/create"
+            href="/inventory/orders/new"
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
           >
             Create New Order

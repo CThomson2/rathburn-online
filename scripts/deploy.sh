@@ -40,10 +40,10 @@ ssh -i "$EC2_KEY" $EC2_USER@$EC2_HOST << 'EOF'
     npm install --omit=dev --omit=optional
 
     echo "Running Prisma db pull and generate..."
-    cd database
-    npx prisma db pull
-    npx prisma generate
-    cd ..
+    cd database;
+    npx prisma db pull;
+    npx prisma generate;
+    cd ..;
 
     echo "Building application..."
     npm run build

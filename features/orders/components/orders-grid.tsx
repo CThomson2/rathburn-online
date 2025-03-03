@@ -295,7 +295,7 @@ export const OrdersGrid = ({ initialData }: OrdersGridProps) => {
             />
           </div>
           <Link
-            href="/inventory/orders/create"
+            href="/inventory/orders/new"
             className="bg-blue-500 text-white px-4 py-2 rounded-md"
           >
             Add Order

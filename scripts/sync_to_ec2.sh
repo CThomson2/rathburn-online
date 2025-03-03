@@ -25,7 +25,7 @@ FILES=(
   "app/(routes)/inventory/page.tsx"
   "app/(routes)/inventory/activity/page.tsx"
   "app/(routes)/inventory/orders/page.tsx"
-  "app/(routes)/inventory/orders/create/page.tsx"
+  "app/(routes)/inventory/orders/new/page.tsx"
 )
 
 # Create rsync command

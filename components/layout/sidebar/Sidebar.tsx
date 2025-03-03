@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { cn } from "@/utils/cn";
+import { Sparkles } from "lucide-react";
 
 interface SidebarProps {
   className?: string;
@@ -15,6 +16,7 @@ interface NavLink {
   label: string;
   level: number;
   disabled?: boolean;
+  highlight?: boolean;
 }
 
 export function Sidebar({ className, isAuthLayout = false }: SidebarProps) {
@@ -27,12 +29,15 @@ export function Sidebar({ className, isAuthLayout = false }: SidebarProps) {
     { href: "/overview", label: "Overview", level: 1 },
     { href: "/inventory/dashboard", label: "Inventory Dashboard", level: 1 },
     { href: "/inventory/activity", label: "Inventory Activity", level: 1 },
-    { href: "/inventory/activity/new", label: "New Activity", level: 2 },
     { href: "/inventory/drum-stock", label: "Drum Stock", level: 1 },
     { href: "/inventory/orders", label: "Orders", level: 1 },
-    { href: "/inventory/orders/new", label: "New Order", level: 2 },
+    {
+      href: "/inventory/orders/new",
+      label: "New Order",
+      level: 2,
+      highlight: true,
+    },
     { href: "/raw-materials", label: "Raw Materials", level: 1 },
-    { href: "/sentry-example-page", label: "Sentry Example", level: 1 },
   ];
 
   // Handle sidebar toggle when button is clicked
@@ -87,7 +92,14 @@ export function Sidebar({ className, isAuthLayout = false }: SidebarProps) {
                 }}
                 aria-disabled={isDisabled}
               >
-                <span>{link.label}</span>
+                {link.label === "New Order" ? (
+                  <div className="flex items-center font-bold">
+                    <span>{link.label}</span>
+                    <Sparkles className="ml-2 h-4 w-4" />
+                  </div>
+                ) : (
+                  <span>{link.label}</span>
+                )}
               </Link>
             );
           })}
