@@ -7,17 +7,17 @@ import { AUTH_TOKEN_COOKIE_NAME } from "@/utils/auth";
  */
 const protectedPaths = [
   "/dashboard",
-  "/dashboard/drum-stock",
-  "/dashboard/production",
-  "/dashboard/finished-goods",
+  "/inventory/drum-stock",
+  "/inventory/production",
+  "/inventory/finished-goods",
 ];
 
 /**
  * Paths that don't require authentication
  */
 const publicPaths = [
-  "/auth/login",
-  "/auth/register",
+  "/login",
+  "/register",
   "/api/auth/login",
   "/api/auth/register",
 ];

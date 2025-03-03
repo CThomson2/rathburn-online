@@ -57,6 +57,10 @@ export const useLogin = ({ onSuccess }: { onSuccess?: () => void }) => {
       queryClient.setQueryData(userQueryKey, data.user);
       onSuccess?.();
     },
+    onError: (error) => {
+      console.error("Login failed:", error);
+      // Error is automatically available via the error property of the returned mutation object
+    },
   });
 };
 

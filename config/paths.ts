@@ -7,32 +7,32 @@ export const paths = {
   auth: {
     register: {
       getHref: (redirectTo?: string | null | undefined) =>
-        `/auth/register${
+        `/register${
           redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ""
         }`,
     },
     login: {
       getHref: (redirectTo?: string | null | undefined) =>
-        `/auth/login${
+        `/login${
           redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ""
         }`,
     },
   },
 
-  dashboard: {
-    root: {
-      getHref: () => "/dashboard",
-    },
-    drumStock: {
-      getHref: () => "/dashboard/drum-stock",
-    },
-    production: {
-      getHref: () => "/dashboard/production",
-    },
-    finishedGoods: {
-      getHref: () => "/dashboard/finished-goods",
-    },
-  },
+  // dashboard: {
+  //   root: {
+  //     getHref: () => "/dashboard",
+  //   },
+  //   drumStock: {
+  //     getHref: () => "/dashboard/drum-stock",
+  //   },
+  //   production: {
+  //     getHref: () => "/dashboard/production",
+  //   },
+  //   finishedGoods: {
+  //     getHref: () => "/dashboard/finished-goods",
+  //   },
+  // },
 
   inventory: {
     root: {

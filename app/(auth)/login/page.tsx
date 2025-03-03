@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { paths } from "@/config/paths";
 import { LoginForm } from "@/features/auth/components/login-form";
-import { AuthLayout } from "@/app/auth/_components/auth-layout";
+import { AuthLayout } from "@/app/(auth)/_components/auth-layout";
 
 const LoginPage = () => {
   const router = useRouter();

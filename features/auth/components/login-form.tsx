@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Form, Input } from "@/components/ui/form";
 import { paths } from "@/config/paths";
 import { useLogin, loginInputSchema } from "@/lib/auth";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type LoginFormProps = {
   onSuccess: () => void;
@@ -30,6 +31,16 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
 
   return (
     <div>
+      {login.error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>
+            {login.error instanceof Error
+              ? login.error.message
+              : "Invalid email or password. Please try again or register for a new account."}
+          </AlertDescription>
+        </Alert>
+      )}
+
       <Form
         onSubmit={(values) => {
           login.mutate(values);
