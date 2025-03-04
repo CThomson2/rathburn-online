@@ -2,20 +2,21 @@ module.exports = {
   apps: [
     {
       name: "rathburn-online",
-      script: ".next/standalone/server.js",
+      script: "./.next/standalone/server.js",
       args: "-p 3000",
-      cwd: "/home/ec2-user/rathburn-online",
+      cwd: "/Users/conrad/Documents/GitHub/ec2-repo/rb-dashboard",
       watch: false,
-      instances: 1,
+      instances: "1",
       exec_mode: "fork",
       env: {
         NODE_ENV: "production",
-        PORT: "3000",
+        PORT: 3000,
         // Set the production API URL to the EC2 instance's public DNS or IP
         // IMPORTANT: Update this with your actual EC2 public DNS or IP
-        // NEXT_PUBLIC_API_URL: "http://18.175.182.134:3000/api/",
+        NEXT_PUBLIC_API_URL: "http://18.175.182.134:3000/api/",
         // Add this to ensure Next.js knows where to find static assets
         __NEXT_PRIVATE_STANDALONE_CONFIG: "true",
+        NEXT_TELEMETRY_DISABLED: 1,
       },
       // This ensures environment variables from .env are loaded
       env_file: ".next/standalone/.env",

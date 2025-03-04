@@ -125,20 +125,24 @@ jobs:
             pm2 delete rathburn-online || true
             # Pull latest changes from GitHub
             git pull origin main
-            # Install dependencies
-            npm install --omit=optional
-            # Run database operations
-            npx prisma db pull && npx prisma generate
-            # Build application
-            npm run build
-            # Copy environment and static files
-            cp .env .next/standalone/
-            mkdir -p .next/standalone/.next/static
-            cp -r .next/static/* .next/standalone/.next/static/
-            [ -d "public" ] && cp -r public .next/standalone/ || echo "No public folder"
-            # Start application with PM2
-            pm2 start ecosystem.config.js
-            pm2 save
+            # Install dependencies;
+            npm install --omit=optional;
+            # Run database operations;
+            npx prisma db pull && npx prisma generate;
+            # Build application;
+            npm run build;
+            # Copy environment and static files;
+            cp .env .next/standalone/;
+            mkdir -p .next/standalone/.next/static;
+            # Copy static files;
+            cp -r .next/static/* .next/standalone/.next/static/;
+            # Critical: Copy public folder to the correct location;
+            [ -d "public" ] && cp -r public .next/standalone/public || echo "No public folder";
+            # Critical: Ensure environment variables are available to the standalone server;
+            cp .env .next/standalone/.env;
+            # Start application with PM2;
+            pm2 start ecosystem.config.js;
+            pm2 save;
       # Clean up - revoke temporary security group rule
       - name: Revoke temporary IP access
         if: always() # Run even if previous steps failed

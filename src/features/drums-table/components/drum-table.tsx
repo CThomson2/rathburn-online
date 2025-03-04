@@ -248,7 +248,7 @@ export const DrumsTable = memo(function DrumsTable({
         : Object.values(DrumStatus).join(",");
 
       const response = await fetch(
-        `/api/inventory?page=${
+        `/api/inventory/drums?page=${
           pageIndex + 1
         }&limit=${pageSize}&status=${statusParam}`
       );
@@ -386,7 +386,7 @@ export const DrumsTable = memo(function DrumsTable({
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}
-                    className="px-6 py-4 text-base font-medium"
+                    className="px-6 py-4 text-base font-medium text-slate-200"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>

@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import React from "react";
 import { useEffect, useState } from "react";
 import { cn } from "@/utils/cn";
 import { Plus } from "lucide-react";
@@ -17,6 +18,34 @@ interface NavLink {
   level: number;
   disabled?: boolean;
   highlight?: boolean;
+  recentlyUpdated?: boolean;
+}
+
+// New component for navigation links with update indicator
+function NavLinkItem({ link, isActive }: { link: NavLink; isActive: boolean }) {
+  return (
+    <Link
+      href={link.href}
+      className={cn(
+        "flex items-center gap-2 py-2 px-3 rounded-md transition-colors",
+        isActive
+          ? "bg-primary/10 text-primary font-medium"
+          : "text-muted-foreground hover:text-foreground hover:bg-accent",
+        link.disabled && "opacity-50 pointer-events-none",
+        link.highlight && "text-primary"
+      )}
+    >
+      {link.recentlyUpdated && (
+        <span
+          className="h-2 w-2 rounded-full bg-green-500 animate-pulse"
+          aria-hidden="true"
+        />
+      )}
+      <span className={cn(link.recentlyUpdated && "font-bold")}>
+        {link.label}
+      </span>
+    </Link>
+  );
 }
 
 export function Sidebar({ className, isAuthLayout = false }: SidebarProps) {
@@ -25,19 +54,31 @@ export function Sidebar({ className, isAuthLayout = false }: SidebarProps) {
 
   // Define navigation links based on page.tsx files with proper nesting
   const navLinks: NavLink[] = [
-    { href: "/", label: "Home", level: 0 },
-    { href: "/overview", label: "Overview", level: 1 },
-    { href: "/inventory/dashboard", label: "Inventory Dashboard", level: 1 },
+    { href: "/", label: "Home", level: 0, recentlyUpdated: true },
+    // { href: "/overview", label: "Overview", level: 0 },
+    {
+      href: "/inventory/dashboard",
+      label: "Dashboard",
+      level: 0,
+    },
     { href: "/inventory/activity", label: "Inventory Activity", level: 1 },
-    { href: "/inventory/drum-stock", label: "Drum Stock", level: 1 },
-    { href: "/inventory/orders", label: "Orders", level: 1 },
+    {
+      href: "/inventory/drum-stock",
+      label: "Drum Stock",
+      level: 1,
+      recentlyUpdated: true,
+    },
+    {
+      href: "/inventory/orders",
+      label: "Orders",
+      level: 0,
+    },
     {
       href: "/inventory/orders/new",
       label: "New Order",
-      level: 2,
-      highlight: true,
+      level: 1,
     },
-    { href: "/raw-materials", label: "Raw Materials", level: 1 },
+    // { href: "/raw-materials", label: "Raw Materials", level: 0 },
   ];
 
   // Handle sidebar toggle when button is clicked
@@ -64,45 +105,30 @@ export function Sidebar({ className, isAuthLayout = false }: SidebarProps) {
     >
       <div className="px-4 py-6">
         <h2 className="text-lg font-semibold mb-4">Navigation</h2>
-        <nav className="space-y-1">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href;
-            const isDisabled =
-              isAuthLayout && link.href !== "/inventory/dashboard";
+        <nav className="flex-1 overflow-y-auto py-4">
+          <ul className="space-y-1 px-2">
+            {navLinks
+              .filter((link) => !isAuthLayout || link.level === 0)
+              .map((link, index, filteredLinks) => {
+                const isActive = pathname === link.href;
+                const indent = link.level * 0.5;
+                const isLevel0 = link.level === 0;
+                const prevLink = index > 0 ? filteredLinks[index - 1] : null;
+                const needsDivider =
+                  isLevel0 && (!prevLink || prevLink.level !== 0);
 
-            return (
-              <Link
-                key={link.href}
-                href={isDisabled ? "#" : link.href}
-                className={cn(
-                  "flex items-center px-2 py-2 text-sm rounded-md transition-colors",
-                  { "ml-2": link.level === 1 },
-                  { "ml-4": link.level === 2 },
-                  { "ml-6": link.level === 3 },
-                  isActive
-                    ? "bg-primary/10 text-primary font-medium"
-                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                  isDisabled &&
-                    "opacity-50 cursor-not-allowed hover:bg-transparent hover:text-muted-foreground"
-                )}
-                onClick={(e) => {
-                  if (isDisabled) {
-                    e.preventDefault();
-                  }
-                }}
-                aria-disabled={isDisabled}
-              >
-                {link.label === "New Order" ? (
-                  <div className="flex items-center font-bold">
-                    <span>{link.label}</span>
-                    <Plus className="ml-2 h-4 w-4" />
-                  </div>
-                ) : (
-                  <span>{link.label}</span>
-                )}
-              </Link>
-            );
-          })}
+                return (
+                  <React.Fragment key={link.href}>
+                    {needsDivider && index !== 0 && (
+                      <li className="border-t border-gray-200 dark:border-gray-700 my-2"></li>
+                    )}
+                    <li style={{ paddingLeft: `${indent}rem` }}>
+                      <NavLinkItem link={link} isActive={isActive} />
+                    </li>
+                  </React.Fragment>
+                );
+              })}
+          </ul>
         </nav>
       </div>
     </div>
