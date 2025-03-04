@@ -16,6 +16,7 @@ const protectedPaths = [
  * Paths that don't require authentication
  */
 const publicPaths = [
+  "/",
   "/login",
   "/register",
   "/api/auth/login",

@@ -36,6 +36,9 @@ export const paths = {
 
   inventory: {
     root: {
+      getHref: () => "/inventory",
+    },
+    dashboard: {
       getHref: () => "/inventory/dashboard",
     },
     drumStock: {

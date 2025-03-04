@@ -22,7 +22,7 @@ The Rathburn Dashboard uses Prisma ORM to interact with a PostgreSQL database. T
 Previously, the application used a direct approach to initialize Prisma in `database/client.ts`:
 
 ```typescript
-import { PrismaClient } from "@/database/prisma/generated/client";
+import { PrismaClient } from "/prisma/generated/client";
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
