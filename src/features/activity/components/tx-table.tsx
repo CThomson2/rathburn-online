@@ -190,7 +190,7 @@ export const TransactionsTable = memo(function TransactionsTable() {
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className="px-2 text-white min-w-0 max-w-full"
+                        className="px-2 text-white min-w-0 max-w-full text-center"
                       >
                         <div className="overflow-hidden text-ellipsis whitespace-nowrap">
                           {flexRender(

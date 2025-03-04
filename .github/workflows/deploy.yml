@@ -121,10 +121,10 @@ jobs:
             # Navigate to project directory
             cd /home/ec2-user/rathburn-online
             # Stop and delete PM2 process
-            pm2 stop rathburn-online || true
-            pm2 delete rathburn-online || true
+            pm2 stop rathburn-online || true;
+            pm2 delete rathburn-online || true;
             # Pull latest changes from GitHub
-            git pull origin main
+            git pull origin main;
             # Install dependencies;
             npm install --omit=optional;
             # Run database operations;

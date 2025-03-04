@@ -14,11 +14,10 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Scan, RotateCcw, CheckCircle2, AlertCircle } from "lucide-react";
-// import { useToast } from "@/components/ui/use-toast";
+import { toast, Toaster } from "sonner";
 
 export default function BarcodeScannerPage() {
   const router = useRouter();
-  // const { toast } = useToast();
   const [manualCode, setManualCode] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState<{
@@ -46,10 +45,9 @@ export default function BarcodeScannerPage() {
         code: mockBarcode,
       });
 
-      // toast({
-      //   title: "Barcode Scanned",
-      //   description: `Item ${mockBarcode} identified`,
-      // });
+      toast("Barcode Scanned", {
+        description: `Item ${mockBarcode} identified`,
+      });
 
       // In a real app, you might redirect to an item details page
       // router.push(`/mobile/inventory/item/${mockBarcode}`);
@@ -61,11 +59,9 @@ export default function BarcodeScannerPage() {
     e.preventDefault();
 
     if (!manualCode.trim()) {
-      // toast({
-      //   title: "Error",
-      //   description: "Please enter a valid code",
-      //   variant: "destructive",
-      // });
+      toast.error("Error", {
+        description: "Please enter a valid code",
+      });
       return;
     }
 
@@ -75,10 +71,9 @@ export default function BarcodeScannerPage() {
       code: manualCode,
     });
 
-    // toast({
-    //   title: "Code Processed",
-    //   description: `Item ${manualCode} identified`,
-    // });
+    toast("Code Processed", {
+      description: `Item ${manualCode} identified`,
+    });
 
     // In a real app, you might redirect to an item details page
     // router.push(`/mobile/inventory/item/${manualCode}`);
@@ -91,6 +86,7 @@ export default function BarcodeScannerPage() {
 
   return (
     <div className="space-y-4 py-4">
+      <Toaster />
       <h1 className="text-2xl font-bold tracking-tight">Scan Barcode</h1>
 
       <Tabs defaultValue="camera" className="w-full">

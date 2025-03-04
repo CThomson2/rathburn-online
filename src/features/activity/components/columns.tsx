@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 
 // import { MoreHorizontal } from "lucide-react";
 import type { Transaction } from "@/types/models";
+import { ArrowUpCircle, ArrowDownCircle, CircleSlash } from "lucide-react";
 
 // components/features/inventory/TransactionTable/columns.tsx
 
@@ -65,7 +66,29 @@ export const columns: ColumnDef<Transaction>[] = [
   {
     accessorKey: "material",
     header: ({ column }) => <ColumnSort column={column} title="Material" />,
-    cell: ({ row }) => row.getValue("material"),
+
+    cell: ({ row }) => {
+      const direction = row.original.direction;
+      const icon = (direction: string): JSX.Element | null => {
+        switch (direction) {
+          case "IN":
+            return <ArrowUpCircle className="mr-1 h-4 w-4" stroke="#12B232" />;
+          case "OUT":
+            return (
+              <ArrowDownCircle className="mr-1 h-4 w-4" stroke="#DC2626" />
+            );
+          default:
+            return <CircleSlash className="mr-1 h-4 w-4" />;
+        }
+      };
+      return (
+        <span className="w-full flex items-center justify-between">
+          {icon(direction)}
+          {row.getValue("material")}
+          <p></p>
+        </span>
+      );
+    },
     enableSorting: true,
   },
   {
@@ -78,24 +101,30 @@ export const columns: ColumnDef<Transaction>[] = [
     ),
     enableSorting: true,
   },
-  // TODO: Replace this with arrow icons, or remove the column and format rows based on direction e.g. green or red
-  {
-    accessorKey: "direction",
-    header: ({ column }) => <ColumnSort column={column} title="Direction" />,
-    cell: ({ row }) => {
-      const direction = row.getValue<string>("direction");
-      let variant: "default" | "secondary" | undefined;
+  // {
+  //   accessorKey: "direction",
+  //   header: ({ column }) => <ColumnSort column={column} title="Direction" />,
+  //   cell: ({ row }) => {
+  //     const direction = row.getValue<string>("direction");
 
-      if (direction === "IN") {
-        variant = "default"; // This will use primary background
-      } else if (direction === "OUT") {
-        variant = "secondary"; // This will use blue-600 background
-      }
+  //     if (direction === "IN") {
+  //       return (
+  //         <div className="flex items-center">
+  //           <ArrowDownCircle className="mr-1 h-4 w-4" stroke="#12B232" />
+  //         </div>
+  //       );
+  //     } else if (direction === "OUT") {
+  //       return (
+  //         <div className="flex items-center">
+  //           <ArrowUpCircle className="mr-1 h-4 w-4" stroke="#DC2626" />
+  //         </div>
+  //       );
+  //     }
 
-      return direction ? <Badge variant={variant}>{direction}</Badge> : null;
-    },
-    enableSorting: true,
-  },
+  //     return null;
+  //   },
+  //   enableSorting: true,
+  // },
   {
     // Actions column for row operations:
     // Expand info | View product Modal

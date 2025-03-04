@@ -2,8 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import React from "react";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { cn } from "@/utils/cn";
 import { Plus } from "lucide-react";
 
@@ -118,14 +117,15 @@ export function Sidebar({ className, isAuthLayout = false }: SidebarProps) {
                   isLevel0 && (!prevLink || prevLink.level !== 0);
 
                 return (
-                  <React.Fragment key={link.href}>
+                  <Fragment key={link.href}>
                     {needsDivider && index !== 0 && (
                       <li className="border-t border-gray-200 dark:border-gray-700 my-2"></li>
                     )}
                     <li style={{ paddingLeft: `${indent}rem` }}>
                       <NavLinkItem link={link} isActive={isActive} />
+                      {link.level == 2 && <Plus className="w-4 h-4" />}
                     </li>
-                  </React.Fragment>
+                  </Fragment>
                 );
               })}
           </ul>
