@@ -28,17 +28,17 @@ jobs:
       # Mock database URL to facilitate build process while maintaining security
       - name: Generate Prisma client
         run: |
-          cd database && npx prisma generate && cd ..
+          npx prisma generate
           echo "DATABASE_URL=***localhost:5432/dummy?schema=public" >> .env
 
           # Debug information
           echo "Current directory: $(pwd)"
           echo "After Prisma generate:"
           ls -la
-          ls -la database/prisma || echo "No prisma folder in database dir"
-          if [ -d "database/prisma/generated" ]; then
+          ls -la prisma || echo "No prisma folder in dir"
+          if [ -d "prisma/generated" ]; then
             echo "Contents of prisma/generated directory:"
-            ls -la database/prisma/generated
+            ls -la prisma/generated
           fi
 
       - name: Build application and populate static assets
@@ -49,8 +49,7 @@ jobs:
           ls -la node_modules/.prisma || echo "No .prisma in node_modules"
           ls -la node_modules/@prisma || echo "No @prisma in node_modules"
           echo "Database directory structure:"
-          ls -la database
-          ls -la database/prisma || echo "No prisma folder in database dir"
+          ls -la prisma || echo "No prisma folder in dir"
           echo "Starting build..."
           npm run build
           mkdir -p .next/standalone/.next/static
@@ -129,7 +128,7 @@ jobs:
             # Install dependencies
             npm install --omit=optional
             # Run database operations
-            cd database && npx prisma db pull && npx prisma generate && cd ..
+            npx prisma db pull && npx prisma generate
             # Build application
             npm run build
             # Copy environment and static files
