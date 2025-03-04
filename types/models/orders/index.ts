@@ -1,8 +1,9 @@
-import { Prisma } from "@/database/prisma/generated/client";
+// import { Prisma } from "@/database/prisma/generated/client";
+import { PrismaOrders } from "../base";
 import { OrderStatus, OrderETAStatus } from "./constant";
 
 // Base type directly from Prisma schema
-export type OrderBase = Prisma.ordersGetPayload<{}>;
+export type OrderBase = PrismaOrders;
 
 // Extended type with additional calculated fields
 export interface Order extends OrderBase {
