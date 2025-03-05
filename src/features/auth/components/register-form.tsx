@@ -1,9 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import NextLink from "next/link";
 import { useSearchParams } from "next/navigation";
-import * as React from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, CheckCircle, XCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Form, Input } from "@/components/ui/form";
@@ -16,6 +16,15 @@ import { useRegister, registerInputSchema } from "@/lib/auth";
  */
 type RegisterFormProps = {
   onSuccess: () => void;
+};
+
+// Password validation criteria based on schema
+type PasswordValidation = {
+  length: boolean;
+  lowercase: boolean;
+  uppercase: boolean;
+  number: boolean;
+  match: boolean;
 };
 
 /**
@@ -37,8 +46,17 @@ type RegisterFormProps = {
  */
 export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
   // State for toggling password visibility
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [validation, setValidation] = useState<PasswordValidation>({
+    length: false,
+    lowercase: false,
+    uppercase: false,
+    number: false,
+    match: false,
+  });
 
   // Hook for handling registration API call
   const registering = useRegister({ onSuccess });
@@ -46,6 +64,17 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
   // Get redirect URL from query parameters (if any)
   const searchParams = useSearchParams();
   const redirectTo = searchParams?.get("redirectTo");
+
+  // Update password validation status whenever password changes
+  useEffect(() => {
+    setValidation({
+      length: password.length >= 8,
+      lowercase: /[a-z]/.test(password),
+      uppercase: /[A-Z]/.test(password),
+      number: /\d/.test(password),
+      match: password === confirmPassword && password.length > 0,
+    });
+  }, [password, confirmPassword]);
 
   /**
    * Toggles the visibility of the password field
@@ -59,6 +88,20 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
    */
   const toggleConfirmPasswordVisibility = () => {
     setShowConfirmPassword((prev) => !prev);
+  };
+
+  /**
+   * Update local state when password field changes
+   */
+  const trackPasswordChange = (value: string) => {
+    setPassword(value);
+  };
+
+  /**
+   * Update local state when confirm password field changes
+   */
+  const trackConfirmPasswordChange = (value: string) => {
+    setConfirmPassword(value);
   };
 
   return (
@@ -118,6 +161,7 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
                 registration={register("password")}
                 placeholder="Create a strong password"
                 className="bg-white/90 h-14 text-lg rounded-lg border-violet-200 focus:border-violet-400 shadow-sm"
+                onChange={(e) => trackPasswordChange(e.target.value)}
               />
               <button
                 type="button"
@@ -126,6 +170,66 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
+
+              {/* Password validation checklist */}
+              <ul className="mt-2 space-y-1 text-sm">
+                <li className="flex items-center gap-2">
+                  {validation.length ? (
+                    <CheckCircle size={16} className="text-green-500" />
+                  ) : (
+                    <XCircle size={16} className="text-red-500" />
+                  )}
+                  <span
+                    className={
+                      validation.length ? "text-green-700" : "text-red-700"
+                    }
+                  >
+                    At least 8 characters
+                  </span>
+                </li>
+                <li className="flex items-center gap-2">
+                  {validation.uppercase ? (
+                    <CheckCircle size={16} className="text-green-500" />
+                  ) : (
+                    <XCircle size={16} className="text-red-500" />
+                  )}
+                  <span
+                    className={
+                      validation.uppercase ? "text-green-700" : "text-red-700"
+                    }
+                  >
+                    At least one uppercase letter
+                  </span>
+                </li>
+                <li className="flex items-center gap-2">
+                  {validation.lowercase ? (
+                    <CheckCircle size={16} className="text-green-500" />
+                  ) : (
+                    <XCircle size={16} className="text-red-500" />
+                  )}
+                  <span
+                    className={
+                      validation.lowercase ? "text-green-700" : "text-red-700"
+                    }
+                  >
+                    At least one lowercase letter
+                  </span>
+                </li>
+                <li className="flex items-center gap-2">
+                  {validation.number ? (
+                    <CheckCircle size={16} className="text-green-500" />
+                  ) : (
+                    <XCircle size={16} className="text-red-500" />
+                  )}
+                  <span
+                    className={
+                      validation.number ? "text-green-700" : "text-red-700"
+                    }
+                  >
+                    At least one number
+                  </span>
+                </li>
+              </ul>
             </div>
 
             <div className="relative mb-6">
@@ -136,6 +240,7 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
                 registration={register("confirmPassword")}
                 placeholder="Confirm your password"
                 className="bg-white/90 h-14 text-lg rounded-lg border-violet-200 focus:border-violet-400 shadow-sm"
+                onChange={(e) => trackConfirmPasswordChange(e.target.value)}
               />
               <button
                 type="button"
@@ -144,6 +249,25 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
               >
                 {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
+
+              {/* Password match validation */}
+              {(password.length > 0 || confirmPassword.length > 0) && (
+                <div className="mt-2 flex items-center gap-2 text-sm">
+                  {validation.match ? (
+                    <>
+                      <CheckCircle size={16} className="text-green-500" />
+                      <span className="text-green-700">Passwords match</span>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle size={16} className="text-red-500" />
+                      <span className="text-red-700">
+                        Passwords do not match
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="mt-8">
