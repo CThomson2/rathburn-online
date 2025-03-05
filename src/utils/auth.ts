@@ -81,9 +81,10 @@ export function setAuthCookie(
   const cookieOptions: SerializeOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "lax",
     maxAge: COOKIE_MAX_AGE,
     path: "/",
+    expires: new Date(Date.now() + COOKIE_MAX_AGE * 1000),
   };
 
   const cookie = serialize(AUTH_TOKEN_COOKIE_NAME, token, cookieOptions);

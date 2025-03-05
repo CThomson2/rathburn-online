@@ -41,7 +41,16 @@ export const getUserQueryOptions = () => {
  * @returns {object} The query result for the user.
  */
 export const useUser = (): UseQueryResult<User> => {
-  const query = useQuery(getUserQueryOptions());
+  const query = useQuery({
+    queryKey: userQueryKey,
+    queryFn: getUser,
+    staleTime: 1000 * 60 * 5, // 5 minutes - data won't be refetched until stale
+    gcTime: 1000 * 60 * 30, // 30 minutes - data will remain in cache (renamed from cacheTime in v5)
+    retry: 1, // Only retry once if the request fails
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    refetchOnMount: true, // Refetch when component mounts
+  });
+
   console.log(`User query result: ${JSON.stringify(query, null, 2)}`);
   return query;
 };

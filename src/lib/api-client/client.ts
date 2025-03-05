@@ -31,36 +31,68 @@ async function fetchApi<T>(
   // Replace any double slashes with a single slash
   fullUrl = fullUrl.replace(/([^:]\/)\/+/g, "$1");
 
-  const response = await fetch(fullUrl, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      ...headers,
-    },
-    body: body ? JSON.stringify(body) : undefined,
-    credentials: "include",
-    cache,
-    next,
-  });
+  try {
+    const response = await fetch(fullUrl, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        ...headers,
+      },
+      body: body ? JSON.stringify(body) : undefined,
+      credentials: "include", // Important for cookies to be included
+      cache,
+      next,
+    });
 
-  if (!response.ok) {
-    const errorData = await response
-      .json()
-      .catch(() => ({ message: response.statusText }));
-    const message = errorData.message || response.statusText;
+    // Handle authentication errors
+    if (response.status === 401) {
+      // If this is not already a login request attempt
+      if (!url.includes("/auth/login")) {
+        useNotifications.getState().addNotification({
+          type: "warning",
+          title: "Session Expired",
+          message: "Your session has expired. Please log in again.",
+        });
 
-    // Use client-side notification system
+        // Redirect to login page
+        if (typeof window !== "undefined") {
+          const currentPath = encodeURIComponent(window.location.pathname);
+          window.location.href = `/auth/login?redirectTo=${currentPath}`;
+          return new Promise<T>(() => {}); // Never resolves as we're redirecting
+        }
+      }
+    }
+
+    if (!response.ok) {
+      const errorData = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      const message = errorData.message || response.statusText;
+
+      // Use client-side notification system
+      useNotifications.getState().addNotification({
+        type: "error",
+        title: "Error",
+        message,
+      });
+
+      throw new Error(message);
+    }
+
+    return response.json();
+  } catch (error) {
+    // Handle network errors
+    const message = error instanceof Error ? error.message : "Network error";
+
     useNotifications.getState().addNotification({
       type: "error",
-      title: "Error",
+      title: "Connection Error",
       message,
     });
 
-    throw new Error(message);
+    throw error;
   }
-
-  return response.json();
 }
 
 // Client API object with methods for different HTTP requests
