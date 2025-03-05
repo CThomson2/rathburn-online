@@ -3,6 +3,7 @@ module.exports = {
     {
       name: "rathburn-online",
       script: "./.next/standalone/server.js",
+      cwd: "/home/ec2-user/rathburn-online",
       args: "-p 3000",
       watch: false,
       instances: "1",

@@ -2,8 +2,7 @@ import { ReactNode, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 import { Spinner } from "@/components/ui/spinner";
-
-import { AuthLayout as AuthLayoutComponent } from "./_components/auth-layout";
+import { AuthLayoutContent } from "@/components/layout/auth";
 
 /**
  * Metadata for authentication pages
@@ -37,20 +36,16 @@ export const metadata = {
  * @param {ReactNode} props.children - Child components to render within the layout
  * @returns {JSX.Element} The authentication layout with error and loading boundaries
  */
-const AuthLayout = ({ children }: { children: ReactNode }) => {
+export default function AuthLayout({
+  children,
+}: {
+  children: ReactNode;
+}): JSX.Element {
   return (
-    <Suspense
-      fallback={
-        <div className="flex size-full items-center justify-center">
-          <Spinner size="xl" />
-        </div>
-      }
-    >
-      <ErrorBoundary fallback={<div>Something went wrong!</div>}>
-        <AuthLayoutComponent>{children}</AuthLayoutComponent>
-      </ErrorBoundary>
-    </Suspense>
+    <ErrorBoundary fallback={<div>Something went wrong</div>}>
+      <Suspense fallback={<Spinner size="lg" />}>
+        <AuthLayoutContent>{children}</AuthLayoutContent>
+      </Suspense>
+    </ErrorBoundary>
   );
-};
-
-export default AuthLayout;
+}

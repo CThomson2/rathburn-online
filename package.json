@@ -19,7 +19,7 @@
     "git:log": "git log --oneline --graph",
     "git:reset-soft": "git reset --soft HEAD~1",
     "git:reset-hard": "git reset --hard",
-    "psql:rds": "psql postgresql://rathburn:Nn3Z%3FI5yeyJP2lWXo6M%213%2ALGYPNJ@db-production-1.cr888e0aspwm.eu-west-2.rds.amazonaws.com:5432/rb_production",
+    "psql:rds": "psql postgresql://rathburn:WJer1Kim%3ADHhQhBIBi%5Dx%29U%2Ad4%280T@db-production-1.cr888e0aspwm.eu-west-2.rds.amazonaws.com:5432/rb_production",
     "scanner:dev": "node lib/firmware/scanner.js",
     "scanner:prod": "SCANNER_API_URL=http://18.175.182.134:3000/api/barcodes/scan/drum node lib/firmware/scanner.js",
     "scanner:test-dev": "node scripts/test-scanner-api.js",

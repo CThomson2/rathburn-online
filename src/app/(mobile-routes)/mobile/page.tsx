@@ -9,13 +9,19 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { Package, Scan, Clock, ArrowRight } from "lucide-react";
+import { getRecentActivity } from "../actions/activity";
+import { RecentActivitySection } from "./components/recent-activity";
+import { Transaction } from "@/database/models/activity";
 
 export const metadata: Metadata = {
   title: "Mobile Dashboard",
   description: "Mobile inventory management system",
 };
 
-export default function MobileDashboardPage() {
+export default async function MobileDashboardPage() {
+  // Fetch initial recent activity data using server action
+  const activityResult = await getRecentActivity(3);
+
   return (
     <div className="space-y-4 py-4">
       <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
@@ -41,40 +47,12 @@ export default function MobileDashboardPage() {
         </Link>
       </div>
 
-      {/* Recent Activity */}
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle className="text-lg">Recent Activity</CardTitle>
-          <CardDescription>Your latest inventory actions</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {/* Example activity items - replace with real data */}
-            <ActivityItem
-              title="Scanned Item #A2341"
-              timestamp="10 minutes ago"
-              icon={<Scan className="h-4 w-4" />}
-            />
-            <ActivityItem
-              title="Updated Inventory Count"
-              timestamp="2 hours ago"
-              icon={<Package className="h-4 w-4" />}
-            />
-            <ActivityItem
-              title="Received Shipment #ORD9988"
-              timestamp="Yesterday"
-              icon={<Package className="h-4 w-4" />}
-            />
-          </div>
-
-          <Button variant="ghost" size="sm" className="mt-4 w-full" asChild>
-            <Link href="/mobile/activity">
-              View All Activity
-              <ArrowRight className="ml-1 h-4 w-4" />
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
+      {/* Recent Activity - Now using real data */}
+      <RecentActivitySection
+        initialData={
+          (activityResult.success ? activityResult.data : []) as Transaction[]
+        }
+      />
     </div>
   );
 }

@@ -63,78 +63,93 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
 
   return (
     <div>
+      <h2 className="text-3xl font-bold text-violet-800 mb-6 text-center">
+        Create Account
+      </h2>
+
       <Form
         onSubmit={(values) => {
           registering.mutate(values);
         }}
         schema={registerInputSchema}
+        className="space-y-5"
       >
         {({ register, formState }) => (
           <>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div>
+                <Input
+                  type="text"
+                  label="First Name"
+                  error={formState.errors["firstName"]}
+                  registration={register("firstName")}
+                  placeholder="Enter your first name"
+                  className="bg-white/90 h-14 text-lg rounded-lg border-violet-200 focus:border-violet-400 shadow-sm"
+                />
+              </div>
+              <div>
+                <Input
+                  type="text"
+                  label="Last Name"
+                  error={formState.errors["lastName"]}
+                  registration={register("lastName")}
+                  placeholder="Enter your last name"
+                  className="bg-white/90 h-14 text-lg rounded-lg border-violet-200 focus:border-violet-400 shadow-sm"
+                />
+              </div>
+            </div>
+
+            <div className="mb-2">
               <Input
-                type="text"
-                label="First Name"
-                error={formState.errors["firstName"]}
-                registration={register("firstName")}
-                placeholder="Enter your first name"
-              />
-              <Input
-                type="text"
-                label="Last Name"
-                error={formState.errors["lastName"]}
-                registration={register("lastName")}
-                placeholder="Enter your last name"
+                type="email"
+                label="Email Address"
+                error={formState.errors["email"]}
+                registration={register("email")}
+                placeholder="your.email@example.com"
+                className="bg-white/90 h-14 text-lg rounded-lg border-violet-200 focus:border-violet-400 shadow-sm"
               />
             </div>
 
-            <Input
-              type="email"
-              label="Email Address"
-              error={formState.errors["email"]}
-              registration={register("email")}
-              placeholder="your.email@example.com"
-              className="mt-4"
-            />
-
-            <div className="relative mt-4">
+            <div className="relative mb-2">
               <Input
                 type={showPassword ? "text" : "password"}
                 label="Password"
                 error={formState.errors["password"]}
                 registration={register("password")}
                 placeholder="Create a strong password"
+                className="bg-white/90 h-14 text-lg rounded-lg border-violet-200 focus:border-violet-400 shadow-sm"
               />
               <button
                 type="button"
-                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+                className="absolute right-3 top-11 text-violet-600 hover:text-violet-800"
                 onClick={togglePasswordVisibility}
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
 
-            <div className="relative mt-4">
+            <div className="relative mb-6">
               <Input
                 type={showConfirmPassword ? "text" : "password"}
                 label="Confirm Password"
                 error={formState.errors["confirmPassword"]}
                 registration={register("confirmPassword")}
                 placeholder="Confirm your password"
+                className="bg-white/90 h-14 text-lg rounded-lg border-violet-200 focus:border-violet-400 shadow-sm"
               />
               <button
                 type="button"
-                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+                className="absolute right-3 top-11 text-violet-600 hover:text-violet-800"
                 onClick={toggleConfirmPasswordVisibility}
               >
-                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-8">
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full h-14 text-lg bg-violet-600 hover:bg-violet-700 shadow-md"
                 disabled={registering.isPending}
               >
                 {registering.isPending ? "Registering..." : "Register Account"}
@@ -144,11 +159,11 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
         )}
       </Form>
 
-      <div className="mt-4 text-center text-sm text-gray-600">
+      <div className="mt-6 text-center text-base text-violet-800 font-medium">
         <span>Already have an account? </span>
         <NextLink
           href={paths.auth.login.getHref(redirectTo)}
-          className="font-medium text-blue-600 hover:text-blue-500"
+          className="font-bold text-violet-900 hover:text-violet-950 underline"
         >
           Log In
         </NextLink>

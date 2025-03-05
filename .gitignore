@@ -42,9 +42,9 @@ yarn-error.log*
 .DS_Store
 
 # Prisma
-/database/prisma/generated/
-/database/prisma/*.db
-/database/prisma/migrations/
+/prisma/generated/
+/prisma/*.db
+/prisma/migrations/
 
 # Vercel
 .vercel
