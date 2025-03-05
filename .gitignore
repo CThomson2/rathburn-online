@@ -16,7 +16,8 @@ node_modules
 # Production
 /build
 /dist
-/public/
+/public/mock
+/public/svg
 
 # SQL queries
 /database/sql/
