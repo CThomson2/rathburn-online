@@ -11,7 +11,7 @@ module.exports = {
       env: {
         NODE_ENV: "production",
         PORT: 3000,
-        NEXT_PUBLIC_API_URL: "http://18.175.182.134:3000/api/",
+        NEXT_PUBLIC_API_URL: "http://localhost:3000/api/",
         __NEXT_PRIVATE_STANDALONE_CONFIG: "true",
         NEXT_TELEMETRY_DISABLED: 1,
       },

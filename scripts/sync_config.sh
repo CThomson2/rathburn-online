@@ -2,7 +2,7 @@
 
 # Configuration
 EC2_USER="ec2-user"
-EC2_HOST="18.175.182.134"  # Using the IP from your .env file
+EC2_HOST="3.8.53.147"  # Using the IP from your .env file
 REMOTE_PATH="/home/ec2-user/rathburn-online"
 
 # Files to sync

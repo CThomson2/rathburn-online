@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "clean": "rm -rf .next/cache",
-    "build": "npm run clean && next build",
+    "build": "npx prisma generate && npm run clean && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
@@ -21,9 +21,9 @@
     "git:reset-hard": "git reset --hard",
     "psql:rds": "psql postgresql://rathburn:WJer1Kim%3ADHhQhBIBi%5Dx%29U%2Ad4%280T@db-production-1.cr888e0aspwm.eu-west-2.rds.amazonaws.com:5432/rb_production",
     "scanner:dev": "node lib/firmware/scanner.js",
-    "scanner:prod": "SCANNER_API_URL=http://18.175.182.134:3000/api/barcodes/scan/drum node lib/firmware/scanner.js",
+    "scanner:prod": "SCANNER_API_URL=http://3.8.53.147:3000/api/barcodes/scan/drum node lib/firmware/scanner.js",
     "scanner:test-dev": "node scripts/test-scanner-api.js",
-    "scanner:test-prod": "SCANNER_API_URL=http://18.175.182.134:3000/api/barcodes/scan/drum node scripts/test-scanner-api.js"
+    "scanner:test-prod": "SCANNER_API_URL=http://3.8.53.147:3000/api/barcodes/scan/drum node scripts/test-scanner-api.js"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -71,6 +71,7 @@
     "next-themes": "^0.3.0",
     "nouislider": "^15.8.1",
     "pdf-lib": "^1.17.1",
+    "pm2": "^5.4.3",
     "prisma": "^6.4.1",
     "react": "^18",
     "react-dom": "^18",
@@ -80,6 +81,7 @@
     "recharts": "^2.12.0",
     "serialport": "^12.0.0",
     "shadcn": "^2.3.0",
+    "sharp": "^0.33.5",
     "sonner": "^2.0.1",
     "tailwind-merge": "^2.2.0",
     "tailwindcss": "^3.3.0",

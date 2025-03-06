@@ -29,7 +29,7 @@ rsync -avz --progress \
 
 # 3. SSH into EC2 and install dependencies + restart
 echo "Installing dependencies and restarting on EC2..."
-ssh -i "~/.ssh/rb-server-pkey.pem" ec2-user@18.175.182.134:/home/ec2-user/rathburn-online/ << 'EOF'
+ssh -i "~/.ssh/rb-server-pkey.pem" ec2-user@3.8.53.147:/home/ec2-user/rathburn-online/ << 'EOF'
     cd /home/ec2-user/rb-dashboard
     npm install --omit=dev --omit=optional
     pm2 restart dashboard-app

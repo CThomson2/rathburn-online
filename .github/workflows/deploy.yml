@@ -52,6 +52,14 @@ jobs:
           ls -la prisma || echo "No prisma folder in dir"
           echo "Starting build..."
           npm run build
+
+          # Install sharp explicitly for image optimization
+          npm install --no-save sharp
+
+          # Ensure sharp is copied to the standalone folder
+          mkdir -p .next/standalone/node_modules/sharp
+          cp -r node_modules/sharp/* .next/standalone/node_modules/sharp/
+
           mkdir -p .next/standalone/.next/static
           cp -r .next/static/* .next/standalone/.next/static/
           [ -d "public" ] && cp -r public .next/standalone/ || echo "No public folder"
@@ -131,6 +139,14 @@ jobs:
             npx prisma db pull && npx prisma generate;
             # Build application;
             npm run build;
+
+            # Install sharp explicitly for image optimization
+            npm install --no-save sharp;
+
+            # Ensure sharp is copied to the standalone folder
+            mkdir -p .next/standalone/node_modules/sharp;
+            cp -r node_modules/sharp/* .next/standalone/node_modules/sharp/;
+
             # Copy environment and static files;
             cp .env .next/standalone/;
             mkdir -p .next/standalone/.next/static;

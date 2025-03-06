@@ -77,6 +77,17 @@ export function Sidebar({ className, isAuthLayout = false }: SidebarProps) {
       label: "New Order",
       level: 1,
     },
+    {
+      href: "/data/production",
+      label: "Production Data",
+      level: 0,
+    },
+    {
+      href: "/mobile",
+      label: "Mobile App",
+      level: 0,
+      recentlyUpdated: true,
+    },
     // { href: "/raw-materials", label: "Raw Materials", level: 0 },
   ];
 
