@@ -75,6 +75,7 @@ export function Sidebar({ className, isAuthLayout = false }: SidebarProps) {
       href: "/drums",
       label: "Drum Stock",
       level: 0,
+      recentlyUpdated: true,
     },
     // {
     //   href: "/data/production",

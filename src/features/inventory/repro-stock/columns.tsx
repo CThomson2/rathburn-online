@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { ReproStock } from "./types";
+import { ReproStock } from "../types";
 import { formatDate } from "@/utils/format-date";
 
 // Define the columns configuration for the repro stock table

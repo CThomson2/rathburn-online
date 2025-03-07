@@ -10,6 +10,7 @@ export { Prisma };
 
 // Base table types directly from Prisma
 export type PrismaNewDrums = Prisma.new_drumsGetPayload<{}>;
+export type PrismaReproDrums = Prisma.repro_drumsGetPayload<{}>;
 export type PrismaOrders = Prisma.ordersGetPayload<{}>;
 export type PrismaTransactions = Prisma.transactionsGetPayload<{}>;
 export type PrismaRawMaterials = Prisma.raw_materialsGetPayload<{}>;

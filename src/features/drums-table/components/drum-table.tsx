@@ -11,7 +11,7 @@ import {
   SortingState,
   flexRender,
 } from "@tanstack/react-table";
-import { createColumns } from "./columns";
+import { createColumns } from "../../inventory/drum-stock/columns";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { TableHeader, TableFooter } from "@/components/table";
 import { SearchBar } from "@/components/table/columns/search";

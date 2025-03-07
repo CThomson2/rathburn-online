@@ -3,13 +3,14 @@ import path from "path";
 import { Metadata } from "next";
 import { ReproStockTable } from "@/features/inventory/repro-stock";
 import { parseCSV } from "@/utils/parse-csv";
-import { ReproStock } from "@/features/inventory/repro-stock/types";
+import { ReproStock } from "@/features/inventory/types";
 
 export const metadata: Metadata = {
   title: "Repro Drums Stock | Dashboard",
   description: "Inventory management for repro drums stock",
 };
 
+// Replace for SSR prisma query on repro_drums table
 async function getReproStockData() {
   try {
     // Read the CSV file from the data directory

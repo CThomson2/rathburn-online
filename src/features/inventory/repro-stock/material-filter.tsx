@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { Table } from "@tanstack/react-table";
-import { ReproStock } from "./types";
+import { ReproStock } from "../types";
 import { Check, Filter } from "lucide-react";
 import {
   Popover,

@@ -12,7 +12,7 @@ import {
   SortingState,
 } from "@tanstack/react-table";
 import { columns } from "./columns";
-import { ReproStock } from "./types";
+import { ReproStock } from "../types";
 import { Input } from "@/components/ui/input";
 import {
   Select,

@@ -1,6 +1,10 @@
+"use server";
+
 import Link from "next/link";
 import { Metadata } from "next";
 import { ChevronRight } from "lucide-react";
+
+import { getDb } from "@/database";
 
 export const metadata: Metadata = {
   title: "Drums Management | Dashboard",
@@ -12,6 +16,26 @@ interface DrumSectionProps {
   description: string;
   href: string;
   count?: number;
+}
+
+async function getDrumCounts() {
+  const db = getDb();
+  const drumCount = await db.new_drums.count({
+    where: {
+      // TODO: change the "available" status to "in-stock" in SQL (CHECK constraint)
+      status: {
+        in: ["available", "pre-production", "in-stock"],
+      },
+    },
+  });
+  const reproDrumCount = await db.new_drums.count({
+    where: {
+      status: {
+        in: ["available", "pre-production", "in-stock"],
+      },
+    },
+  });
+  return { drumCount, reproDrumCount };
 }
 
 function DrumSection({ title, description, href, count }: DrumSectionProps) {
@@ -38,7 +62,9 @@ function DrumSection({ title, description, href, count }: DrumSectionProps) {
   );
 }
 
-export default function DrumsPage() {
+export default async function DrumsPage() {
+  const { drumCount, reproDrumCount } = await getDrumCounts();
+
   return (
     <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6">
@@ -55,13 +81,14 @@ export default function DrumsPage() {
           title="Regular Drums"
           description="Manage regular drums inventory and status"
           href="/drums/stock"
+          count={drumCount}
         />
 
         <DrumSection
           title="Repro Drums"
           description="Manage repro drums inventory and status"
           href="/drums/repro"
-          count={230}
+          count={reproDrumCount}
         />
       </div>
     </div>
