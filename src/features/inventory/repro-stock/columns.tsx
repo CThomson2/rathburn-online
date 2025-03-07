@@ -24,6 +24,7 @@ export const columns: ColumnDef<ReproStock>[] = [
   {
     header: "Material",
     accessorKey: "material",
+    filterFn: "arrIncludesSome",
     cell: ({ row }) => (
       <span className="font-medium">{row.getValue("material")}</span>
     ),

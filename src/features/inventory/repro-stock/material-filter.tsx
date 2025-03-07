@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Table } from "@tanstack/react-table";
 import { ReproStock } from "./types";
 import { Check, Filter } from "lucide-react";
@@ -20,67 +20,45 @@ import {
   CommandList,
 } from "@/components/ui/command";
 
-/**
- * MaterialFilter Component
- *
- * A filter component for filtering repro stock data by material type.
- *
- * Features:
- * 1. Dynamically extracts unique material types from table data
- * 2. Allows multi-select filtering of materials
- * 3. Displays count of active filters
- * 4. Provides option to clear all filters
- *
- * @param {Object} props - Component props
- * @param {Table<ReproStock>} props.table - TanStack table instance for repro stock data
- */
 interface MaterialFilterProps {
   table: Table<ReproStock>;
 }
 
 export function MaterialFilter({ table }: MaterialFilterProps) {
-  // State for tracking selected materials and popover open state
   const [selectedMaterials, setSelectedMaterials] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
 
-  // Extract unique materials from the data and sort alphabetically
-  const materials = Array.from(
-    new Set(
-      table
-        .getPreFilteredRowModel()
-        .rows.map((row) => row.getValue("material") as string)
-    )
-  ).sort();
+  // Get unique materials from the original data
+  const materials = useMemo(() => {
+    // Use original data to get all possible materials
+    const uniqueMaterials = new Set<string>();
+    table.options.data.forEach((row) => {
+      const material = row.material;
+      if (material) {
+        uniqueMaterials.add(material);
+      }
+    });
+    return Array.from(uniqueMaterials).sort();
+  }, [table.options.data]);
 
   // Apply the filter when selected materials change
   useEffect(() => {
     if (selectedMaterials.length === 0) {
-      // Clear filter if no materials are selected
       table.getColumn("material")?.setFilterValue(undefined);
     } else {
-      // Apply filter to only show rows with selected materials
-      table.getColumn("material")?.setFilterValue((value: string) => {
-        return selectedMaterials.includes(value);
-      });
+      table.getColumn("material")?.setFilterValue(selectedMaterials);
     }
   }, [selectedMaterials, table]);
 
-  /**
-   * Toggles a material in the selected materials list
-   * @param {string} material - The material to toggle
-   */
   const handleSelect = (material: string) => {
-    setSelectedMaterials((prev) => {
+    setSelectedMaterials((prev: string[]) => {
       if (prev.includes(material)) {
-        return prev.filter((m) => m !== material);
+        return prev.filter((m: string) => m !== material);
       }
       return [...prev, material];
     });
   };
 
-  /**
-   * Clears all selected material filters
-   */
   const clearFilters = () => {
     setSelectedMaterials([]);
   };

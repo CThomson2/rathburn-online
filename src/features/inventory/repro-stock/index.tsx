@@ -36,27 +36,11 @@ interface ReproStockTableProps {
   data: ReproStock[];
 }
 
-/**
- * ReproStockTable Component
- *
- * A comprehensive table for displaying and managing repro drum inventory data.
- *
- * Features:
- * - Global search across all columns
- * - Material filtering via MaterialFilter component
- * - Column sorting
- * - Pagination with configurable page size
- * - Responsive design
- *
- * @param data - Array of ReproStock items to display in the table
- */
 export function ReproStockTable({ data }: ReproStockTableProps) {
-  // State for table filtering, sorting and search
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState<string>("");
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  // Initialize table with TanStack React Table
   const table = useReactTable({
     data,
     columns,
@@ -95,12 +79,6 @@ export function ReproStockTable({ data }: ReproStockTableProps) {
                 className="pl-8 w-[250px] bg-white"
               />
             </div>
-            {/* 
-              Material Filter Component Integration
-              - Receives the table instance to access and modify column filters
-              - Allows filtering by material type
-              - See material-filter.tsx for implementation details
-            */}
             <MaterialFilter table={table} />
           </div>
         </div>
