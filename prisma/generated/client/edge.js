@@ -388,7 +388,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/conrad/Documents/GitHub/ec2-repo/rb-dashboard/prisma/generated/client",
+      "value": "/Users/conrad/Documents/GitHub/rathburn-online/prisma/generated/client",
       "fromEnvVar": null
     },
     "config": {
@@ -397,7 +397,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "darwin-arm64",
+        "value": "darwin",
         "native": true
       },
       {
@@ -408,12 +408,11 @@ const config = {
     "previewFeatures": [
       "multiSchema"
     ],
-    "sourceFilePath": "/Users/conrad/Documents/GitHub/ec2-repo/rb-dashboard/prisma/schema.prisma",
+    "sourceFilePath": "/Users/conrad/Documents/GitHub/rathburn-online/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../..",
   "clientVersion": "6.4.1",
@@ -422,7 +421,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
+  "postinstall": true,
   "inlineDatasources": {
     "db": {
       "url": {

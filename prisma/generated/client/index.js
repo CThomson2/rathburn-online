@@ -389,7 +389,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/conrad/Documents/GitHub/ec2-repo/rb-dashboard/prisma/generated/client",
+      "value": "/Users/conrad/Documents/GitHub/rathburn-online/prisma/generated/client",
       "fromEnvVar": null
     },
     "config": {
@@ -398,7 +398,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "darwin-arm64",
+        "value": "darwin",
         "native": true
       },
       {
@@ -409,12 +409,11 @@ const config = {
     "previewFeatures": [
       "multiSchema"
     ],
-    "sourceFilePath": "/Users/conrad/Documents/GitHub/ec2-repo/rb-dashboard/prisma/schema.prisma",
+    "sourceFilePath": "/Users/conrad/Documents/GitHub/rathburn-online/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../..",
   "clientVersion": "6.4.1",
@@ -423,7 +422,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
+  "postinstall": true,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -472,8 +471,8 @@ exports.PrismaClient = PrismaClient
 Object.assign(exports, Prisma)
 
 // file annotations for bundling tools to include these files
-path.join(__dirname, "libquery_engine-darwin-arm64.dylib.node");
-path.join(process.cwd(), "prisma/generated/client/libquery_engine-darwin-arm64.dylib.node")
+path.join(__dirname, "libquery_engine-darwin.dylib.node");
+path.join(process.cwd(), "prisma/generated/client/libquery_engine-darwin.dylib.node")
 
 // file annotations for bundling tools to include these files
 path.join(__dirname, "libquery_engine-rhel-openssl-3.0.x.so.node");
