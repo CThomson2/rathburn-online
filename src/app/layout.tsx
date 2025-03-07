@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { Menu } from "lucide-react";
-import { cn } from "@/utils/cn";
+
+import { RouteAwareControls } from "@/components/layout/route-aware-controls";
+import { Providers } from "./providers";
 import { ThemeProvider } from "@/app/providers/theme-provider";
-import { Sidebar } from "@/components/layout/sidebar";
 
 import "@/styles/globals.css";
-import { Providers } from "./providers";
 // import { FloatingNav } from "@/components/ui/FloatingNavbar";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 // import { navItems } from "@/content/main";
@@ -127,31 +126,19 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>
           <ThemeProvider>
-            <div className="min-h-screen bg-background text-foreground">
-              {/* Top-right controls */}
-              <div className="fixed top-4 left-4 z-[5001] flex items-center gap-2">
-                <ThemeToggle />
-                <button
-                  type="button"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-md text-gray-400 hover:text-gray-300 bg-gray-800/80 backdrop-blur"
-                  data-toggle-sidebar
-                >
-                  <span className="sr-only">Toggle sidebar</span>
-                  <Menu className="h-6 w-6" />
-                </button>
-              </div>
+            {/* Client component handles the path check */}
+            <RouteAwareControls />
 
-              {/* Global navigation */}
-              {/* <FloatingNav navItems={navItems} /> */}
+            {/* Global navigation */}
+            {/* <FloatingNav navItems={navItems} /> */}
 
-              {/* Sidebar is included globally */}
-              <Sidebar />
+            {/* Sidebar is included globally */}
+            {/* <Sidebar /> */}
 
-              {/* Main content area that adjusts based on sidebar state */}
-              <main className="min-h-screen bg-background main-content">
-                {children}
-              </main>
-            </div>
+            {/* Main content area that adjusts based on sidebar state */}
+            <main className="min-h-screen bg-background main-content">
+              {children}
+            </main>
           </ThemeProvider>
         </Providers>
       </body>

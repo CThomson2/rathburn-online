@@ -88,6 +88,42 @@ export function Sidebar({ className, isAuthLayout = false }: SidebarProps) {
       level: 0,
       recentlyUpdated: true,
     },
+    {
+      href: "/docs",
+      label: "Documentation",
+      level: 0,
+      recentlyUpdated: true,
+    },
+    {
+      href: "/docs/database",
+      label: "System Architecture",
+      level: 1,
+      recentlyUpdated: true,
+    },
+    {
+      href: "/docs/training",
+      label: "Training Materials",
+      level: 1,
+      recentlyUpdated: true,
+    },
+    {
+      href: "/docs/software",
+      label: "Software Documentation",
+      level: 1,
+      recentlyUpdated: true,
+    },
+    {
+      href: "/docs/software/api",
+      label: "API Route Documentation",
+      level: 2,
+      recentlyUpdated: false,
+    },
+    {
+      href: "/docs/software/prisma-orm",
+      label: "Prisma ORM Documentation",
+      level: 2,
+      recentlyUpdated: false,
+    },
     // { href: "/raw-materials", label: "Raw Materials", level: 0 },
   ];
 

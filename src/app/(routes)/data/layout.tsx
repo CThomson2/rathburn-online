@@ -8,6 +8,7 @@ import "@/styles/dashboard/simple-datatables.css";
 import "@/styles/dashboard/style.css";
 import React, { useEffect, useState } from "react";
 import Loader from "@/components/shared/loader";
+import { Sidebar } from "@/components/layout/sidebar";
 
 export default function RootLayout({
   children,
@@ -26,6 +27,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body suppressHydrationWarning={true}>
+        {/* Sidebar is included specifically in app/(routes) pages */}
+        <Sidebar />
+
         <div className="dark:bg-boxdark-2 dark:text-bodydark">
           {loading ? <Loader /> : children}
         </div>

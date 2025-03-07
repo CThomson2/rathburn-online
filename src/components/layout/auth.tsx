@@ -16,7 +16,7 @@ export function AuthLayoutContent({ children }: { children: ReactNode }) {
   return (
     <>
       {/* Include the sidebar with auth restrictions */}
-      <Sidebar isAuthLayout={true} />
+      {/* <Sidebar isAuthLayout={true} /> */}
 
       {/* Full-page background image */}
       <div className="fixed inset-0">

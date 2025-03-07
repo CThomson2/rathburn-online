@@ -18,6 +18,7 @@ node_modules
 /dist
 /public/mock
 /public/svg
+/public/diagrams
 
 # SQL queries
 /database/sql/
