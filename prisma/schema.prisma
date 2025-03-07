@@ -8,7 +8,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["auth", "inventory", "production", "public"]
+  schemas  = ["auth", "inventory", "production", "stock_control", "public"]
 }
 
 model bottle_sizes {
@@ -120,6 +120,8 @@ model distillations {
   batches            batches[]
   repro_additions    repro_additions[]
   drum_distillations drum_distillations[]
+  stills             stills?              @relation(fields: [stillsStill_id], references: [still_id])
+  stillsStill_id     Int?
 
   @@schema("inventory")
 }
@@ -320,6 +322,8 @@ model stills {
   description     String?
   labs            labs    @relation(fields: [lab_id], references: [lab_id], onDelete: NoAction, onUpdate: NoAction)
 
+  distillations distillations[]
+
   @@schema("production")
 }
 
@@ -365,3 +369,82 @@ model users {
 
   @@schema("auth")
 }
+
+/**
+ * // Materials model - represents raw materials in stock control
+ * model Materials {
+ * material_id   Int      @id @default(autoincrement())
+ * name          String   @db.VarChar(100)
+ * chemical_type String?  @db.VarChar(50)
+ * created_at    DateTime @default(now()) @db.Timestamptz(6)
+ * // Relation to Drums
+ * drums Drums[]
+ * @@schema("stock_control")
+ * }
+ * /// This table tracks drum inventory with additional fields for stock control
+ * model Drums {
+ * drum_id                  Int      @id @default(autoincrement())
+ * material_id              Int
+ * date_ordered             DateTime @db.Timestamp(6)
+ * date_received            DateTime @db.Timestamp(6) // Could remove and use `updated_at` of new Activity table/model
+ * batch_code               String?
+ * po_number                String?
+ * status                   String   @default("pending") @db.VarChar(20)
+ * scheduled                Boolean  @default(false)
+ * reprocessed_from_drum_id Int? // Self-reference to original drum if reprocessed
+ * volume_remaining         Decimal  @db.Decimal(10, 2)
+ * created_at               DateTime @default(now()) @db.Timestamptz(6)
+ * updated_at               DateTime @default(now()) @db.Timestamptz(6)
+ * // Relations
+ * material Materials @relation(fields: [material_id], references: [material_id])
+ * // Self-reference relation for reprocessed drums
+ * original_drum     Drums?  @relation("ReprocessedDrums", fields: [reprocessed_from_drum_id], references: [drum_id], onDelete: SetNull, onUpdate: NoAction)
+ * reprocessed_drums Drums[] @relation("ReprocessedDrums")
+ * @@index([status], map: "idx_drums_status")
+ * @@index([material_id], map: "idx_drums_material_id")
+ * @@schema("stock_control")
+ * }
+ * model Suppliers {
+ * id   Int    @id @default(autoincrement())
+ * name String @db.VarChar(50)
+ * @@schema("stock_control")
+ * }
+ * model Distillations {
+ * distillation_id        Int      @id @default(autoincrement())
+ * still_id               Int      @unique
+ * start_time             DateTime @db.Timestamp(6)
+ * end_time               DateTime @db.Timestamp(6)
+ * total_input_volume     Decimal  @db.Decimal(10, 2)
+ * expected_output_volume Decimal  @db.Decimal(10, 2)
+ * actual_output_volume   Decimal  @db.Decimal(10, 2)
+ * loss_volume            Decimal  @db.Decimal(10, 2)
+ * // Relations
+ * stills stills? @relation(fields: [still_id], references: [still_id], onDelete: NoAction, onUpdate: NoAction)
+ * @@schema("stock_control")
+ * }
+ * /**
+ * distillation_id
+ * SERIAL PRIMARY KEY
+ * Unique identifier for each distillation
+ * still_id
+ * INT REFERENCES Stills(still_id)
+ * References the still used
+ * start_time
+ * TIMESTAMP
+ * When distillation began
+ * end_time
+ * TIMESTAMP
+ * When distillation ended
+ * total_input_volume
+ * DECIMAL
+ * Total volume of material input
+ * expected_output_volume
+ * DECIMAL
+ * Estimated total output
+ * actual_output_volume
+ * DECIMAL
+ * Measured final output
+ * loss_volume
+ * DECIMAL GENERATED ALWAYS AS (total_input_volume - actual_output_volume) STORED
+ * Auto-calculates losses
+ */

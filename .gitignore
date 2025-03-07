@@ -18,6 +18,7 @@ node_modules
 /dist
 /public/mock
 /public/svg
+/public/diagrams
 
 # SQL queries
 /database/sql/
@@ -43,9 +44,9 @@ yarn-error.log*
 .DS_Store
 
 # Prisma
-/prisma/generated/
-/prisma/*.db
-/prisma/migrations/
+prisma/generated/client/*
+prisma/*.db
+prisma/migrations/
 
 # Vercel
 .vercel

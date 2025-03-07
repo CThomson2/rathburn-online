@@ -12,7 +12,7 @@ import {
 } from "react-table";
 import ColumnFilter from "./column-filter";
 
-interface Employee {
+interface Process {
   id: string;
   name: string;
   position: string;
@@ -25,7 +25,7 @@ interface Employee {
 }
 
 // tables data
-const dataOne: Employee[] = [
+const dataOne: Process[] = [
   {
     id: "155",
     name: "Brielle Kuphal",
@@ -304,7 +304,7 @@ const dataOne: Employee[] = [
 ];
 
 // table header
-const columns: Column<Employee>[] = [
+const columns: Column<Process>[] = [
   {
     Header: "Name/Id",
     accessor: "name",
@@ -339,7 +339,7 @@ const DataTableOne = () => {
     };
   }, []);
 
-  const tableInstance = useTable<Employee>(
+  const tableInstance = useTable<Process>(
     {
       columns,
       data,
