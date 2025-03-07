@@ -3,6 +3,7 @@ import { ErrorBoundary } from "react-error-boundary";
 
 import { Spinner } from "@/components/ui/spinner";
 import { AuthLayoutContent } from "@/components/layout/auth";
+import { SecurityGate } from "@/components/auth/security-gate";
 
 /**
  * Metadata for authentication pages
@@ -44,6 +45,7 @@ export default function AuthLayout({
   return (
     <ErrorBoundary fallback={<div>Something went wrong</div>}>
       <Suspense fallback={<Spinner size="lg" />}>
+        <SecurityGate />
         <AuthLayoutContent>{children}</AuthLayoutContent>
       </Suspense>
     </ErrorBoundary>
