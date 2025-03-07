@@ -128,9 +128,9 @@ export function SecurityGate() {
             Security Check
           </h2>
           {/* Optional close button if needed */}
-          {/* <button onClick={() => setIsOpen(false)}>
+          <button onClick={() => setIsOpen(false)}>
             <X className="h-5 w-5 text-gray-500" />
-          </button> */}
+          </button>
         </div>
 
         <form onSubmit={handleSubmit}>
