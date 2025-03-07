@@ -62,12 +62,6 @@ export function Sidebar({ className, isAuthLayout = false }: SidebarProps) {
     },
     { href: "/inventory/activity", label: "Inventory Activity", level: 1 },
     {
-      href: "/inventory/drum-stock",
-      label: "Drum Stock",
-      level: 1,
-      recentlyUpdated: true,
-    },
-    {
       href: "/inventory/orders",
       label: "Orders",
       level: 0,
@@ -165,8 +159,7 @@ export function Sidebar({ className, isAuthLayout = false }: SidebarProps) {
                 const indent = link.level * 0.5;
                 const isLevel0 = link.level === 0;
                 const prevLink = index > 0 ? filteredLinks[index - 1] : null;
-                const needsDivider =
-                  isLevel0 && (!prevLink || prevLink.level !== 0);
+                const needsDivider = isLevel0;
 
                 return (
                   <Fragment key={link.href}>
