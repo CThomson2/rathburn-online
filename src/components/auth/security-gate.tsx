@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { paths } from "../../../config/paths";
 
 /**
@@ -18,6 +19,7 @@ export function SecurityGate() {
   const [securityCode, setSecurityCode] = useState("");
   const [error, setError] = useState("");
   const [cursorPosition, setCursorPosition] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -75,8 +77,12 @@ export function SecurityGate() {
     e.preventDefault();
 
     if (validateSecurityCode(securityCode)) {
-      setIsOpen(false);
-      router.push(paths.home.getHref());
+      setIsLoading(true);
+      // Keep the modal open but show loading state
+      setTimeout(() => {
+        setIsOpen(false);
+        router.push(paths.inventory.root.getHref());
+      }, 500); // Small delay to ensure the loading state is visible
     } else {
       setError("Invalid security code. Please try again.");
     }
@@ -110,8 +116,9 @@ export function SecurityGate() {
               digit === "X" ? "col-span-3" : ""
             }`}
             variant="outline"
+            disabled={isLoading}
           >
-            {digit}
+            {isLoading ? <Spinner size="sm" className="mr-2" /> : digit}
           </Button>
         ))}
       </div>
@@ -128,7 +135,7 @@ export function SecurityGate() {
             Security Check
           </h2>
           {/* Optional close button if needed */}
-          <button onClick={() => setIsOpen(false)}>
+          <button onClick={() => setIsOpen(false)} disabled={isLoading}>
             <X className="h-5 w-5 text-gray-500" />
           </button>
         </div>
@@ -151,6 +158,7 @@ export function SecurityGate() {
                 className="w-32 mx-auto text-center text-2xl font-medium text-black placeholder:text-gray-400"
                 autoFocus
                 maxLength={5}
+                disabled={isLoading}
               />
               {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
             </div>
@@ -161,8 +169,16 @@ export function SecurityGate() {
               <Button
                 type="submit"
                 className="bg-blue-600 hover:bg-blue-700 w-full max-w-[180px]"
+                disabled={isLoading}
               >
-                Submit
+                {isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <Spinner size="sm" className="mr-2" />
+                    Redirecting...
+                  </div>
+                ) : (
+                  "Submit"
+                )}
               </Button>
             </div>
           </div>
