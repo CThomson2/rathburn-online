@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Menu } from "lucide-react";
+import { MobileFrameLink } from "./mobile-frame-link";
 
 export function RouteAwareControls() {
   const pathname = usePathname();
@@ -23,6 +24,8 @@ export function RouteAwareControls() {
         <span className="sr-only">Toggle sidebar</span>
         <Menu className="h-6 w-6" />
       </button>
+
+      <MobileFrameLink className="ml-2" />
     </div>
   );
 }

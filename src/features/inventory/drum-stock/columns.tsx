@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import type { DrumBatch } from "@/types/models";
 import { DrumStatus } from "@/types/models/drums/constant";
 import { OrderGroup } from "./data-utils";
+import { formatDateForTable } from "@/utils/format-date";
 
 // Add props for status filter state
 interface ColumnProps {
@@ -40,7 +41,61 @@ export const DrumStockColumns: ColumnDef<OrderGroup>[] = [
     header: "Date Ordered",
     cell: (info) => {
       const date = info.getValue<Date | null>();
-      return <div>{date ? date.toLocaleDateString() : "-"}</div>;
+      return <div>{formatDateForTable(date)}</div>;
+    },
+  },
+  {
+    id: "barcode",
+    header: () => (
+      <div className="flex items-center gap-2 text-slate-300">
+        Barcode <FileDown className="h-4 w-4" />
+      </div>
+    ),
+    cell: ({ row }) => {
+      const status = row.getValue("status") as string;
+      const orderId = row.getValue("order_id") as number;
+      const drumId = row.getValue("drum_id") as number;
+      const material = row.getValue("material") as string;
+      const supplier = row.getValue("supplier") as string;
+
+      if (status !== "pending") return null;
+
+      console.log("### PRINTING BARCODE ###");
+      console.log(`orderId: ${orderId}`);
+      console.log(`drumId: ${drumId}`);
+      console.log(`material: ${material}`);
+      console.log(`supplier: ${supplier}`);
+
+      const handleGeneratePDF = async () => {
+        try {
+          const res = await fetch(
+            `/api/barcodes/generate/${orderId}?material=${encodeURIComponent(
+              material
+            )}&supplier=${encodeURIComponent(supplier)}`
+          );
+
+          if (!res.ok) {
+            throw new Error("Failed to generate barcode PDF");
+          }
+
+          const pdfBlob = await res.blob();
+          const pdfUrl = window.URL.createObjectURL(pdfBlob);
+          window.open(pdfUrl, "_blank");
+        } catch (error) {
+          console.error("Error generating barcode PDF:", error);
+        }
+      };
+
+      return (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleGeneratePDF}
+          className="hover:bg-slate-700/50"
+        >
+          <Download className="h-4 w-4" />
+        </Button>
+      );
     },
   },
   {
@@ -125,7 +180,7 @@ export const createColumns = ({
     header: ({ column }) => <ColumnSort column={column} title="Date Ordered" />,
     cell: ({ row }) => (
       <div className="font-medium text-base">
-        {format(new Date(row.getValue("date_ordered")), "dd MMM yyyy")}
+        {formatDateForTable(row.getValue("date_ordered"))}
       </div>
     ),
     enableSorting: true,
@@ -156,7 +211,6 @@ export const createColumns = ({
     cell: ({ row }) => {
       const status = row.getValue("status") as DrumStatus.Type;
       const orderId = row.getValue("order_id") as number;
-      const drumId = row.getValue("drum_id") as number;
       const material = row.getValue("material") as string;
       const supplier = row.getValue("supplier") as string;
 

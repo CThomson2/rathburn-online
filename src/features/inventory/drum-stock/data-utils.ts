@@ -29,11 +29,28 @@ export async function getDrumStockData(): Promise<OrderGroup[]> {
 
   // Fetch all drums with their related order information
   const drums = await db.new_drums.findMany({
-    include: {
-      orders: true,
-    },
     orderBy: {
       order_id: "desc",
+    },
+    // Set explicit select to only include fields we need
+    select: {
+      drum_id: true,
+      material: true,
+      date_processed: true,
+      status: true,
+      location: true,
+      created_at: true,
+      updated_at: true,
+      order_id: true,
+      orders: {
+        select: {
+          order_id: true,
+          supplier: true,
+          material: true,
+          date_ordered: true,
+          po_number: true,
+        },
+      },
     },
   });
 

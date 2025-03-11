@@ -1,10 +1,12 @@
 "use client";
 
+import { useState, useEffect } from "react"; // should imports be unused?? Sidebar uses state management for togglng
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment } from "react";
 import { cn } from "@/utils/cn";
 import { Plus } from "lucide-react";
+import { useSidebar } from "@/utils/use-sidebar";
 
 interface SidebarProps {
   className?: string;
@@ -49,7 +51,7 @@ function NavLinkItem({ link, isActive }: { link: NavLink; isActive: boolean }) {
 
 export function Sidebar({ className, isAuthLayout = false }: SidebarProps) {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(true);
+  const { isOpen } = useSidebar();
 
   // Define navigation links based on page.tsx files with proper nesting
   const navLinks: NavLink[] = [
@@ -126,20 +128,6 @@ export function Sidebar({ className, isAuthLayout = false }: SidebarProps) {
     // },
     // { href: "/raw-materials", label: "Raw Materials", level: 0 },
   ];
-
-  // Handle sidebar toggle when button is clicked
-  useEffect(() => {
-    const handleToggleSidebar = () => {
-      setIsOpen((prev) => !prev);
-    };
-
-    const toggleBtn = document.querySelector("[data-toggle-sidebar]");
-    toggleBtn?.addEventListener("click", handleToggleSidebar);
-
-    return () => {
-      toggleBtn?.removeEventListener("click", handleToggleSidebar);
-    };
-  }, []);
 
   return (
     <div
