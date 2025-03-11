@@ -1,9 +1,21 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { ReproStock } from "./types";
+import { ReproStock } from "../types";
 import { formatDate } from "@/utils/format-date";
+import { MaterialFilter } from "./material-filter";
 
-// Define the columns configuration for the repro stock table
-export const columns: ColumnDef<ReproStock>[] = [
+// Interface for the createColumns function props
+interface ColumnProps {
+  materialOptions: string[];
+  selectedMaterials: string[];
+  setSelectedMaterials: React.Dispatch<React.SetStateAction<string[]>>;
+}
+
+// Function to create columns with the material filter
+export const createColumns = ({
+  materialOptions,
+  selectedMaterials,
+  setSelectedMaterials,
+}: ColumnProps): ColumnDef<ReproStock>[] => [
   {
     header: "Drum ID",
     accessorKey: "repro_drum_id",
@@ -22,9 +34,14 @@ export const columns: ColumnDef<ReproStock>[] = [
     },
   },
   {
-    header: "Material",
     accessorKey: "material",
-    filterFn: "arrIncludesSome",
+    header: () => (
+      <MaterialFilter
+        materialOptions={materialOptions}
+        selectedMaterials={selectedMaterials}
+        setSelectedMaterials={setSelectedMaterials}
+      />
+    ),
     cell: ({ row }) => (
       <span className="font-medium">{row.getValue("material")}</span>
     ),
@@ -32,12 +49,16 @@ export const columns: ColumnDef<ReproStock>[] = [
   {
     header: "Capacity (L)",
     accessorKey: "capacity",
-    cell: ({ row }) => <span>{row.getValue("capacity")} L</span>,
+    cell: ({ row }) => (
+      <span className="font-medium">{row.getValue("capacity")}</span>
+    ),
   },
   {
     header: "Current Volume (L)",
     accessorKey: "current_volume",
-    cell: ({ row }) => <span>{row.getValue("current_volume")} L</span>,
+    cell: ({ row }) => (
+      <span className="font-medium">{row.getValue("current_volume")}</span>
+    ),
   },
   {
     header: "Created At",
@@ -53,19 +74,17 @@ export const columns: ColumnDef<ReproStock>[] = [
     cell: ({ row }) => {
       const status = row.getValue("status") as string;
       return (
-        <span
-          className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${
-            status === "available"
-              ? "bg-success/10 text-success"
-              : status === "in-use"
-              ? "bg-warning/10 text-warning"
-              : status === "damaged"
-              ? "bg-danger/10 text-danger"
-              : "bg-gray-100 text-gray-500"
+        <div
+          className={`px-4 py-1 text-sm font-medium rounded-full w-fit ${
+            status === "active"
+              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
+              : status === "pending"
+              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
+              : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100"
           }`}
         >
-          {status.charAt(0).toUpperCase() + status.slice(1)}
-        </span>
+          {status}
+        </div>
       );
     },
   },

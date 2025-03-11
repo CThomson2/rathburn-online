@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Metadata } from "next";
 import { ChevronRight } from "lucide-react";
 
+import { getDb } from "@/database";
+
 export const metadata: Metadata = {
   title: "Drums Management | Dashboard",
   description: "Inventory management for all drum types",
@@ -14,7 +16,32 @@ interface DrumSectionProps {
   count?: number;
 }
 
-function DrumSection({ title, description, href, count }: DrumSectionProps) {
+async function getDrumCounts() {
+  const db = getDb();
+  const drumCount = await db.new_drums.count({
+    where: {
+      // TODO: change the "available" status to "in-stock" in SQL (CHECK constraint)
+      status: {
+        in: ["available", "pre-production", "in-stock"],
+      },
+    },
+  });
+  const reproDrumCount = await db.repro_drums.count({
+    where: {
+      status: {
+        in: ["available", "pre-production", "in-stock"],
+      },
+    },
+  });
+  return { drumCount, reproDrumCount };
+}
+
+async function DrumSection({
+  title,
+  description,
+  href,
+  count,
+}: DrumSectionProps) {
   return (
     <Link
       href={href}
@@ -38,7 +65,9 @@ function DrumSection({ title, description, href, count }: DrumSectionProps) {
   );
 }
 
-export default function DrumsPage() {
+export default async function DrumsPage() {
+  const { drumCount, reproDrumCount } = await getDrumCounts();
+
   return (
     <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6">
@@ -52,16 +81,17 @@ export default function DrumsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <DrumSection
-          title="Regular Drums"
-          description="Manage regular drums inventory and status"
+          title="New Drums"
+          description="View & manage new drum stock"
           href="/drums/stock"
+          count={drumCount}
         />
 
         <DrumSection
           title="Repro Drums"
-          description="Manage repro drums inventory and status"
+          description="View & manage repro drum stock"
           href="/drums/repro"
-          count={230}
+          count={reproDrumCount}
         />
       </div>
     </div>

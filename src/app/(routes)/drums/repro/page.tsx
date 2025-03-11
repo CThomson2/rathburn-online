@@ -1,15 +1,16 @@
-import { promises as fs } from "fs";
-import path from "path";
 import { Metadata } from "next";
+import path from "path";
+import fs from "fs/promises";
+import { parseCSV } from "@/utils/csv";
 import { ReproStockTable } from "@/features/inventory/repro-stock";
-import { parseCSV } from "@/utils/parse-csv";
-import { ReproStock } from "@/features/inventory/repro-stock/types";
+import type { ReproStock } from "@/features/inventory/types";
 
 export const metadata: Metadata = {
   title: "Repro Drums Stock | Dashboard",
-  description: "Inventory management for repro drums stock",
+  description: "Inventory management for repro drums",
 };
 
+// Replace for SSR prisma query on repro_drums table
 async function getReproStockData() {
   try {
     // Read the CSV file from the data directory
@@ -30,18 +31,14 @@ export default async function ReproDrumsPage() {
   return (
     <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-          Repro Drums Stock
-        </h1>
-        <p className="mt-2 text-sm text-gray-600">
+        <h1 className="text-2xl font-bold tracking-tight">Repro Drums Stock</h1>
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
           Manage and track inventory for all repro drums
         </p>
       </div>
 
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-4 sm:px-6 py-4">
-          <ReproStockTable data={reproStockData} />
-        </div>
+      <div className="bg-white dark:bg-boxdark rounded-lg shadow p-6">
+        <ReproStockTable data={reproStockData} />
       </div>
     </div>
   );
