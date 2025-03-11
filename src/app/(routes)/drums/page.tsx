@@ -1,5 +1,3 @@
-"use server";
-
 import Link from "next/link";
 import { Metadata } from "next";
 import { ChevronRight } from "lucide-react";
@@ -28,7 +26,7 @@ async function getDrumCounts() {
       },
     },
   });
-  const reproDrumCount = await db.new_drums.count({
+  const reproDrumCount = await db.repro_drums.count({
     where: {
       status: {
         in: ["available", "pre-production", "in-stock"],
@@ -38,7 +36,12 @@ async function getDrumCounts() {
   return { drumCount, reproDrumCount };
 }
 
-function DrumSection({ title, description, href, count }: DrumSectionProps) {
+async function DrumSection({
+  title,
+  description,
+  href,
+  count,
+}: DrumSectionProps) {
   return (
     <Link
       href={href}
@@ -78,15 +81,15 @@ export default async function DrumsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <DrumSection
-          title="Regular Drums"
-          description="Manage regular drums inventory and status"
+          title="New Drums"
+          description="View & manage new drum stock"
           href="/drums/stock"
           count={drumCount}
         />
 
         <DrumSection
           title="Repro Drums"
-          description="Manage repro drums inventory and status"
+          description="View & manage repro drum stock"
           href="/drums/repro"
           count={reproDrumCount}
         />

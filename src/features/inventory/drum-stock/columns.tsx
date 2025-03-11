@@ -1,4 +1,7 @@
 // components/features/inventory/DrumsTable/columns.tsx
+"use client";
+
+import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { ColumnSort } from "@/components/table";
 import { StatusFilter } from "@/components/table/columns/filter";
@@ -8,12 +11,48 @@ import { Download, FileDown } from "lucide-react";
 import { format } from "date-fns";
 import type { DrumBatch } from "@/types/models";
 import { DrumStatus } from "@/types/models/drums/constant";
+import { OrderGroup } from "./data-utils";
 
 // Add props for status filter state
 interface ColumnProps {
   selectedStatuses: DrumStatus.Type[];
   setSelectedStatuses: React.Dispatch<React.SetStateAction<DrumStatus.Type[]>>;
 }
+
+export const DrumStockColumns: ColumnDef<OrderGroup>[] = [
+  {
+    accessorKey: "order_id",
+    header: "PO Number",
+    cell: (info) => <div>{info.getValue<number>()}</div>,
+  },
+  {
+    accessorKey: "supplier",
+    header: "Supplier",
+    cell: (info) => <div>{info.getValue<string>()}</div>,
+  },
+  {
+    accessorKey: "material",
+    header: "Material",
+    cell: (info) => <div>{info.getValue<string>()}</div>,
+  },
+  {
+    accessorKey: "date_ordered",
+    header: "Date Ordered",
+    cell: (info) => {
+      const date = info.getValue<Date | null>();
+      return <div>{date ? date.toLocaleDateString() : "-"}</div>;
+    },
+  },
+  {
+    accessorKey: "total_drums",
+    header: "Drum Count",
+    cell: (info) => (
+      <Badge className="rounded-full bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100 px-2 py-1">
+        {info.getValue<number>()}
+      </Badge>
+    ),
+  },
+];
 
 export const createColumns = ({
   selectedStatuses,
