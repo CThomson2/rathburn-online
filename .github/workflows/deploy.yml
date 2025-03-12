@@ -137,11 +137,13 @@ jobs:
             npm install --omit=optional;
             # Run database operations;
             npx prisma db pull && npx prisma generate;
-            # Build application;
-            npm run build;
 
             # Install sharp explicitly for image optimization
             npm install --no-save sharp;
+
+            # Build application;
+            npm run build;
+
 
             # Ensure sharp is copied to the standalone folder
             mkdir -p .next/standalone/node_modules/sharp;
@@ -150,12 +152,16 @@ jobs:
             # Copy environment and static files;
             cp .env .next/standalone/;
             mkdir -p .next/standalone/.next/static;
+
             # Copy static files;
             cp -r .next/static/* .next/standalone/.next/static/;
+
             # Critical: Copy public folder to the correct location;
             [ -d "public" ] && cp -r public .next/standalone/public || echo "No public folder";
+
             # Critical: Ensure environment variables are available to the standalone server;
             cp .env .next/standalone/.env;
+
             # Start application with PM2;
             pm2 start ecosystem.config.js;
             pm2 save;

@@ -26,7 +26,7 @@ export default function RoutesLayout({
       {/* Add Sidebar to all routes in this group */}
       <div className="flex min-h-screen bg-gray-50 dark:bg-boxdark">
         <Sidebar />
-        {children}
+        <div className="flex-1 pt-16">{children}</div>
       </div>
     </SidebarProvider>
   );
