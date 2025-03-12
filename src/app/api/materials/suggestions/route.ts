@@ -15,21 +15,21 @@ export async function GET(req: Request) {
 
   try {
     const db = getDb();
-    const suggestions = (await db.raw_materials.findMany({
+    const suggestions = await db.raw_materials.findMany({
       where: {
-        name: {
+        material_name: {
           startsWith: query,
           mode: "insensitive", // Case-insensitive search
         },
       },
       select: {
-        name: true,
+        material_name: true,
       },
       take: 10, // Limit results
-    })) as Array<{ name: string }>;
+    });
 
     return NextResponse.json({
-      suggestions: suggestions.map((s) => s.name),
+      suggestions: suggestions.map((s) => s.material_name),
     });
   } catch (error) {
     console.error("Error fetching material suggestions:", error);

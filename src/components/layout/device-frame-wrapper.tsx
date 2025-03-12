@@ -52,6 +52,19 @@ interface DeviceFrameWrapperProps {
   children: React.ReactNode;
 }
 
+// Add this helper function to map any device to a supported one
+const getSupportedDevice = (device: string) => {
+  // Map unsupported devices to supported ones
+  const deviceMap: Record<string, "iPhone X" | "MacBook Pro"> = {
+    "iPhone 8": "iPhone X",
+    "iPhone X": "iPhone X",
+    "iPad Mini": "MacBook Pro", // Default to MacBook Pro for tablets
+    "MacBook Pro": "MacBook Pro",
+  };
+
+  return deviceMap[device] || "iPhone X"; // Default to iPhone X if unknown
+};
+
 export function DeviceFrameWrapper({ children }: DeviceFrameWrapperProps) {
   // State for selected device
   const [selectedDevice, setSelectedDevice] = useState(deviceOptions[1]); // Default to iPhone X
@@ -140,7 +153,7 @@ export function DeviceFrameWrapper({ children }: DeviceFrameWrapperProps) {
       <div className="flex justify-center items-start pt-16 pb-8">
         <div className="device-container">
           <DeviceFrameset
-            device={selectedDevice.device}
+            device={getSupportedDevice(selectedDevice.device)}
             color={selectedDevice.color}
           >
             <div

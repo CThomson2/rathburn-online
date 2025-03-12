@@ -39,7 +39,7 @@ export type UNCode = `UN${UNDigits}` | `un${UNDigits}` | `Un${UNDigits}`;
 // Types for API operations
 export type MaterialPostParams = Omit<Material, "id">;
 export type MaterialUpdateParams = Partial<Material>;
-export type MaterialDeleteParams = Pick<Material, "id">; // Development only
+export type MaterialDeleteParams = Pick<Material, "material_id">; // Development only
 
 export type MaterialGetGroupParams = {
   group: ChemicalGroup.Type;
