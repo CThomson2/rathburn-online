@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
 import { Sidebar } from "@/components/layout/sidebar/Sidebar";
+import { SidebarProvider } from "@/utils/use-sidebar";
 
 import "@/styles/globals.css";
 
@@ -21,10 +22,12 @@ export default function RoutesLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <SidebarProvider>
       {/* Add Sidebar to all routes in this group */}
-      <Sidebar />
-      {children}
-    </>
+      <div className="flex min-h-screen bg-gray-50 dark:bg-boxdark">
+        <Sidebar />
+        <div className="flex-1 pt-16">{children}</div>
+      </div>
+    </SidebarProvider>
   );
 }

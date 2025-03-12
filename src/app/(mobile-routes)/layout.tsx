@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import { MobileNavbar } from "@/components/mobile/navbar";
 import { MobileFooter } from "@/components/mobile/footer";
 import { Providers } from "../providers"; // ThemeProvider is already part of Providers
+import { DeviceFrameWrapper } from "@/components/layout/device-frame-wrapper";
+import { headers } from "next/headers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,6 +24,29 @@ export default function MobileLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Determine if we're in development mode
+  const isDevelopment = process.env.NODE_ENV === "development";
+
+  // Check for a frame query parameter
+  const headersList = headers();
+  const url = headersList.get("x-url") || "";
+  const showFrame =
+    url.includes("frame=true") || url.includes("showframe=true");
+
+  // Only show frame in development and when explicitly requested
+  const shouldShowFrame = isDevelopment && showFrame;
+
+  // The main mobile content
+  const mobileContent = (
+    <div className="min-h-screen bg-background text-foreground">
+      <MobileNavbar />
+      <main className="flex-1 flex flex-col p-4 max-w-lg mx-auto w-full">
+        {children}
+      </main>
+      <MobileFooter />
+    </div>
+  );
+
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
       <head>
@@ -34,13 +59,13 @@ export default function MobileLayout({
         )}
       >
         <Providers>
-          <div className="min-h-screen bg-background text-foreground">
-            <MobileNavbar />
-            <main className="flex-1 flex flex-col p-4 max-w-lg mx-auto w-full">
-              {children}
-            </main>
-            <MobileFooter />
-          </div>
+          {shouldShowFrame ? (
+            // In development with frame param, wrap with device frame
+            <DeviceFrameWrapper>{mobileContent}</DeviceFrameWrapper>
+          ) : (
+            // Otherwise, render normally
+            mobileContent
+          )}
         </Providers>
       </body>
     </html>

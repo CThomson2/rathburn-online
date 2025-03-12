@@ -5,7 +5,6 @@ import "nouislider/dist/nouislider.css";
 import "dropzone/dist/dropzone.css";
 import "@/styles/dashboard/satoshi.css";
 import "@/styles/dashboard/simple-datatables.css";
-import "@/styles/dashboard/style.css";
 import React, { useEffect, useState } from "react";
 import Loader from "@/components/shared/loader";
 import { Sidebar } from "@/components/layout/sidebar";

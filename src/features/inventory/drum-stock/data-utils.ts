@@ -18,6 +18,11 @@ export interface OrderGroup {
   material: string;
   date_ordered: Date | null;
   total_drums: number;
+  count: {
+    pending: number;
+    available: number;
+    processed: number;
+  };
   subRows: DrumRecord[];
 }
 
@@ -29,11 +34,28 @@ export async function getDrumStockData(): Promise<OrderGroup[]> {
 
   // Fetch all drums with their related order information
   const drums = await db.new_drums.findMany({
-    include: {
-      orders: true,
-    },
     orderBy: {
       order_id: "desc",
+    },
+    // Set explicit select to only include fields we need
+    select: {
+      drum_id: true,
+      material: true,
+      date_processed: true,
+      status: true,
+      location: true,
+      created_at: true,
+      updated_at: true,
+      order_id: true,
+      orders: {
+        select: {
+          order_id: true,
+          supplier: true,
+          material: true,
+          date_ordered: true,
+          po_number: true,
+        },
+      },
     },
   });
 
@@ -59,8 +81,18 @@ export async function getDrumStockData(): Promise<OrderGroup[]> {
       // Add to existing order group
       orderRecord.subRows.push(drumRecord);
       orderRecord.total_drums++;
+      // Update counts based on status of first drum in order
+      orderRecord.count[drum.status as keyof typeof orderRecord.count]++;
     } else {
       // Create a new order group
+      const initialCount = {
+        pending: 0,
+        available: 0,
+        processed: 0,
+      };
+      // Increment the count for the order group
+      initialCount[drum.status as keyof typeof initialCount]++;
+
       orderMap.set(drum.order_id, {
         order_id: drum.order_id,
         po_number: drum.orders?.po_number || null,
@@ -68,6 +100,7 @@ export async function getDrumStockData(): Promise<OrderGroup[]> {
         material: drum.material, // Use the material from the first drum in the order
         date_ordered: drum.orders?.date_ordered || null,
         total_drums: 1,
+        count: initialCount,
         subRows: [drumRecord],
       });
     }
