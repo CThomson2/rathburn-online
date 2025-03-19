@@ -44,27 +44,37 @@ model products {
   raw_material_id Int?
   grade           String           @db.VarChar(10)
   product_prices  product_prices[]
-  raw_materials   raw_materials?   @relation(fields: [raw_material_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_raw_material")
+  raw_materials   raw_materials?   @relation(fields: [raw_material_id], references: [material_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_raw_material")
 
   @@schema("public")
 }
 
 model raw_materials {
-  id             Int        @id @default(autoincrement())
-  name           String     @db.VarChar(100)
-  cas_number     String     @db.VarChar(20)
-  chemical_group String?    @default("Hydrocarbon") @db.VarChar(50)
-  description    String?    @db.VarChar(150)
-  un_code        String?    @db.Char(4)
-  flash_point    Int?
-  products       products[]
+  material_id                                                Int               @id @default(autoincrement())
+  material_name                                              String            @db.VarChar(100)
+  cas_number                                                 String            @db.VarChar(20)
+  chemical_group                                             String?           @default("Hydrocarbon") @db.VarChar(50)
+  description                                                String?           @db.VarChar(150)
+  un_code                                                    String?           @db.Char(4)
+  flash_point                                                Int?
+  stock_new                                                  stock_new[]
+  stock_repro                                                stock_repro[]
+  products                                                   products[]
+  stock_materials_stock_materials_material_idToraw_materials stock_materials?  @relation("stock_materials_material_idToraw_materials")
+  stock_materials_stock_materials_supplier_idToraw_materials stock_materials[] @relation("stock_materials_supplier_idToraw_materials")
 
   @@schema("public")
 }
 
 model suppliers {
-  id   Int    @id @default(autoincrement())
-  name String @db.VarChar(50)
+  supplier_id   Int         @id @default(autoincrement())
+  supplier_name String      @db.VarChar(50)
+  addr_1        String?     @db.VarChar(20)
+  addr_2        String?     @db.VarChar(30)
+  city          String?     @db.VarChar(30)
+  post_code     String?     @db.Char(7)
+  country_code  String?     @db.Char(2)
+  stock_new     stock_new[]
 
   @@schema("public")
 }
@@ -420,4 +430,62 @@ model stock_control_suppliers {
 
   @@map("suppliers")
   @@schema("stock_control")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model stock_drums {
+  drum_id    Int       @id @default(autoincrement())
+  drum_type  String
+  stock_id   Int
+  fill_level Decimal?  @db.Decimal(5, 2)
+  status     String?   @default("en route")
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @default(now()) @db.Timestamp(6)
+
+  @@schema("inventory")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model stock_new {
+  stock_id      Int            @id @default(autoincrement())
+  material_id   Int?
+  supplier_id   Int?
+  material_name String
+  quantity      Int
+  batch_code    String         @unique
+  location      String         @db.VarChar(20)
+  notes         String?
+  created_at    DateTime?      @default(now()) @db.Timestamp(6)
+  updated_at    DateTime?      @default(now()) @db.Timestamp(6)
+  raw_materials raw_materials? @relation(fields: [material_id], references: [material_id], onDelete: NoAction, onUpdate: NoAction)
+  suppliers     suppliers?     @relation(fields: [supplier_id], references: [supplier_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@schema("inventory")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model stock_repro {
+  stock_id      Int            @id @default(autoincrement())
+  material_id   Int?
+  location      String
+  notes         String?
+  created_at    DateTime?      @default(now()) @db.Timestamp(6)
+  updated_at    DateTime?      @default(now()) @db.Timestamp(6)
+  quantity      Int
+  raw_materials raw_materials? @relation(fields: [material_id], references: [material_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@schema("inventory")
+}
+
+model stock_materials {
+  material_id                                              Int            @id
+  supplier_id                                              Int?
+  material_name                                            String
+  quantity                                                 Int
+  location                                                 String         @db.VarChar(20)
+  updated_at                                               DateTime?      @default(now()) @db.Timestamp(6)
+  raw_materials_stock_materials_material_idToraw_materials raw_materials  @relation("stock_materials_material_idToraw_materials", fields: [material_id], references: [material_id], onDelete: NoAction, onUpdate: NoAction)
+  raw_materials_stock_materials_supplier_idToraw_materials raw_materials? @relation("stock_materials_supplier_idToraw_materials", fields: [supplier_id], references: [material_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@schema("public")
 }

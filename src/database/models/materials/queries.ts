@@ -10,7 +10,7 @@ export const queries = {
   getMaterials: async ({
     page = 1,
     limit = 50,
-    sortField = "id",
+    sortField = "material_id",
     sortOrder = "asc",
     chemicalGroup,
   }: MaterialQueryParams): Promise<MaterialsResponse> => {
@@ -52,7 +52,7 @@ export const queries = {
   getMaterialById: async (id: number): Promise<Material | null> => {
     return withDatabase(async (db) => {
       const material = await db.raw_materials.findUnique({
-        where: { id },
+        where: { material_id: id },
       });
 
       if (!material) return null;

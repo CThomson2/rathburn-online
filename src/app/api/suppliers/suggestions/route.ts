@@ -48,19 +48,19 @@ export async function GET(req: Request) {
     if (query) {
       const additionalSuppliers = await db.suppliers.findMany({
         where: {
-          name: {
+          supplier_name: {
             startsWith: query,
             mode: "insensitive",
           },
           // Exclude suppliers we already have
           NOT: {
-            name: {
+            supplier_name: {
               in: suggestions,
             },
           },
         },
         select: {
-          name: true,
+          supplier_name: true,
         },
         take: 10,
       });
@@ -70,7 +70,9 @@ export async function GET(req: Request) {
         ...suggestions.filter((s: string) =>
           s.toLowerCase().startsWith(query.toLowerCase())
         ),
-        ...additionalSuppliers.map((s: SupplierNameResult) => s.name),
+        ...additionalSuppliers.map(
+          (s: { supplier_name: string }) => s.supplier_name
+        ),
       ];
     }
 

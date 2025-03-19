@@ -5,7 +5,7 @@ import * as t from ".";
  */
 export type UpdateFields = keyof Pick<
   t.MaterialBase,
-  | "name"
+  | "material_name"
   | "cas_number"
   | "chemical_group"
   | "description"

@@ -27,7 +27,7 @@ export const materialsCrud = {
   ): Promise<t.Material> => {
     return withDatabase((db) =>
       db.raw_materials.update({
-        where: { id },
+        where: { material_id: id },
         data,
       })
     );
@@ -39,7 +39,7 @@ export const materialsCrud = {
   delete: async (id: number): Promise<void> => {
     await withDatabase((db) =>
       db.raw_materials.delete({
-        where: { id },
+        where: { material_id: id },
       })
     );
   },
@@ -50,7 +50,7 @@ export const materialsCrud = {
   get: async (id: number): Promise<t.Material> => {
     const material = await withDatabase((db) =>
       db.raw_materials.findUniqueOrThrow({
-        where: { id },
+        where: { material_id: id },
       })
     );
 
@@ -70,7 +70,7 @@ export const materialsCrud = {
     const {
       page = 1,
       limit = 50,
-      sortField = "id",
+      sortField = "material_id",
       sortOrder = "asc",
       chemicalGroup,
     } = params;

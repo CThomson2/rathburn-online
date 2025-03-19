@@ -54,3 +54,49 @@ CREATE TABLE stock_control.distillations (
 
 -- Add a comment explaining how to use this script
 COMMENT ON SCHEMA stock_control IS 'Schema for stock control management'; 
+
+
+SELECT * FROM raw_materials;
+
+ALTER TABLE suppliers
+ALTER COLUMN id RENAME TO supplier_id;
+ALTER TABLE suppliers
+ALTER COLUMN name RENAME TO supplier_name;
+
+ALTER TABLE suppliers
+ADD COLUMN addr_1 VARCHAR(20),
+ADD COLUMN addr_2 VARCHAR(30),
+ADD COLUMN city VARCHAR(30),
+ADD COLUMN post_code CHAR(7),
+ADD COLUMN country_code CHAR(2);
+
+
+CREATE TABLE inventory.stock_drums (
+	drum_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	drum_type TEXT CHECK (drum_type IN ('new', 'repro')) NOT NULL,
+	stock_id INT NOT NULL,
+	fill_level DECIMAL(5,2) CHECK (fill_level >= 0), -- For tracking partial fills
+	status TEXT CHECK (status IN ('en route', 'in stock', 'scheduled', 'pre-production', 'in production', 'processed', 'second process', 'disposed', 'lost')) DEFAULT 'en route',
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create separate foreign key constraints with CHECK conditions
+-- This approach avoids the WHEN clause which causes errors
+ALTER TABLE inventory.stock_drums 
+ADD CONSTRAINT fk_stock_new 
+FOREIGN KEY (stock_id) REFERENCES inventory.stock_new(stock_id) ON DELETE CASCADE;
+
+-- Add a check constraint to ensure the foreign key is only enforced for 'new' type
+ALTER TABLE inventory.stock_drums
+ADD CONSTRAINT check_stock_new_reference
+CHECK (drum_type != 'new' OR stock_id IN (SELECT stock_id FROM inventory.stock_new));
+
+-- Add a similar constraint for 'repro' type
+ALTER TABLE inventory.stock_drums
+ADD CONSTRAINT fk_stock_repro
+FOREIGN KEY (stock_id) REFERENCES inventory.stock_repro(stock_id) ON DELETE CASCADE;
+
+ALTER TABLE inventory.stock_drums
+ADD CONSTRAINT check_stock_repro_reference
+CHECK (drum_type != 'repro' OR stock_id IN (SELECT stock_id FROM inventory.stock_repro));
