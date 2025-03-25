@@ -6,7 +6,7 @@
     "dev": "next dev",
     "clean": "rm -rf .next/cache",
     "build": "npx prisma generate && npm run clean && next build",
-    "start": "node .next/standalone/server.js",
+    "start": "next start",
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",

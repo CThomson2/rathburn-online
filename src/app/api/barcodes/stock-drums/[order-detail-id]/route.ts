@@ -197,25 +197,6 @@ export async function GET(
           inchesToPoints(pageHeight),
         ]);
 
-        // Add timestamp in top right corner
-        const now = new Date();
-        const timeString = `Printed at ${now
-          .getHours()
-          .toString()
-          .padStart(2, "0")}:${now
-          .getMinutes()
-          .toString()
-          .padStart(2, "0")}:${now.getSeconds().toString().padStart(2, "0")}`;
-        const timeStringWidth = font.widthOfTextAtSize(timeString, 8);
-
-        page.drawText(timeString, {
-          x: page.getWidth() - timeStringWidth - 10, // 10 points from right edge
-          y: page.getHeight() - 15, // 15 points from top edge
-          size: 8,
-          font: font,
-          color: rgb(0.5, 0.5, 0.5), // Gray color
-        });
-
         // Embed images
         let qrImage;
         try {
@@ -299,6 +280,24 @@ export async function GET(
           end: { x: page.getWidth(), y: page.getHeight() - 35 },
           thickness: 1,
           color: rgb(0, 0, 0),
+        });
+
+        // Add timestamp in top right corner for development purposes
+        const now = new Date();
+        const timeStr = `Printed at ${now
+          .getHours()
+          .toString()
+          .padStart(2, "0")}:${now
+          .getMinutes()
+          .toString()
+          .padStart(2, "0")}:${now.getSeconds().toString().padStart(2, "0")}`;
+        const timeWidth = font.widthOfTextAtSize(timeStr, 8);
+        page.drawText(timeStr, {
+          x: page.getWidth() - timeWidth - 10, // 10 points from right edge
+          y: page.getHeight() - 15, // 15 points from top
+          size: 8,
+          font: font,
+          color: rgb(0.5, 0.5, 0.5), // Gray color for development note
         });
 
         // Draw large material text in header section
@@ -415,7 +414,7 @@ export async function GET(
         const additionalInfo = [
           // Dynamic Unit value based on drum position and total drums
           { label: "Unit :", value: `${currentUnitNumber}/${totalDrums}` },
-          { label: "Wt :", value: "158 KG" },
+          { label: "Wt :", value: "161 KG" },
           // { label: "Vol :", value: "199.5 LT" },
         ];
 
