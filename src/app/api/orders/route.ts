@@ -119,6 +119,10 @@ export async function POST(req: Request) {
       // Create stock_order_details records for each material
       const orderDetailsPromises = orderDetails.map(async (detail) => {
         // Find material_id
+        console.log(
+          `[API] Processing order detail for material: "${detail.material}"`
+        );
+
         const materialRecord = await db.raw_materials.findFirst({
           where: {
             material_name: detail.material,
@@ -128,25 +132,39 @@ export async function POST(req: Request) {
           },
         });
 
+        console.log(`[API] Found material record:`, materialRecord);
+
         if (!materialRecord) {
+          console.log(
+            `[API] ERROR: Material "${detail.material}" not found in database`
+          );
           throw new Error(`Material "${detail.material}" not found`);
         }
+
+        // Log the values we're about to insert
+        console.log(`[API] Inserting stock_order_details with values:`, {
+          order_id,
+          material_id: materialRecord.material_id,
+          material_description: detail.material,
+          drum_quantity: detail.drum_quantity,
+        });
 
         // Create stock_order_details record using raw SQL
         const orderDetailResult = await db.$queryRaw<
           Array<{
             detail_id: number;
             order_id: number;
+            material_id: number;
             material_description: string;
             drum_quantity: number;
             status: string;
           }>
         >`
           INSERT INTO "inventory"."stock_order_details" 
-          ("order_id", "material_description", "drum_quantity", "status")
+          ("order_id", "material_id", "material_description", "drum_quantity", "status")
           VALUES (
             ${order_id}, 
-
+            ${materialRecord.material_id},
             ${detail.material}, 
             ${detail.drum_quantity}, 
             'en route'
@@ -154,24 +172,59 @@ export async function POST(req: Request) {
           RETURNING "detail_id", "order_id", "material_id", "material_description", "drum_quantity", "status";
         `;
 
-        // Fetch the stock_drums records that were automatically created by the database trigger
-        // The trigger creates drum_quantity records in stock_drums with order_detail_id set to the new detail_id
-        const newStockDrums = await db.stock_drums.findMany({
-          where: {
-            order_detail_id: orderDetailResult[0].detail_id,
-          },
-        });
+        console.log(`[API] Created stock_order_detail:`, orderDetailResult[0]);
 
+        // Fetch the stock_drums records that were automatically created by the database trigger
+        // Using a relation query since direct filtering by order_detail_id isn't working
         console.log(
-          `[API] Found ${newStockDrums.length} auto-generated stock_drums records for detail_id ${orderDetailResult[0].detail_id}`
+          `[API] Looking for stock_drums with order_detail_id = ${orderDetailResult[0].detail_id}`
         );
 
-        return {
-          detail: orderDetailResult[0],
-          material: detail.material,
-          drum_quantity: detail.drum_quantity,
-          drums: newStockDrums,
-        };
+        try {
+          // Try to get stock_drums through the relation
+          const relatedStockDrums = await db.stock_order_details
+            .findUnique({
+              where: {
+                detail_id: orderDetailResult[0].detail_id,
+              },
+              include: {
+                stock_drums: true,
+              },
+            })
+            .then((result) => result?.stock_drums || []);
+
+          console.log(
+            `[API] Found ${relatedStockDrums.length} auto-generated stock_drums records through relation for detail_id ${orderDetailResult[0].detail_id}`
+          );
+
+          return {
+            detail: orderDetailResult[0],
+            material: detail.material,
+            drum_quantity: detail.drum_quantity,
+            drums: relatedStockDrums,
+          };
+        } catch (findDrumsError) {
+          console.error("[API] Error finding stock_drums:", findDrumsError);
+
+          // Fallback: Try raw SQL as a last resort
+          console.log("[API] Attempting raw SQL query as fallback...");
+          const fallbackDrums = await db.$queryRaw`
+            SELECT * FROM "inventory"."stock_drums" 
+            WHERE "order_detail_id" = ${orderDetailResult[0].detail_id}
+          `;
+          console.log(
+            `[API] Found ${
+              Array.isArray(fallbackDrums) ? fallbackDrums.length : 0
+            } drums using raw SQL`
+          );
+
+          return {
+            detail: orderDetailResult[0],
+            material: detail.material,
+            drum_quantity: detail.drum_quantity,
+            drums: Array.isArray(fallbackDrums) ? fallbackDrums : [],
+          };
+        }
       });
 
       // Wait for all order details to be created
