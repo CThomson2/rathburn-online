@@ -74,10 +74,10 @@ export async function POST(req: Request) {
   try {
     // Parse request body
     const body: StockOrderFormValues = await req.json();
-    const { supplier, po_number, date_ordered, orderDetails } = body;
+    const { supplier, po_number, date_ordered, order_details } = body;
 
     console.log(
-      `[API] Creating new order with ${orderDetails.length} materials from ${supplier}`
+      `[API] Creating new order with ${order_details.length} materials from ${supplier}`
     );
 
     // Use withDatabase to create a new order
@@ -117,7 +117,7 @@ export async function POST(req: Request) {
       const order_id = newOrder[0].order_id;
 
       // Create stock_order_details records for each material
-      const orderDetailsPromises = orderDetails.map(async (detail) => {
+      const orderDetailsPromises = order_details.map(async (detail) => {
         // Find material_id
         console.log(
           `[API] Processing order detail for material: "${detail.material}"`

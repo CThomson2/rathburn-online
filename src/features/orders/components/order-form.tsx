@@ -138,7 +138,7 @@ export const CreateForm = ({
         supplier,
         po_number: poNumber,
         date_ordered: new Date().toISOString(),
-        orderDetails,
+        order_details: orderDetails,
       });
 
       // Fetch new PO number for next order

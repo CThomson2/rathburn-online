@@ -26,11 +26,17 @@ interface OrderResponse {
 }
 
 interface OrderDetailResponse {
-  detail_id: number;
-  order_id: number;
-  material_id: number;
-  material_description: string;
+  detail: {
+    detail_id: number;
+    order_id: number;
+    material_id: number;
+    material_description: string;
+    drum_quantity: number;
+    status: string;
+  };
+  material: string;
   drum_quantity: number;
+  drums: any[];
 }
 
 /**
@@ -74,10 +80,10 @@ function OrderCreationPage(): JSX.Element {
 
       if (data.success) {
         setOrders((prevOrders) => [data.order, ...prevOrders]);
-        setOrderDetails((prevDetails) => [
-          ...data.orderDetails,
-          ...prevDetails,
-        ]);
+
+        // Handle the orderDetails with the new structure
+        const newOrderDetails = data.orderDetails || [];
+        setOrderDetails((prevDetails) => [...newOrderDetails, ...prevDetails]);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -154,18 +160,44 @@ function OrderCreationPage(): JSX.Element {
                       </div>
 
                       {/* Order Details and Actions */}
-                      <div className="p-8">
-                        {orderDetails
-                          .filter(
-                            (detail) => detail.order_id === order.order_id
-                          )
-                          .map((detail) => (
-                            <DrumLabel
-                              key={detail.detail_id}
-                              orderDetail={detail}
-                              onError={setError}
-                            />
-                          ))}
+                      <div className="p-8 space-y-8">
+                        <div className="space-y-2">
+                          <h4 className="text-white text-lg font-semibold">
+                            Order #{order.order_id}
+                          </h4>
+                          <p className="text-slate-400">
+                            PO Number: {order.po_number}
+                          </p>
+                          <p className="text-slate-400">
+                            Date:{" "}
+                            {new Date(order.date_ordered).toLocaleDateString()}
+                          </p>
+                        </div>
+
+                        {/* Material Details Section */}
+                        <div className="space-y-4">
+                          <h4 className="text-white font-medium">
+                            Materials & Barcode Labels
+                          </h4>
+                          <div className="space-y-6 divide-y divide-slate-700">
+                            {orderDetails
+                              .filter(
+                                (detail) =>
+                                  detail.detail.order_id === order.order_id
+                              )
+                              .map((detail) => (
+                                <div
+                                  key={detail.detail.detail_id}
+                                  className="pt-6 first:pt-0"
+                                >
+                                  <DrumLabel
+                                    orderDetail={detail}
+                                    onError={handleError}
+                                  />
+                                </div>
+                              ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>

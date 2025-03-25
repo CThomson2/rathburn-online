@@ -106,5 +106,5 @@ export interface StockOrderFormValues {
   supplier: string;
   po_number: string;
   date_ordered: string;
-  orderDetails: StockOrderDetailInput[];
+  order_details: StockOrderDetailInput[];
 }
