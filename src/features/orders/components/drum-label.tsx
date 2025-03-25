@@ -1,14 +1,21 @@
 import React from "react";
-import { Order } from "@/types/models";
 import { FileDown } from "lucide-react";
 
+interface OrderDetailResponse {
+  detail_id: number;
+  order_id: number;
+  material_id: number;
+  material_description: string;
+  drum_quantity: number;
+}
+
 interface DrumLabelProps {
-  order: Order;
+  orderDetail: OrderDetailResponse;
   onError: (error: string) => void;
 }
 
 export const DrumLabel: React.FC<DrumLabelProps> = ({
-  order: { order_id, material, supplier, po_number },
+  orderDetail: { detail_id, material_description, drum_quantity },
   onError,
 }) => {
   /**
@@ -18,11 +25,7 @@ export const DrumLabel: React.FC<DrumLabelProps> = ({
   const handleGeneratePDF = async () => {
     try {
       // Use fetch directly for binary data instead of the API client
-      const response = await fetch(
-        `/api/barcodes/generate/${order_id}?material=${encodeURIComponent(
-          material
-        )}&supplier=${encodeURIComponent(supplier)}`
-      );
+      const response = await fetch(`/api/barcodes/generate/${detail_id}`);
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
@@ -50,20 +53,18 @@ export const DrumLabel: React.FC<DrumLabelProps> = ({
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
-            <p className="text-slate-400 text-sm">Order ID</p>
-            <p className="text-xl font-semibold text-white">{order_id}</p>
+            <p className="text-slate-400 text-sm">Detail ID</p>
+            <p className="text-xl font-semibold text-white">{detail_id}</p>
           </div>
           <div className="space-y-1">
             <p className="text-slate-400 text-sm">Material</p>
-            <p className="text-xl font-semibold text-white">{material}</p>
+            <p className="text-xl font-semibold text-white">
+              {material_description}
+            </p>
           </div>
           <div className="space-y-1">
-            <p className="text-slate-400 text-sm">Supplier</p>
-            <p className="text-xl font-semibold text-white">{supplier}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-slate-400 text-sm">Purchase Order Number</p>
-            <p className="text-xl font-semibold text-white">{po_number}</p>
+            <p className="text-slate-400 text-sm">Drum Quantity</p>
+            <p className="text-xl font-semibold text-white">{drum_quantity}</p>
           </div>
         </div>
       </div>

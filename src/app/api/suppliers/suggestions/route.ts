@@ -10,53 +10,71 @@ interface SupplierResult {
   supplier: string;
 }
 
-interface SupplierNameResult {
-  name: string;
-}
-
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const query = searchParams.get("q") || "";
   const material = searchParams.get("material");
 
-  if (!material) {
-    return NextResponse.json({ suggestions: [] });
-  }
-
   try {
     const db = getDb();
+    let suggestions: string[] = [];
 
-    // First, get historical suppliers for this material
-    const historicalSuppliers = await db.orders.findMany({
-      where: {
-        material: {
-          equals: material,
-          mode: "insensitive",
+    // If material is provided, get historical suppliers for this material
+    if (material) {
+      const historicalSuppliers = await db.orders.findMany({
+        where: {
+          material: {
+            equals: material,
+            mode: "insensitive",
+          },
         },
-      },
-      select: {
-        supplier: true,
-      },
-      distinct: ["supplier"],
-    });
+        select: {
+          supplier: true,
+        },
+        distinct: ["supplier"],
+      });
 
-    let suggestions: string[] = historicalSuppliers.map(
-      (s: SupplierResult) => s.supplier
-    );
+      suggestions = historicalSuppliers.map((s: SupplierResult) => s.supplier);
 
-    // If user is typing, filter existing suggestions and add new matches
-    if (query) {
-      const additionalSuppliers = await db.suppliers.findMany({
+      // If user is typing, filter existing suggestions and add new matches
+      if (query) {
+        const additionalSuppliers = await db.suppliers.findMany({
+          where: {
+            supplier_name: {
+              startsWith: query,
+              mode: "insensitive",
+            },
+            // Exclude suppliers we already have
+            NOT: {
+              supplier_name: {
+                in: suggestions,
+              },
+            },
+          },
+          select: {
+            supplier_name: true,
+          },
+          take: 10,
+        });
+
+        // Combine and sort results
+        suggestions = [
+          ...suggestions.filter((s: string) =>
+            s.toLowerCase().startsWith(query.toLowerCase())
+          ),
+          ...additionalSuppliers.map(
+            (s: { supplier_name: string }) => s.supplier_name
+          ),
+        ];
+      }
+    }
+    // If no material is provided, just search suppliers by query
+    else if (query) {
+      const suppliers = await db.suppliers.findMany({
         where: {
           supplier_name: {
             startsWith: query,
             mode: "insensitive",
-          },
-          // Exclude suppliers we already have
-          NOT: {
-            supplier_name: {
-              in: suggestions,
-            },
           },
         },
         select: {
@@ -65,15 +83,9 @@ export async function GET(req: Request) {
         take: 10,
       });
 
-      // Combine and sort results
-      suggestions = [
-        ...suggestions.filter((s: string) =>
-          s.toLowerCase().startsWith(query.toLowerCase())
-        ),
-        ...additionalSuppliers.map(
-          (s: { supplier_name: string }) => s.supplier_name
-        ),
-      ];
+      suggestions = suppliers.map(
+        (s: { supplier_name: string }) => s.supplier_name
+      );
     }
 
     return NextResponse.json({

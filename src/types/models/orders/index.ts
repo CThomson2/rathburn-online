@@ -96,3 +96,15 @@ export interface OrdersOverviewWidgetProps {
     po_number?: string;
   }>;
 }
+
+export interface StockOrderDetailInput {
+  material: string;
+  drum_quantity: number;
+}
+
+export interface StockOrderFormValues {
+  supplier: string;
+  po_number: string;
+  date_ordered: string;
+  orderDetails: StockOrderDetailInput[];
+}

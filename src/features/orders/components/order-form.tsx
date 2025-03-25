@@ -1,38 +1,32 @@
 "use client";
 
-import { CreateOrderParams } from "@/types/models";
-import { useState, useEffect, useCallback, KeyboardEvent } from "react";
+import { StockOrderFormValues, StockOrderDetailInput } from "@/types/models";
+import { useState, useEffect, useCallback } from "react";
 import styles from "./form.module.css";
 import { cn } from "@/utils/cn";
 import { Dropdown } from "./form/dropdown";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus, Trash2 } from "lucide-react";
 import { clientApi as api } from "@/lib/api-client/client";
 
 export const CreateForm = ({
   onOrderCreated,
 }: {
-  onOrderCreated: (order: CreateOrderParams) => void;
+  onOrderCreated: (order: StockOrderFormValues) => void;
 }) => {
-  // Convert into reducer hook
-  const [material, setMaterial] = useState<CreateOrderParams["material"]>("");
-  const [supplier, setSupplier] = useState<CreateOrderParams["supplier"]>("");
-  const [quantity, setQuantity] = useState<CreateOrderParams["quantity"]>(0);
-  const [poNumber, setPoNumber] = useState<string>("");
+  // Form state
+  const [supplier, setSupplier] = useState("");
+  const [poNumber, setPoNumber] = useState("");
+  const [orderDetails, setOrderDetails] = useState<StockOrderDetailInput[]>([
+    { material: "", drum_quantity: 1 },
+  ]);
+
+  // Suggestions state
   const [materialSuggestions, setMaterialSuggestions] = useState<string[]>([]);
   const [supplierSuggestions, setSupplierSuggestions] = useState<string[]>([]);
   const [isLoadingMaterials, setIsLoadingMaterials] = useState(false);
   const [isLoadingSuppliers, setIsLoadingSuppliers] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeField, setActiveField] = useState<{
-    material: boolean;
-    supplier: boolean;
-    quantity: boolean;
-    poNumber: boolean;
-  }>({ material: true, supplier: false, quantity: false, poNumber: false });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Minimum characters required for search
-  // const MIN_SEARCH_CHARS = 3;
 
   // Fetch initial PO number when component mounts
   useEffect(() => {
@@ -54,15 +48,12 @@ export const CreateForm = ({
   }, []);
 
   const fetchMaterialSuggestions = async (query: string) => {
-    console.log("Fetching material suggestions for:", query);
     setIsLoadingMaterials(true);
-
     try {
       const response = await fetch(
         `/api/materials/suggestions?q=${encodeURIComponent(query)}`
       );
       const data = await response.json();
-      console.log("API Response:", data);
       setMaterialSuggestions(
         Array.isArray(data.suggestions) ? data.suggestions : []
       );
@@ -74,166 +65,95 @@ export const CreateForm = ({
     }
   };
 
-  // Memoize fetchSupplierSuggestions
-  const fetchSupplierSuggestions = useCallback(
-    async (query: string) => {
-      console.log("Fetching supplier suggestions for:", query);
-      setIsLoadingSuppliers(true);
-      setError(null);
+  const fetchSupplierSuggestions = useCallback(async (query: string) => {
+    setIsLoadingSuppliers(true);
+    setError(null);
 
-      try {
-        const response = await fetch(
-          `/api/suppliers/suggestions?q=${encodeURIComponent(
-            query
-          )}&material=${encodeURIComponent(material)}`
-        );
-        const data = await response.json();
-        console.log("Suppliers API response:", data);
+    try {
+      const response = await fetch(
+        `/api/suppliers/suggestions?q=${encodeURIComponent(query)}`
+      );
+      const data = await response.json();
 
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to fetch suggestions");
-        }
-
-        const suggestions = Array.isArray(data.suggestions)
-          ? data.suggestions
-          : [];
-        console.log("Setting supplier suggestions:", suggestions);
-        setSupplierSuggestions(suggestions);
-      } catch (error) {
-        console.error("Failed to fetch supplier suggestions:", error);
-        setError(
-          error instanceof Error ? error.message : "Failed to fetch suggestions"
-        );
-        setSupplierSuggestions([]);
-      } finally {
-        setIsLoadingSuppliers(false);
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch suggestions");
       }
-    },
-    [material]
-  );
 
-  // Now it's safe to include in useEffect deps
-  useEffect(() => {
-    if (material) {
-      fetchSupplierSuggestions("");
+      setSupplierSuggestions(
+        Array.isArray(data.suggestions) ? data.suggestions : []
+      );
+    } catch (error) {
+      console.error("Failed to fetch supplier suggestions:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to fetch suggestions"
+      );
+      setSupplierSuggestions([]);
+    } finally {
+      setIsLoadingSuppliers(false);
     }
-  }, [material, fetchSupplierSuggestions]);
+  }, []);
 
-  const handleMaterialChange = (value: string) => {
-    setMaterial(value);
-    if (value.trim()) {
-      setActiveField((prev) => ({ ...prev, supplier: true }));
-    }
+  const handleAddOrderDetail = () => {
+    setOrderDetails([...orderDetails, { material: "", drum_quantity: 1 }]);
   };
 
-  const handleSupplierChange = (value: string) => {
-    setSupplier(value);
-    if (value.trim()) {
-      setActiveField((prev) => ({ ...prev, quantity: true }));
-    }
+  const handleRemoveOrderDetail = (index: number) => {
+    setOrderDetails(orderDetails.filter((_, i) => i !== index));
   };
 
-  /**
-   * Handles keyboard events for form field navigation and submission.
-   * When Enter is pressed, moves focus to the next field if current field is valid.
-   * @param {KeyboardEvent<HTMLInputElement>} e - The keyboard event
-   * @param {string} field - The current field name ('material', 'supplier', 'quantity', or 'poNumber')
-   */
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>, field: string) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      switch (field) {
-        case "material":
-          if (material.trim()) {
-            setActiveField((prev) => ({ ...prev, supplier: true }));
-          }
-          break;
-        case "supplier":
-          if (supplier.trim()) {
-            setActiveField((prev) => ({ ...prev, quantity: true }));
-          }
-          break;
-        case "quantity":
-          if (quantity > 0) {
-            setActiveField((prev) => ({ ...prev, poNumber: true }));
-          }
-          break;
-        case "poNumber":
-          handleSubmit();
-          break;
-      }
-    }
-  };
-
-  /**
-   * Handles blur events for form fields.
-   * When a field loses focus, validates it and activates the next field if valid.
-   * @param {string} field - The field that lost focus ('material', 'supplier', or 'quantity')
-   */
-  const handleBlur = (field: string) => {
-    switch (field) {
-      case "material":
-        if (material.trim()) {
-          setActiveField((prev) => ({ ...prev, supplier: true }));
-        }
-        break;
-      case "supplier":
-        if (supplier.trim()) {
-          setActiveField((prev) => ({ ...prev, quantity: true }));
-        }
-        break;
-      case "quantity":
-        if (quantity > 0) {
-          setActiveField((prev) => ({ ...prev, poNumber: true }));
-        }
-        break;
-    }
+  const handleOrderDetailChange = (
+    index: number,
+    field: keyof StockOrderDetailInput,
+    value: string | number
+  ) => {
+    const newOrderDetails = [...orderDetails];
+    newOrderDetails[index] = {
+      ...newOrderDetails[index],
+      [field]: value,
+    };
+    setOrderDetails(newOrderDetails);
   };
 
   const resetForm = useCallback(() => {
-    setMaterial("");
     setSupplier("");
-    setQuantity(0);
-    setActiveField({
-      material: true,
-      supplier: false,
-      quantity: false,
-      poNumber: false,
-    });
-    // Don't reset PO number - it will be updated by the API
+    setOrderDetails([{ material: "", drum_quantity: 1 }]);
   }, []);
 
-  /**
-   * Handles form submission.
-   * Validates required fields and calls onOrderCreated callback with form data if valid.
-   */
   const handleSubmit = async () => {
-    if (material && supplier && quantity > 0 && !isSubmitting) {
-      setIsSubmitting(true);
+    if (
+      !supplier ||
+      !poNumber ||
+      orderDetails.some(
+        (detail) => !detail.material || detail.drum_quantity < 1
+      )
+    ) {
+      setError("Please fill in all required fields");
+      return;
+    }
 
-      try {
-        onOrderCreated({
-          material,
-          supplier,
-          quantity,
-          po_number: poNumber.replace(/-/g, "") || "",
-          date_ordered: new Date().toISOString(),
-        });
+    setIsSubmitting(true);
 
-        // Fetch new PO number for next order
-        const response = await api.get<{ poNumber: string }>(
-          "/orders/next-po-number"
-        );
-        setPoNumber(response.poNumber);
-        resetForm();
-      } catch (error) {
-        console.error("Failed to create order:", error);
-        setError(
-          error instanceof Error ? error.message : "Failed to create order"
-        );
-      } finally {
-        setIsSubmitting(false);
-      }
+    try {
+      onOrderCreated({
+        supplier,
+        po_number: poNumber,
+        date_ordered: new Date().toISOString(),
+        orderDetails,
+      });
+
+      // Fetch new PO number for next order
+      const response = await api.get<{ poNumber: string }>(
+        "/orders/next-po-number"
+      );
+      setPoNumber(response.poNumber);
+      resetForm();
+    } catch (error) {
+      console.error("Failed to create order:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to create order"
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -247,76 +167,122 @@ export const CreateForm = ({
       <div className={styles["form"]}>
         <h1 className={styles["title"]}>Create Order</h1>
 
-        <div className={cn(styles["form-field-container"])}>
-          <label className={styles["label"]}>Material</label>
-          <Dropdown
-            value={material}
-            onValueChange={handleMaterialChange}
-            options={materialSuggestions}
-            placeholder="Enter material name"
-            onInputChange={fetchMaterialSuggestions}
-            disabled={false}
-            heading="Materials"
-            emptyMessage={
-              isLoadingMaterials ? "Loading..." : "No materials found."
-            }
-          />
+        {/* Order Header Section */}
+        <div className="space-y-4 mb-8">
+          <div className={cn(styles["form-field-container"])}>
+            <label className={styles["label"]}>Supplier</label>
+            <Dropdown
+              value={supplier}
+              onValueChange={setSupplier}
+              options={supplierSuggestions}
+              placeholder="Enter supplier name"
+              onInputChange={fetchSupplierSuggestions}
+              disabled={false}
+              heading="Suppliers"
+              emptyMessage={
+                isLoadingSuppliers ? "Loading..." : "No suppliers found."
+              }
+            />
+          </div>
+
+          <div className={cn(styles["form-field-container"])}>
+            <label className={styles["label"]}>Purchase Order Number</label>
+            <input
+              className={cn(
+                styles["input"],
+                poNumber && styles["input-filled"]
+              )}
+              placeholder="PO Format: YY-MM-DD-A-RS"
+              type="text"
+              value={poNumber}
+              onChange={(e) => setPoNumber(e.target.value)}
+              disabled={false}
+            />
+          </div>
         </div>
 
-        <div className={cn(styles["form-field-container"])}>
-          <label className={styles["label"]}>Supplier</label>
-          <Dropdown
-            value={supplier}
-            onValueChange={handleSupplierChange}
-            options={supplierSuggestions}
-            placeholder="Enter supplier name"
-            onInputChange={fetchSupplierSuggestions}
-            disabled={!activeField.supplier}
-            heading="Suppliers"
-            emptyMessage={
-              isLoadingSuppliers ? "Loading..." : "No suppliers found."
-            }
-          />
-        </div>
+        {/* Order Details Section */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Order Details</h2>
+            <button
+              type="button"
+              onClick={handleAddOrderDetail}
+              className="flex items-center gap-2 text-blue-600 hover:text-blue-700"
+            >
+              <Plus className="w-4 h-4" />
+              Add Material
+            </button>
+          </div>
 
-        <div className={cn(styles["form-field-container"])}>
-          <label className={styles["label"]}>Quantity</label>
-          <input
-            className={cn(
-              styles["input"],
-              quantity > 0 && styles["input-filled"]
-            )}
-            placeholder="Enter quantity"
-            type="number"
-            value={quantity || ""}
-            onChange={(e) => setQuantity(Number(e.target.value))}
-            onKeyDown={(e) => handleKeyDown(e, "quantity")}
-            onBlur={() => handleBlur("quantity")}
-            disabled={!activeField.quantity}
-            min="1"
-          />
-        </div>
+          {orderDetails.map((detail, index) => (
+            <div
+              key={index}
+              className="p-4 border border-gray-200 rounded-lg space-y-4"
+            >
+              <div className="flex justify-between items-center">
+                <span className="font-medium">Material {index + 1}</span>
+                {orderDetails.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveOrderDetail(index)}
+                    className="text-red-500 hover:text-red-600"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
 
-        <div className={cn(styles["form-field-container"])}>
-          <label className={styles["label"]}>Purchase Order Number</label>
-          <input
-            className={cn(styles["input"], poNumber && styles["input-filled"])}
-            placeholder="PO Format: YY-MM-DD-A-RS"
-            type="text"
-            value={poNumber}
-            onChange={(e) => setPoNumber(e.target.value)}
-            onKeyDown={(e) => handleKeyDown(e, "poNumber")}
-            disabled={!activeField.poNumber}
-          />
+              <div className={cn(styles["form-field-container"])}>
+                <label className={styles["label"]}>Material</label>
+                <Dropdown
+                  value={detail.material}
+                  onValueChange={(value) =>
+                    handleOrderDetailChange(index, "material", value)
+                  }
+                  options={materialSuggestions}
+                  placeholder="Enter material name"
+                  onInputChange={fetchMaterialSuggestions}
+                  disabled={false}
+                  heading="Materials"
+                  emptyMessage={
+                    isLoadingMaterials ? "Loading..." : "No materials found."
+                  }
+                />
+              </div>
+
+              <div className={cn(styles["form-field-container"])}>
+                <label className={styles["label"]}>Drum Quantity</label>
+                <input
+                  className={cn(
+                    styles["input"],
+                    detail.drum_quantity > 0 && styles["input-filled"]
+                  )}
+                  placeholder="Enter quantity"
+                  type="number"
+                  value={detail.drum_quantity}
+                  onChange={(e) =>
+                    handleOrderDetailChange(
+                      index,
+                      "drum_quantity",
+                      parseInt(e.target.value) || 0
+                    )
+                  }
+                  min="1"
+                />
+              </div>
+            </div>
+          ))}
         </div>
 
         <button
           className={cn(
             styles["button"],
-            isSubmitting && "opacity-50 cursor-not-allowed"
+            isSubmitting && "opacity-50 cursor-not-allowed",
+            "mt-8"
           )}
           onClick={handleSubmit}
-          disabled={!material || !supplier || quantity <= 0 || isSubmitting}
+          disabled={isSubmitting}
         >
           {isSubmitting ? (
             <>
@@ -331,3 +297,20 @@ export const CreateForm = ({
     </div>
   );
 };
+
+/**
+ * Testing with Postman
+To test this function in Postman:
+URL Structure:
+123
+Where 123 is the drum ID you want to generate a label for.
+Response:
+The function returns a PDF file directly in the response body
+Content-Type will be application/pdf
+Postman will display the PDF in its preview window or offer to download it
+Postman won't open a browser - it will display the PDF in its own viewer or let you save it. The Content-Disposition: inline header tells clients to display the PDF rather than download it, but how this is handled depends on the client.
+To properly view the PDF, you can:
+Use Postman's visualizer
+Save the response to a file
+Copy the request URL to a browser, which will display the PDF directly
+ */

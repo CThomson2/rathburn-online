@@ -13,19 +13,24 @@
 "use client";
 
 import { useState } from "react";
-import { Order } from "@/types/models";
+import { StockOrderFormValues } from "@/types/models";
 import { CreateForm, DrumLabel } from "@/features/orders/components";
 import { cn } from "@/utils/cn";
 import { CheckCircle2, Loader2 } from "lucide-react";
 
-// import { Form } from "@/components/shared/form";
+interface OrderResponse {
+  order_id: number;
+  supplier_id: number;
+  po_number: string;
+  date_ordered: string;
+}
 
-// Form values match the expected POST request body shape
-interface FormValues {
-  material: string;
-  supplier: string;
-  quantity: number;
-  po_number: string | null;
+interface OrderDetailResponse {
+  detail_id: number;
+  order_id: number;
+  material_id: number;
+  material_description: string;
+  drum_quantity: number;
 }
 
 /**
@@ -37,17 +42,20 @@ interface FormValues {
  * @returns {JSX.Element} The rendered OrderCreationPage component
  */
 function OrderCreationPage(): JSX.Element {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<OrderResponse[]>([]);
+  const [orderDetails, setOrderDetails] = useState<OrderDetailResponse[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   /**
    * Handles the creation of a new order by submitting form data to the API.
    *
-   * @param {FormValues} formValues - The form values containing order details
+   * @param {StockOrderFormValues} formValues - The form values containing order details
    * @returns {Promise<void>}
    */
-  const handleCreateOrder = async (formValues: FormValues): Promise<void> => {
+  const handleCreateOrder = async (
+    formValues: StockOrderFormValues
+  ): Promise<void> => {
     try {
       setError(null);
       setIsGenerating(true);
@@ -66,6 +74,10 @@ function OrderCreationPage(): JSX.Element {
 
       if (data.success) {
         setOrders((prevOrders) => [data.order, ...prevOrders]);
+        setOrderDetails((prevDetails) => [
+          ...data.orderDetails,
+          ...prevDetails,
+        ]);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -143,7 +155,17 @@ function OrderCreationPage(): JSX.Element {
 
                       {/* Order Details and Actions */}
                       <div className="p-8">
-                        <DrumLabel order={order} onError={setError} />
+                        {orderDetails
+                          .filter(
+                            (detail) => detail.order_id === order.order_id
+                          )
+                          .map((detail) => (
+                            <DrumLabel
+                              key={detail.detail_id}
+                              orderDetail={detail}
+                              onError={setError}
+                            />
+                          ))}
                       </div>
                     </div>
                   </div>

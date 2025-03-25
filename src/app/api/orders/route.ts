@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { queries as q } from "@/database/models/orders/queries";
 import { withDatabase, DATABASE_ROUTE_CONFIG } from "@/database";
 import { PrismaClientKnownRequestError } from "/prisma/generated/client/runtime/library";
+import { StockOrderFormValues } from "@/types/models";
 
 // Force dynamic rendering and no caching for this database-dependent route
 export const dynamic = DATABASE_ROUTE_CONFIG.dynamic;
@@ -72,34 +73,126 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     // Parse request body
-    const body = await req.json();
-    const { material, supplier, quantity, po_number = null } = body;
+    const body: StockOrderFormValues = await req.json();
+    const { supplier, po_number, date_ordered, orderDetails } = body;
 
     console.log(
-      `[API] Creating new order: ${material} from ${supplier}, quantity: ${quantity}`
+      `[API] Creating new order with ${orderDetails.length} materials from ${supplier}`
     );
 
     // Use withDatabase to create a new order
-    const newOrder = await withDatabase(async (db) => {
-      return db.orders.create({
-        data: {
-          supplier,
-          material,
-          quantity,
-          po_number, // Only include po_number if it exists
+    const result = await withDatabase(async (db) => {
+      // First, find the supplier_id
+      const supplierRecord = await db.suppliers.findFirst({
+        where: {
+          supplier_name: supplier,
+        },
+        select: {
+          supplier_id: true,
         },
       });
+
+      if (!supplierRecord) {
+        throw new Error(`Supplier "${supplier}" not found`);
+      }
+
+      // Create the stock_order record
+      const newOrder = await db.$queryRaw<
+        Array<{
+          order_id: number;
+          po_number: string;
+          date_ordered: Date;
+          supplier_id: number;
+          notes: string | null;
+        }>
+      >`
+        INSERT INTO "inventory"."stock_orders" ("po_number", "date_ordered", "supplier_id")
+        VALUES (${po_number}, ${new Date(date_ordered)}, ${
+        supplierRecord.supplier_id
+      })
+        RETURNING "order_id", "po_number", "date_ordered", "supplier_id", "notes";
+      `;
+
+      // Extract order_id from the result
+      const order_id = newOrder[0].order_id;
+
+      // Create stock_order_details records for each material
+      const orderDetailsPromises = orderDetails.map(async (detail) => {
+        // Find material_id
+        const materialRecord = await db.raw_materials.findFirst({
+          where: {
+            material_name: detail.material,
+          },
+          select: {
+            material_id: true,
+          },
+        });
+
+        if (!materialRecord) {
+          throw new Error(`Material "${detail.material}" not found`);
+        }
+
+        // Create stock_order_details record using raw SQL
+        const orderDetailResult = await db.$queryRaw<
+          Array<{
+            detail_id: number;
+            order_id: number;
+            material_description: string;
+            drum_quantity: number;
+            status: string;
+          }>
+        >`
+          INSERT INTO "inventory"."stock_order_details" 
+          ("order_id", "material_description", "drum_quantity", "status")
+          VALUES (
+            ${order_id}, 
+
+            ${detail.material}, 
+            ${detail.drum_quantity}, 
+            'en route'
+          )
+          RETURNING "detail_id", "order_id", "material_id", "material_description", "drum_quantity", "status";
+        `;
+
+        // Fetch the stock_drums records that were automatically created by the database trigger
+        // The trigger creates drum_quantity records in stock_drums with order_detail_id set to the new detail_id
+        const newStockDrums = await db.stock_drums.findMany({
+          where: {
+            order_detail_id: orderDetailResult[0].detail_id,
+          },
+        });
+
+        console.log(
+          `[API] Found ${newStockDrums.length} auto-generated stock_drums records for detail_id ${orderDetailResult[0].detail_id}`
+        );
+
+        return {
+          detail: orderDetailResult[0],
+          material: detail.material,
+          drum_quantity: detail.drum_quantity,
+          drums: newStockDrums,
+        };
+      });
+
+      // Wait for all order details to be created
+      const createdOrderDetails = await Promise.all(orderDetailsPromises);
+
+      return {
+        order: newOrder[0],
+        orderDetails: createdOrderDetails,
+      };
     });
 
     console.log(
-      `[API] Successfully created order with ID: ${newOrder.order_id}`
+      `[API] Successfully created order with ID: ${result.order.order_id}`
     );
 
     // Return the combined data in JSON
     return NextResponse.json(
       {
         success: true,
-        order: newOrder, // the order data
+        order: result.order,
+        orderDetails: result.orderDetails,
       },
       { status: 200 }
     );
@@ -107,7 +200,6 @@ export async function POST(req: Request) {
     console.error("[API] Error creating order:", error);
 
     if (error instanceof PrismaClientKnownRequestError) {
-      // PostgreSQL error messages are in error.message
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
@@ -121,6 +213,7 @@ export async function POST(req: Request) {
     );
   }
 }
+
 /**
  * OPTIONS handler for CORS preflight requests
  */

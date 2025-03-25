@@ -100,3 +100,33 @@ FOREIGN KEY (stock_id) REFERENCES inventory.stock_repro(stock_id) ON DELETE CASC
 ALTER TABLE inventory.stock_drums
 ADD CONSTRAINT check_stock_repro_reference
 CHECK (drum_type != 'repro' OR stock_id IN (SELECT stock_id FROM inventory.stock_repro));
+
+CREATE OR REPLACE FUNCTION inventory.set_material_id()
+RETURNS TRIGGER AS
+$$ 
+BEGIN
+    NEW.material_id := (
+        SELECT material_id 
+        FROM public.raw_materials rm 
+        WHERE rm.material_name = NEW.material_description
+    );
+    
+    -- If no matching material found, use the 'UNKNOWN' material_id
+    IF NEW.material_id IS NULL THEN
+        NEW.material_id := (
+            SELECT material_id 
+            FROM public.raw_materials 
+            WHERE material_name = 'UNKNOWN'
+        );
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER set_material_id_trigger
+BEFORE INSERT ON inventory.stock_drums
+FOR EACH ROW
+EXECUTE FUNCTION inventory.set_material_id();
+
+
