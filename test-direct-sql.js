@@ -1,10 +1,9 @@
 const { PrismaClient } = require("./prisma/generated/client");
 
-
 async function testDirectSql() {
   const prisma = new PrismaClient();
 
-    const today = new Date().toISOString()
+  const today = new Date().toISOString();
   // Mock request data
   const mockOrderData = {
     supplier: "Kimia",
@@ -72,7 +71,7 @@ async function testDirectSql() {
       console.log("Creating stock_order_details record with raw SQL...");
       const createDetailSql = `
         INSERT INTO "inventory"."stock_order_details" 
-        ("order_id", "material_id", "material_description", "drum_quantity", "status")
+        ("order_id", "material_id", "material_name", "drum_quantity", "status")
         VALUES (
           ${newOrder.order_id}, 
           ${materialRecord.material_id}, 
@@ -80,7 +79,7 @@ async function testDirectSql() {
           ${detail.drum_quantity}, 
           'en route'
         )
-        RETURNING "detail_id", "order_id", "material_id", "material_description", "drum_quantity", "status";
+        RETURNING "detail_id", "order_id", "material_id", "material_name", "drum_quantity", "status";
       `;
 
       const [orderDetail] = await prisma.$queryRawUnsafe(createDetailSql);

@@ -12,6 +12,7 @@ node_modules
 /.next/
 /out/
 .next
+next.config.mjs
 
 # Production
 /build

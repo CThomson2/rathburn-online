@@ -89,6 +89,7 @@ export async function POST(req: Request) {
         },
         select: {
           supplier_id: true,
+          supplier_name: true,
         },
       });
 
@@ -145,7 +146,7 @@ export async function POST(req: Request) {
         console.log(`[API] Inserting stock_order_details with values:`, {
           order_id,
           material_id: materialRecord.material_id,
-          material_description: detail.material,
+          material_name: detail.material,
           drum_quantity: detail.drum_quantity,
         });
 
@@ -155,13 +156,13 @@ export async function POST(req: Request) {
             detail_id: number;
             order_id: number;
             material_id: number;
-            material_description: string;
+            material_name: string;
             drum_quantity: number;
             status: string;
           }>
         >`
           INSERT INTO "inventory"."stock_order_details" 
-          ("order_id", "material_id", "material_description", "drum_quantity", "status")
+          ("order_id", "material_id", "material_name", "drum_quantity", "status")
           VALUES (
             ${order_id}, 
             ${materialRecord.material_id},
@@ -169,7 +170,7 @@ export async function POST(req: Request) {
             ${detail.drum_quantity}, 
             'en route'
           )
-          RETURNING "detail_id", "order_id", "material_id", "material_description", "drum_quantity", "status";
+          RETURNING "detail_id", "order_id", "material_id", "material_name", "drum_quantity", "status";
         `;
 
         console.log(`[API] Created stock_order_detail:`, orderDetailResult[0]);
@@ -233,6 +234,7 @@ export async function POST(req: Request) {
       return {
         order: newOrder[0],
         orderDetails: createdOrderDetails,
+        supplier: supplierRecord,
       };
     });
 
@@ -246,6 +248,7 @@ export async function POST(req: Request) {
         success: true,
         order: result.order,
         orderDetails: result.orderDetails,
+        supplier: result.supplier,
       },
       { status: 200 }
     );

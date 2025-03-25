@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { FileDown, Loader2 } from "lucide-react";
 
@@ -6,7 +8,7 @@ interface OrderDetailResponse {
     detail_id: number;
     order_id: number;
     material_id: number;
-    material_description: string;
+    material_name: string;
     drum_quantity: number;
     status: string;
   };
@@ -18,11 +20,13 @@ interface OrderDetailResponse {
 interface DrumLabelProps {
   orderDetail: OrderDetailResponse;
   onError: (error: string) => void;
+  supplierName: string;
 }
 
 export const DrumLabel: React.FC<DrumLabelProps> = ({
   orderDetail,
   onError,
+  supplierName,
 }) => {
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -82,8 +86,12 @@ export const DrumLabel: React.FC<DrumLabelProps> = ({
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
-            <p className="text-slate-400 text-sm">Detail ID</p>
+            <p className="text-slate-400 text-sm">Order ID</p>
             <p className="text-xl font-semibold text-white">{detail_id}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-slate-400 text-sm">Supplier</p>
+            <p className="text-xl font-semibold text-white">{supplierName}</p>
           </div>
           <div className="space-y-1">
             <p className="text-slate-400 text-sm">Material</p>
@@ -92,10 +100,6 @@ export const DrumLabel: React.FC<DrumLabelProps> = ({
           <div className="space-y-1">
             <p className="text-slate-400 text-sm">Drum Quantity</p>
             <p className="text-xl font-semibold text-white">{drum_quantity}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-slate-400 text-sm">Generated Drums</p>
-            <p className="text-xl font-semibold text-white">{drums.length}</p>
           </div>
         </div>
       </div>

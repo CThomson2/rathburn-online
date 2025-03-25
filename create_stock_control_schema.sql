@@ -108,7 +108,7 @@ BEGIN
     NEW.material_id := (
         SELECT material_id 
         FROM public.raw_materials rm 
-        WHERE rm.material_name = NEW.material_description
+        WHERE rm.material_name = NEW.material_name
     );
     
     -- If no matching material found, use the 'UNKNOWN' material_id

@@ -25,12 +25,13 @@ interface OrderResponse {
   date_ordered: string;
 }
 
+// Update interface to match what DrumLabel expects
 interface OrderDetailResponse {
   detail: {
     detail_id: number;
     order_id: number;
     material_id: number;
-    material_description: string;
+    material_name: string;
     drum_quantity: number;
     status: string;
   };
@@ -52,6 +53,7 @@ function OrderCreationPage(): JSX.Element {
   const [orderDetails, setOrderDetails] = useState<OrderDetailResponse[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [suppliers, setSuppliers] = useState<Record<number, string>>({});
 
   /**
    * Handles the creation of a new order by submitting form data to the API.
@@ -73,6 +75,7 @@ function OrderCreationPage(): JSX.Element {
       });
 
       const data = await res.json();
+      console.log("API Response:", data); // Debug: log the API response
 
       if (!res.ok) {
         throw new Error(data.error || "Failed to create order");
@@ -81,8 +84,18 @@ function OrderCreationPage(): JSX.Element {
       if (data.success) {
         setOrders((prevOrders) => [data.order, ...prevOrders]);
 
-        // Handle the orderDetails with the new structure
+        // Store the supplier name by supplier_id for later retrieval
+        if (data.supplier) {
+          setSuppliers((prev) => ({
+            ...prev,
+            [data.supplier.supplier_id]: data.supplier.supplier_name,
+          }));
+        }
+
+        // The API returns data.orderDetails which already has the structure we need
         const newOrderDetails = data.orderDetails || [];
+        console.log("Order details:", newOrderDetails); // Debug: log the order details
+
         setOrderDetails((prevDetails) => [...newOrderDetails, ...prevDetails]);
       }
     } catch (err) {
@@ -160,44 +173,20 @@ function OrderCreationPage(): JSX.Element {
                       </div>
 
                       {/* Order Details and Actions */}
-                      <div className="p-8 space-y-8">
-                        <div className="space-y-2">
-                          <h4 className="text-white text-lg font-semibold">
-                            Order #{order.order_id}
-                          </h4>
-                          <p className="text-slate-400">
-                            PO Number: {order.po_number}
-                          </p>
-                          <p className="text-slate-400">
-                            Date:{" "}
-                            {new Date(order.date_ordered).toLocaleDateString()}
-                          </p>
-                        </div>
-
-                        {/* Material Details Section */}
-                        <div className="space-y-4">
-                          <h4 className="text-white font-medium">
-                            Materials & Barcode Labels
-                          </h4>
-                          <div className="space-y-6 divide-y divide-slate-700">
-                            {orderDetails
-                              .filter(
-                                (detail) =>
-                                  detail.detail.order_id === order.order_id
-                              )
-                              .map((detail) => (
-                                <div
-                                  key={detail.detail.detail_id}
-                                  className="pt-6 first:pt-0"
-                                >
-                                  <DrumLabel
-                                    orderDetail={detail}
-                                    onError={handleError}
-                                  />
-                                </div>
-                              ))}
-                          </div>
-                        </div>
+                      <div className="p-8">
+                        {orderDetails
+                          .filter(
+                            (detail) =>
+                              detail.detail.order_id === order.order_id
+                          )
+                          .map((detail) => (
+                            <DrumLabel
+                              key={detail.detail.detail_id}
+                              orderDetail={detail}
+                              onError={handleError}
+                              supplierName={suppliers[order.supplier_id] || ""}
+                            />
+                          ))}
                       </div>
                     </div>
                   </div>

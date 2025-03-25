@@ -75,7 +75,7 @@ async function testOrderCreation() {
           data: {
             order_id: newOrder.order_id,
             material_id: materialRecord.material_id,
-            material_description: detail.material,
+            material_name: detail.material,
             drum_quantity: detail.drum_quantity,
             status: "en route", // Using the default value explicitly
           },
@@ -84,7 +84,7 @@ async function testOrderCreation() {
             detail_id: true,
             order_id: true,
             material_id: true,
-            material_description: true,
+            material_name: true,
             drum_quantity: true,
             status: true,
           },

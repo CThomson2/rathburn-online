@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 import styles from "./form.module.css";
 import { cn } from "@/utils/cn";
 import { Dropdown } from "./form/dropdown";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Plus, Trash2, Calendar } from "lucide-react";
 import { clientApi as api } from "@/lib/api-client/client";
 
 export const CreateForm = ({
@@ -16,6 +16,9 @@ export const CreateForm = ({
   // Form state
   const [supplier, setSupplier] = useState("");
   const [poNumber, setPoNumber] = useState("");
+  const [dateOrdered, setDateOrdered] = useState(
+    new Date().toISOString().split("T")[0]
+  ); // Default to today in YYYY-MM-DD format
   const [orderDetails, setOrderDetails] = useState<StockOrderDetailInput[]>([
     { material: "", drum_quantity: 1 },
   ]);
@@ -116,6 +119,7 @@ export const CreateForm = ({
 
   const resetForm = useCallback(() => {
     setSupplier("");
+    setDateOrdered(new Date().toISOString().split("T")[0]);
     setOrderDetails([{ material: "", drum_quantity: 1 }]);
   }, []);
 
@@ -123,6 +127,7 @@ export const CreateForm = ({
     if (
       !supplier ||
       !poNumber ||
+      !dateOrdered ||
       orderDetails.some(
         (detail) => !detail.material || detail.drum_quantity < 1
       )
@@ -134,10 +139,13 @@ export const CreateForm = ({
     setIsSubmitting(true);
 
     try {
+      // Format date properly for API submission
+      const formattedDate = new Date(dateOrdered).toISOString();
+
       onOrderCreated({
         supplier,
         po_number: poNumber,
-        date_ordered: new Date().toISOString(),
+        date_ordered: formattedDate,
         order_details: orderDetails,
       });
 
@@ -173,7 +181,9 @@ export const CreateForm = ({
             <label className={styles["label"]}>Supplier</label>
             <Dropdown
               value={supplier}
-              onValueChange={setSupplier}
+              onValueChange={(value) => {
+                setSupplier(value);
+              }}
               options={supplierSuggestions}
               placeholder="Enter supplier name"
               onInputChange={fetchSupplierSuggestions}
@@ -198,6 +208,24 @@ export const CreateForm = ({
               onChange={(e) => setPoNumber(e.target.value)}
               disabled={false}
             />
+          </div>
+
+          <div className={cn(styles["form-field-container"])}>
+            <label className={styles["label"]}>Order Date</label>
+            <div className="relative">
+              <input
+                className={cn(
+                  styles["input"],
+                  dateOrdered && styles["input-filled"]
+                )}
+                placeholder="YYYY-MM-DD"
+                type="date"
+                value={dateOrdered}
+                onChange={(e) => setDateOrdered(e.target.value)}
+                disabled={false}
+              />
+              <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none w-5 h-5" />
+            </div>
           </div>
         </div>
 
