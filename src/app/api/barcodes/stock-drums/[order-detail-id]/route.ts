@@ -12,6 +12,9 @@ export const fetchCache = DATABASE_ROUTE_CONFIG.fetchCache;
 // For convenience, helper to convert inches to PDF points (72pt = 1in)
 const inchesToPoints = (inches: number) => Math.floor(inches * 72);
 
+// Global margin offset to prevent content from being cut off during printing
+const margin = 15; // 15 points margin (about 0.2 inches)
+
 export async function GET(
   req: Request,
   {
@@ -226,14 +229,14 @@ export async function GET(
 
           // Position barcode in the center of the page, below the header
           const barcodeX = (page.getWidth() - barcodeWidth) / 2; // Center horizontally
-          const barcodeY = pageHeight * 0.35; // Position higher on the page
+          const barcodeY = pageHeight * 0.35 + margin; // Position higher on the page and offset up by margin
 
           // Draw the barcode image on the page with correct aspect ratio
           page.drawImage(barcodeImage, {
             x: barcodeX,
             y: barcodeY,
             width: barcodeWidth,
-            height: barcodeHeight, // Preserve aspect ratio
+            height: barcodeHeight,
           });
         }
 
@@ -260,7 +263,7 @@ export async function GET(
 
           page.drawImage(logoImage, {
             x: 10,
-            y: page.getHeight() - 40,
+            y: page.getHeight() - (40 + margin), // Offset down by margin
             width: logoWidth,
             height: logoHeight,
           });
@@ -268,7 +271,7 @@ export async function GET(
           // Fallback to text if image is unavailable
           page.drawText("RATHBURN CHEMICALS", {
             x: 10,
-            y: page.getHeight() - 35,
+            y: page.getHeight() - (35 + margin), // Offset down by margin
             size: 14,
             font: fontBold,
           });
@@ -276,8 +279,8 @@ export async function GET(
 
         // Draw bottom border
         page.drawLine({
-          start: { x: 0, y: page.getHeight() - 35 },
-          end: { x: page.getWidth(), y: page.getHeight() - 35 },
+          start: { x: 0, y: page.getHeight() - (35 + margin) },
+          end: { x: page.getWidth(), y: page.getHeight() - (35 + margin) },
           thickness: 1,
           color: rgb(0, 0, 0),
         });
@@ -293,24 +296,24 @@ export async function GET(
           .padStart(2, "0")}:${now.getSeconds().toString().padStart(2, "0")}`;
         const timeWidth = font.widthOfTextAtSize(timeStr, 8);
         page.drawText(timeStr, {
-          x: page.getWidth() - timeWidth - 10, // 10 points from right edge
-          y: page.getHeight() - 15, // 15 points from top
+          x: page.getWidth() - timeWidth - 10,
+          y: page.getHeight() - (15 + margin), // Offset down by margin
           size: 8,
           font: font,
-          color: rgb(0.5, 0.5, 0.5), // Gray color for development note
+          color: rgb(0.5, 0.5, 0.5),
         });
 
         // Draw large material text in header section
         page.drawText(material?.material_name.toUpperCase() || "", {
           x: page.getWidth() / 2,
-          y: page.getHeight() - 25,
+          y: page.getHeight() - (25 + margin), // Offset down by margin
           size: 14,
           font: fontBold,
         });
 
         // Position values for QR code and frame
         const qrX = page.getWidth() - 110;
-        const qrY = page.getHeight() - 180;
+        const qrY = page.getHeight() - (180 + margin); // Offset down by margin
 
         // First draw the QR frame (if available)
         if (qrFrameImage && qrImage) {
@@ -380,7 +383,7 @@ export async function GET(
 
         // Draw left side information
         const leftColumnX = 20;
-        let currentY = page.getHeight() - 70;
+        let currentY = page.getHeight() - (70 + margin); // Offset down by margin
         const lineSpacing = 20;
 
         // Draw left column labels and values
@@ -388,7 +391,7 @@ export async function GET(
           { label: "Mfg :", value: supplier?.supplier_name || "N/A" },
           { label: "PO No. :", value: stockOrder?.po_number || "N/A" },
           { label: "Product :", value: `${material?.material_name}` },
-          { label: "Date :", value: new Date().toLocaleDateString() },
+          { label: "Date :", value: new Date().toLocaleDateString("en-GB") },
         ];
 
         leftColumnData.forEach(({ label, value }) => {
@@ -409,7 +412,7 @@ export async function GET(
 
         // Draw additional information (Unit, Weight, Volume) to the right
         const rightColumnX = page.getWidth() / 2;
-        currentY = page.getHeight() - 70;
+        currentY = page.getHeight() - (70 + margin); // Offset down by margin
 
         const additionalInfo = [
           // Dynamic Unit value based on drum position and total drums
