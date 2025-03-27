@@ -98,24 +98,13 @@ export async function POST(req: Request) {
       }
 
       // Create the stock_order record
-      const newOrder = await db.$queryRaw<
-        Array<{
-          order_id: number;
-          po_number: string;
-          date_ordered: Date;
-          supplier_id: number;
-          notes: string | null;
-        }>
-      >`
-        INSERT INTO "inventory"."stock_orders" ("po_number", "date_ordered", "supplier_id")
-        VALUES (${po_number}, ${new Date(date_ordered)}, ${
-        supplierRecord.supplier_id
-      })
-        RETURNING "order_id", "po_number", "date_ordered", "supplier_id", "notes";
-      `;
-
-      // Extract order_id from the result
-      const order_id = newOrder[0].order_id;
+      const stockOrder = await db.stock_orders.create({
+        data: {
+          po_number,
+          date_ordered: new Date(date_ordered),
+          supplier_id: supplierRecord.supplier_id,
+        },
+      });
 
       // Create stock_order_details records for each material
       const orderDetailsPromises = order_details.map(async (detail) => {
@@ -144,10 +133,11 @@ export async function POST(req: Request) {
 
         // Log the values we're about to insert
         console.log(`[API] Inserting stock_order_details with values:`, {
-          order_id,
+          order_id: stockOrder.order_id,
           material_id: materialRecord.material_id,
           material_name: detail.material,
           drum_quantity: detail.drum_quantity,
+          drum_weight: detail.drum_weight,
         });
 
         // Create stock_order_details record using raw SQL
@@ -162,13 +152,13 @@ export async function POST(req: Request) {
           }>
         >`
           INSERT INTO "inventory"."stock_order_details" 
-          ("order_id", "material_id", "material_name", "drum_quantity", "status")
+          ("order_id", "material_name", "drum_quantity", "status", "drum_weight")
           VALUES (
-            ${order_id}, 
-            ${materialRecord.material_id},
+            ${stockOrder.order_id}, 
             ${detail.material}, 
             ${detail.drum_quantity}, 
-            'en route'
+            'en route',
+            ${detail.drum_weight || null}
           )
           RETURNING "detail_id", "order_id", "material_id", "material_name", "drum_quantity", "status";
         `;
@@ -204,27 +194,9 @@ export async function POST(req: Request) {
             drum_quantity: detail.drum_quantity,
             drums: relatedStockDrums,
           };
-        } catch (findDrumsError) {
-          console.error("[API] Error finding stock_drums:", findDrumsError);
-
-          // Fallback: Try raw SQL as a last resort
-          console.log("[API] Attempting raw SQL query as fallback...");
-          const fallbackDrums = await db.$queryRaw`
-            SELECT * FROM "inventory"."stock_drums" 
-            WHERE "order_detail_id" = ${orderDetailResult[0].detail_id}
-          `;
-          console.log(
-            `[API] Found ${
-              Array.isArray(fallbackDrums) ? fallbackDrums.length : 0
-            } drums using raw SQL`
-          );
-
-          return {
-            detail: orderDetailResult[0],
-            material: detail.material,
-            drum_quantity: detail.drum_quantity,
-            drums: Array.isArray(fallbackDrums) ? fallbackDrums : [],
-          };
+        } catch (error) {
+          console.error("[API] Error fetching related stock_drums:", error);
+          throw error;
         }
       });
 
@@ -232,7 +204,7 @@ export async function POST(req: Request) {
       const createdOrderDetails = await Promise.all(orderDetailsPromises);
 
       return {
-        order: newOrder[0],
+        order: stockOrder,
         orderDetails: createdOrderDetails,
         supplier: supplierRecord,
       };
@@ -270,6 +242,90 @@ export async function POST(req: Request) {
   }
 }
 
+export async function PUT(req: Request) {
+  try {
+    // Parse request body
+    const body = await req.json();
+    const { order_id, supplier, po_number, date_ordered, ...otherData } = body;
+
+    // Verify the order exists
+    const order = await withDatabase(async (db) => {
+      const existingOrder = await db.stock_orders.findUnique({
+        where: { order_id: Number(order_id) }
+      });
+      
+      if (!existingOrder) {
+        return null;
+      }
+
+      // Update the order
+      return await db.stock_orders.update({
+        where: { order_id: Number(order_id) },
+        data: {
+          po_number,
+          date_ordered: date_ordered ? new Date(date_ordered) : undefined,
+          ...otherData
+        }
+      });
+    });
+
+    if (!order) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Order updated successfully', order }, { status: 200 });
+  } catch (error) {
+    console.error("[API] Error updating order:", error);
+    return NextResponse.json(
+      { error: "Failed to update order", details: error instanceof Error ? error.message : String(error) },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    // Get order_id from URL params
+    const { searchParams } = new URL(req.url);
+    const order_id = searchParams.get("order_id");
+
+    if (!order_id) {
+      return NextResponse.json({ error: "Missing order_id parameter" }, { status: 400 });
+    }
+
+    const result = await withDatabase(async (db) => {
+      // Verify the order exists
+      const existingOrder = await db.stock_orders.findUnique({
+        where: { order_id: Number(order_id) }
+      });
+      
+      if (!existingOrder) {
+        return null;
+      }
+
+      // Delete the order
+      return await db.stock_orders.delete({
+        where: { order_id: Number(order_id) }
+      });
+    });
+
+    if (!result) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(
+      { message: 'Order deleted successfully', order: result },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("[API] Error deleting order:", error);
+    return NextResponse.json(
+      { error: "Failed to delete order", details: error instanceof Error ? error.message : String(error) },
+      { status: 500 }
+    );
+  }
+}
+
 /**
  * OPTIONS handler for CORS preflight requests
  */
@@ -278,7 +334,7 @@ export async function OPTIONS(req: Request) {
     status: 204,
     headers: {
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization",
       "Access-Control-Max-Age": "86400",
     },

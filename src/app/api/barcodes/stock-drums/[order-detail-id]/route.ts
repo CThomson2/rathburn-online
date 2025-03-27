@@ -50,36 +50,32 @@ export async function GET(
         where: {
           order_id: orderDetails.order_id,
         },
-        include: {
-          stock_order_details: true,
+        select: {
+          order_id: true,
+          po_number: true,
+          date_ordered: true,
         },
       });
 
-      // 2. Get the supplier information
-      const supplier = await db.suppliers.findUnique({
-        where: { supplier_id: stockOrder?.supplier_id },
-      });
+      if (!stockOrder) {
+        return NextResponse.json(
+          { error: `Stock order not found for detail ${detailId}` },
+          { status: 404 }
+        );
+      }
+
       const material = await db.raw_materials.findUnique({
         where: { material_id: orderDetails.material_id },
+        select: {
+          material_id: true,
+          material_name: true,
+          material_code: true,
+        },
       });
 
-      // 1. Fetch drum records and associated details from the database.
-      // Adjust the query to include joins for supplier, material, etc.
+      // 1. Fetch drum records for this order detail
       const drums = await db.stock_drums.findMany({
         where: { order_detail_id: Number(detailId) },
-        include: {
-          // stock_order_details: true,
-          stock_order_details: {
-            include: {
-              raw_materials: true,
-              stock_orders: {
-                include: {
-                  suppliers: true,
-                },
-              },
-            },
-          },
-        },
       });
 
       if (!drums.length) {
@@ -88,34 +84,6 @@ export async function GET(
           { status: 404 }
         );
       }
-
-      // const material =
-      //   drums[0].stock_order_details.raw_materials?.material_name;
-      // const supplier =
-      //   drums[0].stock_order_details.stock_orders.suppliers.supplier_name;
-      // Attempt to find the material code, but handle case where material doesn't exist
-      // let materialCode = material?.material_code;
-      // try {
-      //   const materialRecord = await db.raw_materials.findFirst({
-      //     where: {
-      //       material_name: material?.material_name,
-      //     },
-      //     select: {
-      //       material_code: true,
-      //     },
-      //   });
-
-      // Only assign materialCode if the record was found
-      // if (material && materialRecord.material_code) {
-      //   materialCode = materialRecord.material_code;
-      // }
-      // } catch (error) {
-      //   console.error(
-      //     `Error: no database record exists for material "${material}"`,
-      //     error
-      //   );
-      //   // Continue execution with default materialCode
-      // }
 
       // Create QR code for the drum info URL
       const qrCodeUrl = `http://localhost/drums/info/${drums[0].drum_id}`;
@@ -241,8 +209,7 @@ export async function GET(
         }
 
         // Add additional label text (e.g., supplier, material, etc.).
-        const supplierName = supplier?.supplier_name || "Unknown Supplier";
-        const materialName = material?.material_name || "Unknown Material";
+        const supplierName = "Rathburn Chemicals Ltd";
 
         // Draw header section - using lines instead of rectangle for borders
         // Draw right border
@@ -388,9 +355,9 @@ export async function GET(
 
         // Draw left column labels and values
         const leftColumnData = [
-          { label: "Mfg :", value: supplier?.supplier_name || "N/A" },
+          { label: "Mfg :", value: "Rathburn Chemicals Ltd" },
           { label: "PO No. :", value: stockOrder?.po_number || "N/A" },
-          { label: "Product :", value: `${material?.material_name}` },
+          { label: "Product :", value: material?.material_name || "N/A" },
           { label: "Date :", value: new Date().toLocaleDateString("en-GB") },
         ];
 
