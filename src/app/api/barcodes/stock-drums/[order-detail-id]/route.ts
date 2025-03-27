@@ -12,6 +12,9 @@ export const fetchCache = DATABASE_ROUTE_CONFIG.fetchCache;
 // For convenience, helper to convert inches to PDF points (72pt = 1in)
 const inchesToPoints = (inches: number) => Math.floor(inches * 72);
 
+// Global margin offset to prevent content from being cut off during printing
+const margin = 15; // 15 points margin (about 0.2 inches)
+
 export async function GET(
   req: Request,
   {
@@ -47,36 +50,32 @@ export async function GET(
         where: {
           order_id: orderDetails.order_id,
         },
-        include: {
-          stock_order_details: true,
+        select: {
+          order_id: true,
+          po_number: true,
+          date_ordered: true,
         },
       });
 
-      // 2. Get the supplier information
-      const supplier = await db.suppliers.findUnique({
-        where: { supplier_id: stockOrder?.supplier_id },
-      });
+      if (!stockOrder) {
+        return NextResponse.json(
+          { error: `Stock order not found for detail ${detailId}` },
+          { status: 404 }
+        );
+      }
+
       const material = await db.raw_materials.findUnique({
         where: { material_id: orderDetails.material_id },
+        select: {
+          material_id: true,
+          material_name: true,
+          material_code: true,
+        },
       });
 
-      // 1. Fetch drum records and associated details from the database.
-      // Adjust the query to include joins for supplier, material, etc.
+      // 1. Fetch drum records for this order detail
       const drums = await db.stock_drums.findMany({
         where: { order_detail_id: Number(detailId) },
-        include: {
-          // stock_order_details: true,
-          stock_order_details: {
-            include: {
-              raw_materials: true,
-              stock_orders: {
-                include: {
-                  suppliers: true,
-                },
-              },
-            },
-          },
-        },
       });
 
       if (!drums.length) {
@@ -85,34 +84,6 @@ export async function GET(
           { status: 404 }
         );
       }
-
-      // const material =
-      //   drums[0].stock_order_details.raw_materials?.material_name;
-      // const supplier =
-      //   drums[0].stock_order_details.stock_orders.suppliers.supplier_name;
-      // Attempt to find the material code, but handle case where material doesn't exist
-      // let materialCode = material?.material_code;
-      // try {
-      //   const materialRecord = await db.raw_materials.findFirst({
-      //     where: {
-      //       material_name: material?.material_name,
-      //     },
-      //     select: {
-      //       material_code: true,
-      //     },
-      //   });
-
-      // Only assign materialCode if the record was found
-      // if (material && materialRecord.material_code) {
-      //   materialCode = materialRecord.material_code;
-      // }
-      // } catch (error) {
-      //   console.error(
-      //     `Error: no database record exists for material "${material}"`,
-      //     error
-      //   );
-      //   // Continue execution with default materialCode
-      // }
 
       // Create QR code for the drum info URL
       const qrCodeUrl = `http://localhost/drums/info/${drums[0].drum_id}`;
@@ -226,20 +197,19 @@ export async function GET(
 
           // Position barcode in the center of the page, below the header
           const barcodeX = (page.getWidth() - barcodeWidth) / 2; // Center horizontally
-          const barcodeY = pageHeight * 0.35; // Position higher on the page
+          const barcodeY = pageHeight * 0.35 + margin; // Position higher on the page and offset up by margin
 
           // Draw the barcode image on the page with correct aspect ratio
           page.drawImage(barcodeImage, {
             x: barcodeX,
             y: barcodeY,
             width: barcodeWidth,
-            height: barcodeHeight, // Preserve aspect ratio
+            height: barcodeHeight,
           });
         }
 
         // Add additional label text (e.g., supplier, material, etc.).
-        const supplierName = supplier?.supplier_name || "Unknown Supplier";
-        const materialName = material?.material_name || "Unknown Material";
+        const supplierName = "Rathburn Chemicals Ltd";
 
         // Draw header section - using lines instead of rectangle for borders
         // Draw right border
@@ -260,7 +230,7 @@ export async function GET(
 
           page.drawImage(logoImage, {
             x: 10,
-            y: page.getHeight() - 40,
+            y: page.getHeight() - (40 + margin), // Offset down by margin
             width: logoWidth,
             height: logoHeight,
           });
@@ -268,7 +238,7 @@ export async function GET(
           // Fallback to text if image is unavailable
           page.drawText("RATHBURN CHEMICALS", {
             x: 10,
-            y: page.getHeight() - 35,
+            y: page.getHeight() - (35 + margin), // Offset down by margin
             size: 14,
             font: fontBold,
           });
@@ -276,8 +246,8 @@ export async function GET(
 
         // Draw bottom border
         page.drawLine({
-          start: { x: 0, y: page.getHeight() - 35 },
-          end: { x: page.getWidth(), y: page.getHeight() - 35 },
+          start: { x: 0, y: page.getHeight() - (35 + margin) },
+          end: { x: page.getWidth(), y: page.getHeight() - (35 + margin) },
           thickness: 1,
           color: rgb(0, 0, 0),
         });
@@ -293,24 +263,24 @@ export async function GET(
           .padStart(2, "0")}:${now.getSeconds().toString().padStart(2, "0")}`;
         const timeWidth = font.widthOfTextAtSize(timeStr, 8);
         page.drawText(timeStr, {
-          x: page.getWidth() - timeWidth - 10, // 10 points from right edge
-          y: page.getHeight() - 15, // 15 points from top
+          x: page.getWidth() - timeWidth - 10,
+          y: page.getHeight() - (15 + margin), // Offset down by margin
           size: 8,
           font: font,
-          color: rgb(0.5, 0.5, 0.5), // Gray color for development note
+          color: rgb(0.5, 0.5, 0.5),
         });
 
         // Draw large material text in header section
         page.drawText(material?.material_name.toUpperCase() || "", {
           x: page.getWidth() / 2,
-          y: page.getHeight() - 25,
+          y: page.getHeight() - (25 + margin), // Offset down by margin
           size: 14,
           font: fontBold,
         });
 
         // Position values for QR code and frame
         const qrX = page.getWidth() - 110;
-        const qrY = page.getHeight() - 180;
+        const qrY = page.getHeight() - (180 + margin); // Offset down by margin
 
         // First draw the QR frame (if available)
         if (qrFrameImage && qrImage) {
@@ -380,15 +350,15 @@ export async function GET(
 
         // Draw left side information
         const leftColumnX = 20;
-        let currentY = page.getHeight() - 70;
+        let currentY = page.getHeight() - (70 + margin); // Offset down by margin
         const lineSpacing = 20;
 
         // Draw left column labels and values
         const leftColumnData = [
-          { label: "Mfg :", value: supplier?.supplier_name || "N/A" },
+          { label: "Mfg :", value: "Rathburn Chemicals Ltd" },
           { label: "PO No. :", value: stockOrder?.po_number || "N/A" },
-          { label: "Product :", value: `${material?.material_name}` },
-          { label: "Date :", value: new Date().toLocaleDateString() },
+          { label: "Product :", value: material?.material_name || "N/A" },
+          { label: "Date :", value: new Date().toLocaleDateString("en-GB") },
         ];
 
         leftColumnData.forEach(({ label, value }) => {
@@ -409,7 +379,7 @@ export async function GET(
 
         // Draw additional information (Unit, Weight, Volume) to the right
         const rightColumnX = page.getWidth() / 2;
-        currentY = page.getHeight() - 70;
+        currentY = page.getHeight() - (70 + margin); // Offset down by margin
 
         const additionalInfo = [
           // Dynamic Unit value based on drum position and total drums

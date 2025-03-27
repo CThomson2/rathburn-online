@@ -58,6 +58,9 @@ model raw_materials {
   un_code                                                          String?               @db.Char(4)
   flash_point                                                      Int?
   material_code                                                    String                @default("___") @db.VarChar(4)
+  drum_weight                                                      Decimal?              @db.Decimal(5, 2)
+  drum_volume                                                      Int                   @default(200)
+  chemical_props                                                   Json?
   stock_new                                                        stock_new[]
   stock_order_details                                              stock_order_details[]
   stock_repro                                                      stock_repro[]
@@ -686,7 +689,8 @@ model stock_orders {
   supplier_id         Int
   eta                 Unsupported("daterange")?
   notes               String?
-  supplier            String?
+  created_at          DateTime?                 @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime?                 @default(now()) @db.Timestamptz(6)
   stock_order_details stock_order_details[]
   suppliers           suppliers                 @relation(fields: [supplier_id], references: [supplier_id], onUpdate: NoAction)
 

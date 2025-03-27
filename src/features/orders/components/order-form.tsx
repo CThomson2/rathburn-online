@@ -20,7 +20,7 @@ export const CreateForm = ({
     new Date().toISOString().split("T")[0]
   ); // Default to today in YYYY-MM-DD format
   const [orderDetails, setOrderDetails] = useState<StockOrderDetailInput[]>([
-    { material: "", drum_quantity: 1 },
+    { material: "", drum_quantity: 1, drum_weight: undefined },
   ]);
 
   // Suggestions state
@@ -97,7 +97,10 @@ export const CreateForm = ({
   }, []);
 
   const handleAddOrderDetail = () => {
-    setOrderDetails([...orderDetails, { material: "", drum_quantity: 1 }]);
+    setOrderDetails([
+      ...orderDetails,
+      { material: "", drum_quantity: 1, drum_weight: undefined },
+    ]);
   };
 
   const handleRemoveOrderDetail = (index: number) => {
@@ -120,7 +123,9 @@ export const CreateForm = ({
   const resetForm = useCallback(() => {
     setSupplier("");
     setDateOrdered(new Date().toISOString().split("T")[0]);
-    setOrderDetails([{ material: "", drum_quantity: 1 }]);
+    setOrderDetails([
+      { material: "", drum_quantity: 1, drum_weight: undefined },
+    ]);
   }, []);
 
   const handleSubmit = async () => {
@@ -299,10 +304,38 @@ export const CreateForm = ({
                   min="1"
                 />
               </div>
+
+              <div className={cn(styles["form-field-container"])}>
+                <label className={styles["label"]}>
+                  Drum Weight (kg)
+                  <span className="text-slate-400 text-sm ml-2">
+                    (Optional)
+                  </span>
+                </label>
+                <input
+                  className={cn(
+                    styles["input"],
+                    detail.drum_weight && styles["input-filled"]
+                  )}
+                  placeholder="Enter weight in kg"
+                  type="number"
+                  value={detail.drum_weight || ""}
+                  onChange={(e) =>
+                    handleOrderDetailChange(
+                      index,
+                      "drum_weight",
+                      e.target.value ? parseFloat(e.target.value) : ""
+                    )
+                  }
+                  min="0"
+                  step="0.1"
+                />
+              </div>
             </div>
           ))}
         </div>
 
+        {/* Submit Button */}
         <button
           className={cn(
             styles["button"],

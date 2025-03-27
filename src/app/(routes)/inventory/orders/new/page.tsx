@@ -53,6 +53,7 @@ function OrderCreationPage(): JSX.Element {
   const [orderDetails, setOrderDetails] = useState<OrderDetailResponse[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isPrinted, setIsPrinted] = useState<number[]>([]);
   const [suppliers, setSuppliers] = useState<Record<number, string>>({});
 
   /**
@@ -115,6 +116,16 @@ function OrderCreationPage(): JSX.Element {
     setError(error);
   };
 
+  /**
+   * Handles the printing of a barcode label.
+   * Updates the printed state for the specific detail_id.
+   *
+   * @param {number} detail_id - The ID of the detail that was printed
+   */
+  const handlePrinted = (detail_id: number) => {
+    setIsPrinted((prev) => [...prev, detail_id]);
+  };
+
   return (
     <div className="min-h-screen flex">
       {error && (
@@ -132,7 +143,7 @@ function OrderCreationPage(): JSX.Element {
         </div>
 
         {/* Right section - Always visible with bg-slate-700 */}
-        <div className="flex-1 bg-slate-700 min-w-[500px]">
+        <div className="flex-1 bg-slate-700 min-w-[500px] mr-4">
           <div className="h-full flex flex-col">
             <h2 className="text-2xl font-bold p-6 text-white border-b border-slate-600">
               Barcode Labels
@@ -164,16 +175,8 @@ function OrderCreationPage(): JSX.Element {
                     }}
                   >
                     <div className="bg-slate-800 rounded-lg shadow-xl overflow-hidden">
-                      {/* Success Banner */}
-                      <div className="bg-green-500/10 border-b border-green-500/20 px-8 py-4 flex items-center gap-3">
-                        <CheckCircle2 className="text-green-500 w-6 h-6" />
-                        <h3 className="text-lg font-semibold text-green-500">
-                          Order Created Successfully
-                        </h3>
-                      </div>
-
                       {/* Order Details and Actions */}
-                      <div className="p-8">
+                      <div className="p-8 space-y-6">
                         {orderDetails
                           .filter(
                             (detail) =>
@@ -184,7 +187,11 @@ function OrderCreationPage(): JSX.Element {
                               key={detail.detail.detail_id}
                               orderDetail={detail}
                               onError={handleError}
+                              onPrinted={handlePrinted}
                               supplierName={suppliers[order.supplier_id] || ""}
+                              isPrinted={isPrinted.includes(
+                                detail.detail.detail_id
+                              )}
                             />
                           ))}
                       </div>

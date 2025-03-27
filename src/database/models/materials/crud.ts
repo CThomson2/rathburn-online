@@ -12,7 +12,10 @@ export const materialsCrud = {
   create: async (data: t.MaterialPostParams): Promise<t.Material> => {
     return withDatabase((db) =>
       db.raw_materials.create({
-        data,
+        data: {
+          ...data,
+          chemical_props: data.chemical_props || undefined,
+        },
       })
     );
   },
