@@ -2,7 +2,7 @@
 
 import { Layout, Star } from "lucide-react";
 import { useDashboard } from "@/context";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 /**
  * ViewToggle component provides a segmented control for switching between 'all widgets' and 'favorites' views.

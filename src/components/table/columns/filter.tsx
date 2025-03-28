@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 interface StatusFilterProps {
   selectedStatuses: DrumStatus.Type[];

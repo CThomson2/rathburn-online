@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 // Import utility functions and types
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 import { ChevronDown, FilterIcon, SearchIcon } from "lucide-react";
 import { FilterOption } from "@/types/models";
 

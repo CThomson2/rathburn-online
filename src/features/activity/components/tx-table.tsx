@@ -16,7 +16,7 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { TableHeader, TableFooter } from "@/components/table";
 import { SearchBar } from "@/components/table/columns/search";
 import type { Transaction } from "@/types/models";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 const ROW_HEIGHT = 30; // Adjust this value as needed
 

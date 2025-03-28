@@ -2,7 +2,7 @@
 
 import { BaseWidget } from "../base-widget";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 /**
  * Props for individual stat items displayed in the StatsWidget

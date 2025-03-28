@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import type { Order } from "@/types/models";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface GridModalProps {

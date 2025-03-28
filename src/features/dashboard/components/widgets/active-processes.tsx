@@ -2,7 +2,7 @@
 
 import { BaseWidget } from "../base-widget";
 import { Clock, CheckCircle2, AlertCircle } from "lucide-react";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 /**
  * Represents a production activity item with status, description and timing

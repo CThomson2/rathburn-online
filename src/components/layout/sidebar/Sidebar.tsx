@@ -3,7 +3,7 @@
 import { useState, useEffect, Fragment } from "react"; // should imports be unused?? Sidebar uses state management for togglng
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
 import { useSidebar } from "@/utils/use-sidebar";
 

@@ -15,7 +15,7 @@
 import { useState } from "react";
 import { StockOrderFormValues } from "@/types/models";
 import { CreateForm, DrumLabel } from "@/features/orders/components";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 import { CheckCircle2, Loader2 } from "lucide-react";
 
 interface OrderResponse {

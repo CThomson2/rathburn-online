@@ -16,7 +16,7 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { TableHeader, TableFooter } from "@/components/table";
 import { SearchBar } from "@/components/table/columns/search";
 import { DrumStatus } from "@/types/models/drums/constant";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 import type { DrumsResponse } from "@/types/models";
 
 // Filter options for the search bar dropdown

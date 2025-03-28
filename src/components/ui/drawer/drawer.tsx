@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 const Drawer = DrawerPrimitive.Root;
 

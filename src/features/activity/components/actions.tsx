@@ -47,7 +47,7 @@ import type {
   TransactionIntake,
   TransactionProcessed,
 } from "@/types/models";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 type ActionType = "view" | "edit" | "assign" | null;
 

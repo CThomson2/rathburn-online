@@ -1,7 +1,7 @@
 "use client";
 
 import { Star } from "lucide-react";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 import { useDashboard } from "@/context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSortable } from "@dnd-kit/sortable";

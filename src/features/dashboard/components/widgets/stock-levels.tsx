@@ -11,7 +11,7 @@ import {
   Cell,
 } from "recharts";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 import { useInventoryOverview } from "../../hooks/use-overview";
 
 interface StockLevelsProps {
@@ -152,8 +152,8 @@ export function StockLevelsWidget({ id }: StockLevelsProps) {
                           entry.netChange > 0
                             ? "var(--primary)"
                             : entry.netChange < 0
-                            ? "var(--destructive)"
-                            : "var(--muted)"
+                              ? "var(--destructive)"
+                              : "var(--muted)"
                         }
                       />
                     ))}

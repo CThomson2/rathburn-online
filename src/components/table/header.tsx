@@ -4,7 +4,7 @@ import {
   TableHeader as ShadTableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 /**
  * TableHeader Component
