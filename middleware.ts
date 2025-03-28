@@ -72,6 +72,6 @@ export const config = {
      * 4. /_vercel (Vercel internals)
      * 5. /favicon.ico, /robots.txt, etc.
      */
-    "/((?!_next/|_static/|_vercel/|favicon.ico|robots.txt).*)",
+    "/((?!_next/static|_next/image|favicon.ico|public).*)",
   ],
 };
