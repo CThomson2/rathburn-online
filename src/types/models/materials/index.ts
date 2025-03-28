@@ -1,5 +1,5 @@
 import { ChemicalGroup } from "./constant";
-import { Prisma } from "/prisma/generated/client";
+import { Prisma } from "@prisma-client/index";
 
 // Base type directly from Prisma schema
 export type MaterialBase = Prisma.raw_materialsGetPayload<{}>;

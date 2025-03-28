@@ -6,7 +6,7 @@ import type {
   Order,
 } from "@/types/models";
 import { OrderStatus, OrderETAStatus } from "@/types/models/orders/constant";
-import { Prisma } from "/prisma/generated/client";
+import { Prisma } from "@prisma-client/index";
 
 export const queries = {
   /**

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { queries as q } from "@/database/models/orders/queries";
 import { withDatabase, DATABASE_ROUTE_CONFIG } from "@/database";
-import { PrismaClientKnownRequestError } from "/prisma/generated/client/runtime/library";
+import { PrismaClientKnownRequestError } from "@prisma-client/runtime/library";
 import { StockOrderFormValues } from "@/types/models";
 
 // Force dynamic rendering and no caching for this database-dependent route

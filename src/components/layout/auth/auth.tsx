@@ -2,33 +2,19 @@
 import { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import SupabaseLogo from "@/components/layout/supabase-logo";
 import { cn } from "@/lib/utils";
 
 export function AuthLayoutContent({ children }: { children: ReactNode }) {
   return (
     <div className="fixed inset-0 flex">
       {/* Left section with background */}
-      <div className="hidden lg:block lg:w-[60%] xl:w-[65%] bg-gradient-to-br from-blue-600 to-blue-800">
-        {/* Background image */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-black/20 z-10" />{" "}
-          {/* Darkening overlay */}
-          {/* <Image
-            src="/images/auth-bg.jpeg"
-            alt="Background"
-            fill
-            className="object-cover opacity-50"
-            priority
-            onError={(e) => {
-              // If image fails to load, we'll still have the gradient background
-              const target = e.target as HTMLElement;
-              target.style.display = "none";
-            }}
-          /> */}
-        </div>
+      <div className="hidden lg:block lg:w-[60%] xl:w-[65%] relative bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800">
+        {/* Background overlay with blur */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.1),transparent)] backdrop-blur-[2px]" />
 
         {/* Dot pattern overlay */}
-        <div className="absolute inset-0 pointer-events-none z-20">
+        <div className="absolute inset-0 pointer-events-none mt-16">
           <div className="absolute left-8 top-8 grid grid-cols-6 gap-2">
             {[...Array(36)].map((_, i) => (
               <div key={i} className="w-2 h-2 rounded-full bg-white/20" />
@@ -41,17 +27,21 @@ export function AuthLayoutContent({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        {/* Left section content */}
-        <div className="relative z-30 flex flex-col justify-between h-full p-12 text-white">
-          <div>
-            <h1 className="text-5xl font-bold tracking-tight">
-              Inventory Management System
+        {/* Left section content - Centered */}
+        <div className="relative h-full flex items-center">
+          <div className="px-32">
+            <h1 className="text-6xl font-bold tracking-tight text-white mb-12">
+              Inventory
+              <br />
+              Management
+              <br />
+              System
             </h1>
-            <div className="mt-6 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/10 rounded-lg">
+            <div className="space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/10 rounded-xl">
                   <svg
-                    className="w-6 h-6"
+                    className="w-7 h-7 text-white"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -59,12 +49,14 @@ export function AuthLayoutContent({ children }: { children: ReactNode }) {
                     <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
                   </svg>
                 </div>
-                <span className="text-lg font-medium">Data Analytics</span>
+                <span className="text-xl font-medium text-white">
+                  Data Analytics
+                </span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/10 rounded-lg">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/10 rounded-xl">
                   <svg
-                    className="w-6 h-6"
+                    className="w-7 h-7 text-white"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -76,12 +68,14 @@ export function AuthLayoutContent({ children }: { children: ReactNode }) {
                     />
                   </svg>
                 </div>
-                <span className="text-lg font-medium">Stock Management</span>
+                <span className="text-xl font-medium text-white">
+                  Stock Management
+                </span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/10 rounded-lg">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/10 rounded-xl">
                   <svg
-                    className="w-6 h-6"
+                    className="w-7 h-7 text-white"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -92,12 +86,14 @@ export function AuthLayoutContent({ children }: { children: ReactNode }) {
                     />
                   </svg>
                 </div>
-                <span className="text-lg font-medium">Order Tracking</span>
+                <span className="text-xl font-medium text-white">
+                  Order Tracking
+                </span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/10 rounded-lg">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/10 rounded-xl">
                   <svg
-                    className="w-6 h-6"
+                    className="w-7 h-7 text-white"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -108,30 +104,26 @@ export function AuthLayoutContent({ children }: { children: ReactNode }) {
                     />
                   </svg>
                 </div>
-                <span className="text-lg font-medium">Real-time Updates</span>
+                <span className="text-xl font-medium text-white">
+                  Real-time Updates
+                </span>
               </div>
             </div>
           </div>
-          <div className="text-sm text-white/60">
-            © 2024 Rathburn. All rights reserved.
-          </div>
+        </div>
+
+        {/* Copyright - Absolute positioned at bottom */}
+        <div className="absolute bottom-8 left-16 text-sm text-white/60">
+          © 2024 Rathburn. All rights reserved.
         </div>
       </div>
 
       {/* Right section with form */}
       <div className="w-full lg:w-[40%] xl:w-[35%] bg-background flex items-center justify-center p-8">
         <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <Link href="/" className="inline-block">
-              <Image
-                src="/svg/rc-logo-b.png"
-                alt="Company Logo"
-                width={48}
-                height={48}
-                className="mx-auto dark:invert"
-              />
-            </Link>
-          </div>
+          {/* <div className="w-full h-12 mb-12">
+            <SupabaseLogo />
+          </div> */}
           <div className="space-y-6">{children}</div>
         </div>
       </div>
