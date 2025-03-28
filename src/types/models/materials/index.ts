@@ -1,5 +1,5 @@
 import { ChemicalGroup } from "./constant";
-import { Prisma } from "/prisma/generated/client";
+import { Prisma } from "@prisma-client/index";
 
 // Base type directly from Prisma schema
 export type MaterialBase = Prisma.raw_materialsGetPayload<{}>;
@@ -37,7 +37,7 @@ export type UNDigits = `${number}${number}${number}${number}`;
 export type UNCode = `UN${UNDigits}` | `un${UNDigits}` | `Un${UNDigits}`;
 
 // Types for API operations
-export type MaterialPostParams = Omit<Material, "id">;
+export type MaterialPostParams = Omit<Material, "material_id">;
 export type MaterialUpdateParams = Partial<Material>;
 export type MaterialDeleteParams = Pick<Material, "material_id">; // Development only
 

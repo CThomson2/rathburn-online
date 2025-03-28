@@ -8,16 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { getMoreActivity } from "../../../actions/activity";
-
-// Define the transaction type based on your Prisma schema
-interface Transaction {
-  tx_id: number;
-  tx_type: string;
-  tx_date: Date;
-  material: string;
-  direction?: string;
-  // Add other fields as needed
-}
+import { Transaction } from "@/types/models/activity";
 
 interface ActivityFeedProps {
   initialData: Transaction[];
@@ -160,8 +151,8 @@ export function ActivityFeed({ initialData, initialTotal }: ActivityFeedProps) {
                     tx.direction === "IN"
                       ? "bg-green-100 dark:bg-green-900/20"
                       : tx.direction === "OUT"
-                      ? "bg-amber-100 dark:bg-amber-900/20"
-                      : "bg-muted"
+                        ? "bg-amber-100 dark:bg-amber-900/20"
+                        : "bg-muted"
                   }`}
                 >
                   {getTransactionIcon(tx)}

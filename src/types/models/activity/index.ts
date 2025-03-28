@@ -1,4 +1,4 @@
-import { Prisma } from "/prisma/generated/client";
+import { Prisma } from "@prisma-client/index";
 import { TransactionVariant } from "./constant";
 import { PrismaTransactions } from "../base";
 

@@ -1,22 +1,41 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextRequest } from 'next/server'
+import { updateSession } from '@/utils/supabase/middleware'
 
-export function middleware(request: NextRequest) {
-  // Clone the request headers
-  const requestHeaders = new Headers(request.headers);
+// Define public routes that don't require authentication
+const publicRoutes = ['/sign-in', '/sign-up', '/forgot-password']
 
-  // Add the full URL to the headers to access query parameters in layouts
-  requestHeaders.set("x-url", request.url);
+export async function middleware(request: NextRequest) {
+  const { response, session } = await updateSession(request)
+  const pathname = request.nextUrl.pathname
 
-  // Create new response with the modified headers
-  return NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
+  // Check if the current route is an auth route
+  const isAuthRoute = publicRoutes.includes(pathname)
+
+  // If on auth route and logged in, redirect to dashboard
+  if (isAuthRoute && session) {
+    return Response.redirect(new URL("/dashboard", request.url))
+  }
+
+  // If on protected route and not logged in, redirect to sign-in
+  if (!isAuthRoute && !session) {
+    const redirectUrl = new URL("/sign-in", request.url)
+    redirectUrl.searchParams.set("redirectedFrom", pathname)
+    return Response.redirect(redirectUrl)
+  }
+
+  return response
 }
 
-// Only run middleware on mobile routes
+// Specify which routes should use the middleware
 export const config = {
-  matcher: ["/mobile/:path*"],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder
+     */
+    '/((?!_next/static|_next/image|favicon.ico|public).*)',
+  ],
 };

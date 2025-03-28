@@ -3,7 +3,7 @@
  * Using these types ensures our model types stay in sync with the database schema.
  */
 
-import { Prisma } from "/prisma/generated/client";
+import { Prisma } from "@prisma-client/index";
 
 // Re-export Prisma namespace for advanced type operations
 export { Prisma };

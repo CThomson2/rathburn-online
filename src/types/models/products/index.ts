@@ -1,4 +1,4 @@
-import { Prisma } from "/prisma/generated/client";
+import { Prisma } from "@prisma-client/index";
 import { Decimal } from "@prisma/client/runtime/library";
 
 // Base type directly from Prisma schema

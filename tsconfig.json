@@ -21,7 +21,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "/*": ["./*"]
+      "public/*": ["./public/*"],
+      "@prisma-client/*": ["./prisma/generated/client/*"],
+      "@config/*": ["./config/*"]
     },
     "types": ["node", "jest"]
   },

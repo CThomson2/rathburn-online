@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withDatabase, DATABASE_ROUTE_CONFIG } from "@/database";
-import { PrismaClientKnownRequestError } from "/prisma/generated/client/runtime/library";
+import { PrismaClientKnownRequestError } from "@prisma-client/runtime/library";
 
 /**
  * POST handler for creating a new order

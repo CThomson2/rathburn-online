@@ -6,7 +6,7 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { paths } from "../../../config/paths";
+import { paths } from "@config/paths";
 
 /**
  * SecurityGate component
