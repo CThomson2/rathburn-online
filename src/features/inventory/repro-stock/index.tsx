@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -52,7 +52,7 @@ export function ReproStockTable({ data }: ReproStockTableProps) {
   const [selectedMaterials, setSelectedMaterials] = useState<string[]>([]);
 
   // Define columns with material filter
-  const columns = React.useMemo(
+  const columns = useMemo(
     () =>
       createColumns({
         materialOptions,
@@ -63,7 +63,7 @@ export function ReproStockTable({ data }: ReproStockTableProps) {
   );
 
   // Filter data by selected materials
-  const filteredData = React.useMemo(() => {
+  const filteredData = useMemo(() => {
     return selectedMaterials.length > 0
       ? data.filter((item) => selectedMaterials.includes(item.material))
       : data;

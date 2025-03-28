@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react"; // should imports be unused?? Sidebar uses state management for togglng
+import { useState, useEffect, Fragment } from "react"; // should imports be unused?? Sidebar uses state management for togglng
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Fragment } from "react";
 import { cn } from "@/utils/cn";
 import { Plus } from "lucide-react";
 import { useSidebar } from "@/utils/use-sidebar";

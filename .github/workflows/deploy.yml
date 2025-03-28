@@ -11,6 +11,11 @@ jobs:
     env:
       AWS_INSTANCE_SG_ID: ${{ secrets.AWS_INSTANCE_SG_ID }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      SMTP_API_KEY: ${{ secrets.SMTP_API_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      NEXT_PRIVATE_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NEXT_PUBLIC_SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
     steps:
       # Set up repository and environment
       - name: Checkout repository

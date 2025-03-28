@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 
 interface SidebarContextType {
   isOpen: boolean;
@@ -15,7 +21,7 @@ const SidebarContext = createContext<SidebarContextType>({
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(true);
 
-  const toggle = () => setIsOpen(!isOpen);
+  const toggle = useCallback(() => setIsOpen(!isOpen), [isOpen]);
 
   useEffect(() => {
     const handleToggleSidebar = () => {
@@ -28,7 +34,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
     return () => {
       toggleBtn?.removeEventListener("click", handleToggleSidebar);
     };
-  }, []);
+  }, [toggle]);
 
   return (
     <SidebarContext.Provider value={{ isOpen, toggle }}>
