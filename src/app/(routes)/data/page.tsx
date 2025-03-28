@@ -1,10 +1,10 @@
 import {
   MetricCard,
   DrumStatusChart,
-  MaterialDistribution,
-} from "@/components/data-views";
+  // MaterialDistribution,
+} from "@/features/data-page";
 
-function DashboardPage() {
+export default function DashboardPage() {
   return (
     <div className="p-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
@@ -17,8 +17,8 @@ function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <DrumStatusChart data={drumData} />
-        <MaterialDistribution data={materialData} />
+        {/* <DrumStatusChart data={drumData} /> */}
+        {/* <MaterialDistribution data={materialData} /> */}
       </div>
     </div>
   );

@@ -15,7 +15,7 @@ interface DrumStatusChartProps {
  * @param {Array} data.value - The value of the drums
  * @returns {JSX.Element} The DrumStatusChart component
  */
-function DrumStatusChart({ data }: DrumStatusChartProps) {
+export function DrumStatusChart({ data }: DrumStatusChartProps) {
   return (
     <div className="bg-navy-800 rounded-lg p-6">
       <h3 className="text-white text-lg mb-4">Drum Status</h3>

@@ -14,6 +14,7 @@ export const canViewUsers = (user: User | null | undefined) => {
   return user?.role === "ADMIN";
 };
 
+
 export const canDeleteComment = (
   user: User | null | undefined,
   comment: Comment

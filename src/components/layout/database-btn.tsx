@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Database } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface DatabaseBtnProps {
   databasePath?: string;
@@ -23,22 +24,20 @@ export function DatabaseBtn({
   }
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <Button
-        variant="outline"
-        size="sm"
-        asChild
-        className="group relative overflow-hidden transition-all duration-300 hover:bg-accent/50 hover:shadow-md"
-      >
-        <Link href={`${databasePath}`} target="_blank">
-          <Database className="h-4 w-4 mr-1 transition-transform duration-300 group-hover:scale-110" />
-          <span className="relative">
-            Go to Database
-            <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-primary transition-all duration-300 group-hover:w-full" />
-          </span>
-        </Link>
-      </Button>
-    </div>
+    <Button
+      variant="ghost"
+      size="sm"
+      asChild
+      className={cn("group gap-2 hover:bg-transparent", className)}
+    >
+      <Link href={`${databasePath}`} target="_blank">
+        <Database className="h-4 w-4 transition-transform group-hover:scale-110" />
+        <span className="relative">
+          Database
+          <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-foreground transition-all duration-300 group-hover:w-full" />
+        </span>
+      </Link>
+    </Button>
   );
 }
 
