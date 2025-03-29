@@ -21,6 +21,11 @@ next.config.mjs
 /public/svg
 /public/diagrams
 /data/
+# Sentry
+.sentry/
+sentry.*.config.ts
+src/app/sentry-example*
+src/app/api/sentry-example*
 
 # SQL queries
 /database/sql/

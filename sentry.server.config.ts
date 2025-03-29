@@ -3,6 +3,7 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from "@sentry/nextjs";
+import { secondsInDay } from "date-fns/constants";
 
 Sentry.init({
   dsn: "https://57da6eeb902440ba586a6eda3cabfd18@o4508852211875840.ingest.de.sentry.io/4508852215873616",
